@@ -1,0 +1,4478 @@
+version: 1
+generated_at: 2025-09-18T17:27:01.377Z
+schemas:
+  - name: analytics
+    tables:
+      - name: mst_analytics_categories
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: character varying
+            required: true
+          - name: type
+            type: character varying
+            required: true
+          - name: color
+            type: character varying
+            required: false
+            default: "'#6B7280'::character varying"
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+        relations: []
+        indexes: []
+        trace: []
+      - name: mst_analytics_entry_types
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: character varying
+            required: true
+          - name: category
+            type: character varying
+            required: true
+          - name: color
+            type: character varying
+            required: false
+            default: "'#6B7280'::character varying"
+          - name: sort_order
+            type: integer
+            required: false
+            default: "0"
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+        relations: []
+        indexes: []
+        trace: []
+      - name: mst_analytics_stages
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: character varying
+            required: true
+          - name: color
+            type: character varying
+            required: false
+            default: "'#6B7280'::character varying"
+          - name: sort_order
+            type: integer
+            required: false
+            default: "0"
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+        relations: []
+        indexes: []
+        trace: []
+      - name: trn_analytic_entries
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: entry_date
+            type: date
+            required: true
+          - name: entry_number
+            type: character varying
+            required: false
+          - name: amount
+            type: numeric
+            required: true
+          - name: original_amount
+            type: numeric
+            required: false
+          - name: original_currency
+            type: character varying
+            required: false
+          - name: reference_id
+            type: uuid
+            required: true
+          - name: reference_model
+            type: character varying
+            required: true
+          - name: entry_type_id
+            type: uuid
+            required: true
+          - name: category_id
+            type: uuid
+            required: false
+          - name: stage_id
+            type: uuid
+            required: true
+          - name: workflow_id
+            type: uuid
+            required: false
+          - name: requires_approval
+            type: boolean
+            required: false
+            default: "false"
+          - name: description
+            type: text
+            required: true
+          - name: notes
+            type: text
+            required: false
+          - name: created_by
+            type: uuid
+            required: false
+          - name: approved_by
+            type: uuid
+            required: false
+          - name: approved_at
+            type: timestamp with time zone
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: category_id
+            to: analytics.mst_analytics_categories.id
+          - from: entry_type_id
+            to: analytics.mst_analytics_entry_types.id
+          - from: stage_id
+            to: analytics.mst_analytics_stages.id
+        indexes:
+          - name: idx_analytic_entries_date
+            unique: false
+            columns: "{entry_date}"
+          - name: idx_analytic_entries_reference
+            unique: false
+            columns: "{reference_model,reference_id}"
+          - name: idx_analytic_entries_stage
+            unique: false
+            columns: "{stage_id}"
+          - name: idx_analytic_entries_type
+            unique: false
+            columns: "{entry_type_id}"
+          - name: idx_trn_analytic_entries_category_id
+            unique: false
+            columns: "{category_id}"
+          - name: trn_analytic_entries_entry_number_key
+            unique: true
+            columns: "{entry_number}"
+        trace: []
+  - name: approval
+    tables:
+      - name: cfg_workflow_notifications
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: workflow_id
+            type: uuid
+            required: true
+          - name: stage_id
+            type: uuid
+            required: false
+          - name: notification_type
+            type: character varying
+            required: true
+          - name: recipient_role
+            type: character varying
+            required: false
+          - name: template_subject
+            type: text
+            required: false
+          - name: template_body
+            type: text
+            required: false
+          - name: timing
+            type: character varying
+            required: false
+            default: "'immediate'::character varying"
+          - name: delay_hours
+            type: integer
+            required: false
+            default: "0"
+          - name: channels
+            type: jsonb
+            required: false
+            default: "'[\"email\"]'::jsonb"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+        relations:
+          - from: stage_id
+            to: approval.mst_workflow_stages.id
+          - from: workflow_id
+            to: approval.mst_workflows.id
+        indexes:
+          - name: idx_cfg_workflow_notifications_stage
+            unique: false
+            columns: "{stage_id}"
+          - name: idx_cfg_workflow_notifications_type
+            unique: false
+            columns: "{notification_type}"
+          - name: idx_cfg_workflow_notifications_workflow
+            unique: false
+            columns: "{workflow_id}"
+          - name: idx_workflow_notifications_stage
+            unique: false
+            columns: "{stage_id}"
+          - name: idx_workflow_notifications_type
+            unique: false
+            columns: "{notification_type}"
+          - name: idx_workflow_notifications_workflow
+            unique: false
+            columns: "{workflow_id}"
+        trace: []
+      - name: log_workflow_approvals
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: entity_workflow_id
+            type: uuid
+            required: true
+          - name: stage_id
+            type: uuid
+            required: true
+          - name: approver_id
+            type: uuid
+            required: true
+          - name: decision
+            type: character varying
+            required: true
+          - name: decision_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: comments
+            type: text
+            required: false
+          - name: metadata
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+        relations:
+          - from: entity_workflow_id
+            to: approval.trn_entity_workflows.id
+          - from: stage_id
+            to: approval.mst_workflow_stages.id
+        indexes:
+          - name: idx_log_workflow_approvals_approver
+            unique: false
+            columns: "{approver_id}"
+          - name: idx_log_workflow_approvals_decision
+            unique: false
+            columns: "{decision}"
+          - name: idx_log_workflow_approvals_decision_at
+            unique: false
+            columns: "{decision_at}"
+          - name: idx_log_workflow_approvals_entity_workflow
+            unique: false
+            columns: "{entity_workflow_id}"
+          - name: idx_log_workflow_approvals_stage
+            unique: false
+            columns: "{stage_id}"
+          - name: idx_workflow_approvals_approver
+            unique: false
+            columns: "{approver_id}"
+          - name: idx_workflow_approvals_decision
+            unique: false
+            columns: "{decision}"
+          - name: idx_workflow_approvals_decision_at
+            unique: false
+            columns: "{decision_at}"
+          - name: idx_workflow_approvals_entity_workflow
+            unique: false
+            columns: "{entity_workflow_id}"
+          - name: idx_workflow_approvals_stage
+            unique: false
+            columns: "{stage_id}"
+        trace: []
+      - name: mst_workflow_stages
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: workflow_id
+            type: uuid
+            required: true
+          - name: stage_order
+            type: integer
+            required: true
+          - name: name
+            type: character varying
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: required_role
+            type: character varying
+            required: true
+          - name: approval_type
+            type: character varying
+            required: false
+            default: "'single'::character varying"
+          - name: timeout_hours
+            type: integer
+            required: false
+            default: "24"
+          - name: can_reject
+            type: boolean
+            required: false
+            default: "true"
+          - name: requires_comment_on_reject
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+        relations:
+          - from: workflow_id
+            to: approval.mst_workflows.id
+        indexes:
+          - name: idx_mst_workflow_stages_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_workflow_stages_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_workflow_stages_role
+            unique: false
+            columns: "{required_role}"
+          - name: idx_mst_workflow_stages_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_mst_workflow_stages_workflow
+            unique: false
+            columns: "{workflow_id}"
+          - name: idx_workflow_stages_role
+            unique: false
+            columns: "{required_role}"
+          - name: idx_workflow_stages_workflow
+            unique: false
+            columns: "{workflow_id}"
+          - name: uk_workflow_stage_order
+            unique: true
+            columns: "{workflow_id,stage_order}"
+        trace: []
+      - name: mst_workflows
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: character varying
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: icon
+            type: character varying
+            required: false
+          - name: entity_type
+            type: character varying
+            required: true
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: deleted_by
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_workflows_active
+            unique: false
+            columns: "{is_active}"
+          - name: idx_mst_workflows_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_workflows_entity_type
+            unique: false
+            columns: "{entity_type}"
+          - name: uk_workflow_name_entity
+            unique: true
+            columns: "{name,entity_type}"
+        trace: []
+      - name: trn_entity_workflows
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: entity_type
+            type: character varying
+            required: true
+          - name: entity_id
+            type: uuid
+            required: true
+          - name: workflow_id
+            type: uuid
+            required: true
+          - name: status
+            type: character varying
+            required: false
+            default: "'pending'::character varying"
+          - name: current_stage_id
+            type: uuid
+            required: false
+          - name: assigned_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: completed_at
+            type: timestamp with time zone
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: current_stage_id
+            to: approval.mst_workflow_stages.id
+          - from: workflow_id
+            to: approval.mst_workflows.id
+        indexes:
+          - name: idx_entity_workflows_current_stage
+            unique: false
+            columns: "{current_stage_id}"
+          - name: idx_entity_workflows_entity
+            unique: false
+            columns: "{entity_type,entity_id}"
+          - name: idx_entity_workflows_status
+            unique: false
+            columns: "{status}"
+          - name: idx_entity_workflows_workflow
+            unique: false
+            columns: "{workflow_id}"
+          - name: idx_trn_entity_workflows_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_entity_workflows_current_stage
+            unique: false
+            columns: "{current_stage_id}"
+          - name: idx_trn_entity_workflows_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_trn_entity_workflows_entity
+            unique: false
+            columns: "{entity_type,entity_id}"
+          - name: idx_trn_entity_workflows_status
+            unique: false
+            columns: "{status}"
+          - name: idx_trn_entity_workflows_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_trn_entity_workflows_workflow
+            unique: false
+            columns: "{workflow_id}"
+          - name: uk_entity_workflow_active
+            unique: true
+            columns: "{entity_type,entity_id}"
+        trace: []
+  - name: auth
+    tables:
+      - name: audit_log_entries
+        purpose: ""
+        columns:
+          - name: instance_id
+            type: uuid
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: payload
+            type: json
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: ip_address
+            type: character varying
+            required: true
+            default: "''::character varying"
+        relations: []
+        indexes:
+          - name: audit_logs_instance_id_idx
+            unique: false
+            columns: "{instance_id}"
+        trace: []
+      - name: flow_state
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: user_id
+            type: uuid
+            required: false
+          - name: auth_code
+            type: text
+            required: true
+          - name: code_challenge_method
+            type: USER-DEFINED
+            required: true
+          - name: code_challenge
+            type: text
+            required: true
+          - name: provider_type
+            type: text
+            required: true
+          - name: provider_access_token
+            type: text
+            required: false
+          - name: provider_refresh_token
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: authentication_method
+            type: text
+            required: true
+          - name: auth_code_issued_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: flow_state_created_at_idx
+            unique: false
+            columns: "{created_at}"
+          - name: idx_auth_code
+            unique: false
+            columns: "{auth_code}"
+          - name: idx_user_id_auth_method
+            unique: false
+            columns: "{user_id,authentication_method}"
+        trace: []
+      - name: identities
+        purpose: ""
+        columns:
+          - name: provider_id
+            type: text
+            required: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: identity_data
+            type: jsonb
+            required: true
+          - name: provider
+            type: text
+            required: true
+          - name: last_sign_in_at
+            type: timestamp with time zone
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: email
+            type: text
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+        relations: []
+        indexes:
+          - name: identities_email_idx
+            unique: false
+            columns: "{email}"
+          - name: identities_provider_id_provider_unique
+            unique: true
+            columns: "{provider_id,provider}"
+          - name: identities_user_id_idx
+            unique: false
+            columns: "{user_id}"
+        trace: []
+      - name: instances
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: uuid
+            type: uuid
+            required: false
+          - name: raw_base_config
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes: []
+        trace: []
+      - name: mfa_amr_claims
+        purpose: ""
+        columns:
+          - name: session_id
+            type: uuid
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+          - name: authentication_method
+            type: text
+            required: true
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+        relations: []
+        indexes:
+          - name: mfa_amr_claims_session_id_authentication_method_pkey
+            unique: true
+            columns: "{session_id,authentication_method}"
+        trace: []
+      - name: mfa_challenges
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: factor_id
+            type: uuid
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+          - name: verified_at
+            type: timestamp with time zone
+            required: false
+          - name: ip_address
+            type: inet
+            required: true
+          - name: otp_code
+            type: text
+            required: false
+          - name: web_authn_session_data
+            type: jsonb
+            required: false
+        relations: []
+        indexes:
+          - name: mfa_challenge_created_at_idx
+            unique: false
+            columns: "{created_at}"
+        trace: []
+      - name: mfa_factors
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: friendly_name
+            type: text
+            required: false
+          - name: factor_type
+            type: USER-DEFINED
+            required: true
+          - name: status
+            type: USER-DEFINED
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+          - name: secret
+            type: text
+            required: false
+          - name: phone
+            type: text
+            required: false
+          - name: last_challenged_at
+            type: timestamp with time zone
+            required: false
+          - name: web_authn_credential
+            type: jsonb
+            required: false
+          - name: web_authn_aaguid
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: factor_id_created_at_idx
+            unique: false
+            columns: "{user_id,created_at}"
+          - name: mfa_factors_last_challenged_at_key
+            unique: true
+            columns: "{last_challenged_at}"
+          - name: mfa_factors_user_friendly_name_unique
+            unique: true
+            columns: "{friendly_name,user_id}"
+          - name: mfa_factors_user_id_idx
+            unique: false
+            columns: "{user_id}"
+          - name: unique_phone_factor_per_user
+            unique: true
+            columns: "{user_id,phone}"
+        trace: []
+      - name: oauth_clients
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: client_id
+            type: text
+            required: true
+          - name: client_secret_hash
+            type: text
+            required: true
+          - name: registration_type
+            type: USER-DEFINED
+            required: true
+          - name: redirect_uris
+            type: text
+            required: true
+          - name: grant_types
+            type: text
+            required: true
+          - name: client_name
+            type: text
+            required: false
+          - name: client_uri
+            type: text
+            required: false
+          - name: logo_uri
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: oauth_clients_client_id_idx
+            unique: false
+            columns: "{client_id}"
+          - name: oauth_clients_client_id_key
+            unique: true
+            columns: "{client_id}"
+          - name: oauth_clients_deleted_at_idx
+            unique: false
+            columns: "{deleted_at}"
+        trace: []
+      - name: one_time_tokens
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: token_type
+            type: USER-DEFINED
+            required: true
+          - name: token_hash
+            type: text
+            required: true
+          - name: relates_to
+            type: text
+            required: true
+          - name: created_at
+            type: timestamp without time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp without time zone
+            required: true
+            default: now()
+        relations: []
+        indexes:
+          - name: one_time_tokens_relates_to_hash_idx
+            unique: false
+            columns: "{relates_to}"
+          - name: one_time_tokens_token_hash_hash_idx
+            unique: false
+            columns: "{token_hash}"
+          - name: one_time_tokens_user_id_token_type_key
+            unique: true
+            columns: "{user_id,token_type}"
+        trace: []
+      - name: refresh_tokens
+        purpose: ""
+        columns:
+          - name: instance_id
+            type: uuid
+            required: false
+          - name: id
+            type: bigint
+            required: true
+            default: nextval('auth.refresh_tokens_id_seq'::regclass)
+            pk: true
+          - name: token
+            type: character varying
+            required: false
+          - name: user_id
+            type: character varying
+            required: false
+          - name: revoked
+            type: boolean
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: parent
+            type: character varying
+            required: false
+          - name: session_id
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: refresh_tokens_instance_id_idx
+            unique: false
+            columns: "{instance_id}"
+          - name: refresh_tokens_instance_id_user_id_idx
+            unique: false
+            columns: "{instance_id,user_id}"
+          - name: refresh_tokens_parent_idx
+            unique: false
+            columns: "{parent}"
+          - name: refresh_tokens_session_id_revoked_idx
+            unique: false
+            columns: "{session_id,revoked}"
+          - name: refresh_tokens_token_unique
+            unique: true
+            columns: "{token}"
+          - name: refresh_tokens_updated_at_idx
+            unique: false
+            columns: "{updated_at}"
+        trace: []
+      - name: saml_providers
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: sso_provider_id
+            type: uuid
+            required: true
+          - name: entity_id
+            type: text
+            required: true
+          - name: metadata_xml
+            type: text
+            required: true
+          - name: metadata_url
+            type: text
+            required: false
+          - name: attribute_mapping
+            type: jsonb
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: name_id_format
+            type: text
+            required: false
+        relations: []
+        indexes:
+          - name: saml_providers_entity_id_key
+            unique: true
+            columns: "{entity_id}"
+          - name: saml_providers_sso_provider_id_idx
+            unique: false
+            columns: "{sso_provider_id}"
+        trace: []
+      - name: saml_relay_states
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: sso_provider_id
+            type: uuid
+            required: true
+          - name: request_id
+            type: text
+            required: true
+          - name: for_email
+            type: text
+            required: false
+          - name: redirect_to
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: flow_state_id
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: saml_relay_states_created_at_idx
+            unique: false
+            columns: "{created_at}"
+          - name: saml_relay_states_for_email_idx
+            unique: false
+            columns: "{for_email}"
+          - name: saml_relay_states_sso_provider_id_idx
+            unique: false
+            columns: "{sso_provider_id}"
+        trace: []
+      - name: schema_migrations
+        purpose: ""
+        columns:
+          - name: version
+            type: character varying
+            required: true
+            pk: true
+        relations: []
+        indexes: []
+        trace: []
+      - name: sessions
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: factor_id
+            type: uuid
+            required: false
+          - name: aal
+            type: USER-DEFINED
+            required: false
+          - name: not_after
+            type: timestamp with time zone
+            required: false
+          - name: refreshed_at
+            type: timestamp without time zone
+            required: false
+          - name: user_agent
+            type: text
+            required: false
+          - name: ip
+            type: inet
+            required: false
+          - name: tag
+            type: text
+            required: false
+        relations: []
+        indexes:
+          - name: sessions_not_after_idx
+            unique: false
+            columns: "{not_after}"
+          - name: sessions_user_id_idx
+            unique: false
+            columns: "{user_id}"
+          - name: user_id_created_at_idx
+            unique: false
+            columns: "{user_id,created_at}"
+        trace: []
+      - name: sso_domains
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: sso_provider_id
+            type: uuid
+            required: true
+          - name: domain
+            type: text
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: sso_domains_domain_idx
+            unique: true
+            columns: "{}"
+          - name: sso_domains_sso_provider_id_idx
+            unique: false
+            columns: "{sso_provider_id}"
+        trace: []
+      - name: sso_providers
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: resource_id
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: disabled
+            type: boolean
+            required: false
+        relations: []
+        indexes:
+          - name: sso_providers_resource_id_idx
+            unique: true
+            columns: "{}"
+          - name: sso_providers_resource_id_pattern_idx
+            unique: false
+            columns: "{resource_id}"
+        trace: []
+      - name: users
+        purpose: ""
+        columns:
+          - name: instance_id
+            type: uuid
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: aud
+            type: character varying
+            required: false
+          - name: role
+            type: character varying
+            required: false
+          - name: email
+            type: character varying
+            required: false
+          - name: encrypted_password
+            type: character varying
+            required: false
+          - name: email_confirmed_at
+            type: timestamp with time zone
+            required: false
+          - name: invited_at
+            type: timestamp with time zone
+            required: false
+          - name: confirmation_token
+            type: character varying
+            required: false
+          - name: confirmation_sent_at
+            type: timestamp with time zone
+            required: false
+          - name: recovery_token
+            type: character varying
+            required: false
+          - name: recovery_sent_at
+            type: timestamp with time zone
+            required: false
+          - name: email_change_token_new
+            type: character varying
+            required: false
+          - name: email_change
+            type: character varying
+            required: false
+          - name: email_change_sent_at
+            type: timestamp with time zone
+            required: false
+          - name: last_sign_in_at
+            type: timestamp with time zone
+            required: false
+          - name: raw_app_meta_data
+            type: jsonb
+            required: false
+          - name: raw_user_meta_data
+            type: jsonb
+            required: false
+          - name: is_super_admin
+            type: boolean
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+          - name: phone
+            type: text
+            required: false
+            default: NULL::character varying
+          - name: phone_confirmed_at
+            type: timestamp with time zone
+            required: false
+          - name: phone_change
+            type: text
+            required: false
+            default: "''::character varying"
+          - name: phone_change_token
+            type: character varying
+            required: false
+            default: "''::character varying"
+          - name: phone_change_sent_at
+            type: timestamp with time zone
+            required: false
+          - name: confirmed_at
+            type: timestamp with time zone
+            required: false
+          - name: email_change_token_current
+            type: character varying
+            required: false
+            default: "''::character varying"
+          - name: email_change_confirm_status
+            type: smallint
+            required: false
+            default: "0"
+          - name: banned_until
+            type: timestamp with time zone
+            required: false
+          - name: reauthentication_token
+            type: character varying
+            required: false
+            default: "''::character varying"
+          - name: reauthentication_sent_at
+            type: timestamp with time zone
+            required: false
+          - name: is_sso_user
+            type: boolean
+            required: true
+            default: "false"
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+          - name: is_anonymous
+            type: boolean
+            required: true
+            default: "false"
+        relations: []
+        indexes:
+          - name: confirmation_token_idx
+            unique: true
+            columns: "{confirmation_token}"
+          - name: email_change_token_current_idx
+            unique: true
+            columns: "{email_change_token_current}"
+          - name: email_change_token_new_idx
+            unique: true
+            columns: "{email_change_token_new}"
+          - name: reauthentication_token_idx
+            unique: true
+            columns: "{reauthentication_token}"
+          - name: recovery_token_idx
+            unique: true
+            columns: "{recovery_token}"
+          - name: users_email_partial_key
+            unique: true
+            columns: "{email}"
+          - name: users_instance_id_email_idx
+            unique: false
+            columns: "{instance_id}"
+          - name: users_instance_id_idx
+            unique: false
+            columns: "{instance_id}"
+          - name: users_is_anonymous_idx
+            unique: false
+            columns: "{is_anonymous}"
+          - name: users_phone_key
+            unique: true
+            columns: "{phone}"
+        trace: []
+  - name: base
+    tables:
+      - name: cfg_mui_theme
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: is_default
+            type: boolean
+            required: true
+            default: "false"
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: user_id
+            type: uuid
+            required: true
+            default: auth.uid()
+          - name: theme_options
+            type: jsonb
+            required: true
+        relations: []
+        indexes: []
+        trace: []
+      - name: cfg_table_routes
+        purpose: ""
+        columns:
+          - name: table_name
+            type: text
+            required: true
+          - name: route_path
+            type: text
+            required: true
+          - name: display_name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: is_active
+            type: boolean
+            required: true
+            default: "true"
+          - name: default_depth_level
+            type: integer
+            required: true
+            default: "0"
+          - name: max_depth_level
+            type: integer
+            required: true
+            default: "2"
+          - name: metadata
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: crud_operations
+            type: jsonb
+            required: true
+            default: "'{\"read\": true, \"create\": true, \"delete\": true, \"schema\":
+              true, \"update\": true}'::jsonb"
+        relations: []
+        indexes:
+          - name: cfg_table_routes_route_path_key
+            unique: true
+            columns: "{route_path}"
+          - name: cfg_table_routes_table_name_key
+            unique: true
+            columns: "{table_name}"
+        trace: []
+      - name: dat_permission
+        purpose: ""
+        columns:
+          - name: key
+            type: text
+            required: true
+          - name: label
+            type: text
+            required: true
+          - name: category
+            type: text
+            required: false
+          - name: route
+            type: text
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: type
+            type: text
+            required: false
+            default: "'view'::text"
+          - name: created_at
+            type: timestamp without time zone
+            required: false
+            default: now()
+        relations: []
+        indexes:
+          - name: dat_permission_key_key
+            unique: true
+            columns: "{key}"
+        trace: []
+      - name: dat_profile
+        purpose: ""
+        columns:
+          - name: user_id
+            type: uuid
+            required: false
+            default: auth.uid()
+          - name: id
+            type: bigint
+            required: true
+            pk: true
+          - name: name
+            type: text
+            required: false
+          - name: image
+            type: text
+            required: false
+          - name: description
+            type: text
+            required: false
+          - name: data
+            type: jsonb
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: contact_type
+            type: text
+            required: false
+          - name: company_name
+            type: text
+            required: false
+          - name: phone
+            type: text
+            required: false
+          - name: address
+            type: text
+            required: false
+          - name: sector
+            type: text
+            required: false
+          - name: country
+            type: text
+            required: false
+        relations: []
+        indexes: []
+        trace: []
+      - name: dat_role
+        purpose: ""
+        columns:
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: created_at
+            type: timestamp without time zone
+            required: false
+            default: now()
+          - name: code
+            type: text
+            required: false
+          - name: views
+            type: jsonb
+            required: false
+        relations: []
+        indexes:
+          - name: dat_role_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: dat_role_permission
+        purpose: ""
+        columns:
+          - name: role_id
+            type: uuid
+            required: false
+          - name: permission_id
+            type: uuid
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: granted
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp without time zone
+            required: false
+            default: now()
+        relations:
+          - from: permission_id
+            to: base.dat_permission.id
+          - from: role_id
+            to: base.dat_role.id
+        indexes:
+          - name: idx_dat_role_permission_permission_id
+            unique: false
+            columns: "{permission_id}"
+          - name: idx_dat_role_permission_role_id
+            unique: false
+            columns: "{role_id}"
+        trace: []
+      - name: log_api_requests
+        purpose: ""
+        columns:
+          - name: method
+            type: character varying
+            required: true
+          - name: endpoint
+            type: text
+            required: true
+          - name: full_url
+            type: text
+            required: false
+          - name: ip_address
+            type: inet
+            required: false
+          - name: user_agent
+            type: text
+            required: false
+          - name: request_headers
+            type: jsonb
+            required: false
+          - name: request_body
+            type: jsonb
+            required: false
+          - name: response_status
+            type: integer
+            required: true
+          - name: response_body
+            type: jsonb
+            required: false
+          - name: execution_time_ms
+            type: integer
+            required: false
+          - name: error_message
+            type: text
+            required: false
+          - name: error_stack
+            type: text
+            required: false
+          - name: metadata
+            type: jsonb
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: user_id
+            type: uuid
+            required: true
+            default: auth.uid()
+        relations: []
+        indexes: []
+        trace: []
+      - name: mst_entities
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: tax_id
+            type: text
+            required: false
+          - name: address
+            type: text
+            required: false
+          - name: phone
+            type: text
+            required: false
+          - name: email
+            type: text
+            required: false
+          - name: website
+            type: text
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: multi_tenant_config
+            type: jsonb
+            required: false
+            default: "'{\"enabled\": true}'::jsonb"
+        relations: []
+        indexes:
+          - name: idx_mst_entities_active
+            unique: false
+            columns: "{is_active}"
+          - name: mst_entities_tax_id_key
+            unique: true
+            columns: "{tax_id}"
+        trace: []
+      - name: mst_permissions
+        purpose: ""
+        columns:
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+        relations: []
+        indexes:
+          - name: mst_permissions_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: mst_query_blueprints
+        purpose: ""
+        columns:
+          - name: name
+            type: text
+            required: true
+          - name: base_table
+            type: text
+            required: true
+          - name: spec
+            type: jsonb
+            required: true
+          - name: param_schema
+            type: jsonb
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: user_id
+            type: uuid
+            required: true
+            default: auth.uid()
+        relations: []
+        indexes: []
+        trace: []
+      - name: mst_roles
+        purpose: ""
+        columns:
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+        relations:
+          - from: created_by
+            to: base.mst_users.id
+          - from: deleted_by
+            to: base.mst_users.id
+          - from: updated_by
+            to: base.mst_users.id
+        indexes:
+          - name: idx_mst_roles_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_roles_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_roles_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: mst_roles_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: mst_users
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            pk: true
+          - name: avatar_url
+            type: text
+            required: false
+          - name: bio
+            type: text
+            required: false
+          - name: role_id
+            type: uuid
+            required: false
+          - name: hourly_rate
+            type: numeric
+            required: false
+          - name: hire_date
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: entity_id
+            type: uuid
+            required: false
+          - name: username
+            type: text
+            required: false
+          - name: email
+            type: text
+            required: false
+          - name: first_name
+            type: text
+            required: false
+          - name: last_name
+            type: text
+            required: false
+        relations:
+          - from: role_id
+            to: base.mst_roles.id
+          - from: entity_id
+            to: base.mst_entities.id
+        indexes:
+          - name: idx_mst_users_email
+            unique: true
+            columns: "{email}"
+          - name: idx_mst_users_entity
+            unique: false
+            columns: "{entity_id}"
+          - name: idx_mst_users_role_id
+            unique: false
+            columns: "{role_id}"
+          - name: idx_mst_users_username
+            unique: true
+            columns: "{username}"
+        trace: []
+      - name: rel_role_permissions
+        purpose: ""
+        columns:
+          - name: role_id
+            type: uuid
+            required: true
+          - name: permission_id
+            type: uuid
+            required: true
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+        relations:
+          - from: permission_id
+            to: base.mst_permissions.id
+          - from: role_id
+            to: base.mst_roles.id
+        indexes:
+          - name: idx_rel_role_permissions_permission_id
+            unique: false
+            columns: "{permission_id}"
+          - name: idx_rel_role_permissions_role_id
+            unique: false
+            columns: "{role_id}"
+        trace: []
+      - name: rel_user_role_entities
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: role_id
+            type: uuid
+            required: true
+          - name: entity_id
+            type: uuid
+            required: true
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: assigned_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: assigned_by
+            type: uuid
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+        relations:
+          - from: assigned_by
+            to: base.mst_users.id
+          - from: entity_id
+            to: base.mst_entities.id
+          - from: role_id
+            to: base.mst_roles.id
+          - from: user_id
+            to: base.mst_users.id
+        indexes:
+          - name: idx_rel_user_role_entities_assigned_by
+            unique: false
+            columns: "{assigned_by}"
+          - name: idx_rel_user_role_entities_entity_id
+            unique: false
+            columns: "{entity_id}"
+          - name: idx_rel_user_role_entities_role_id
+            unique: false
+            columns: "{role_id}"
+          - name: idx_rel_user_role_entities_user_id
+            unique: false
+            columns: "{user_id}"
+        trace: []
+  - name: budgeting
+    tables:
+      - name: log_budget_versions
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: budget_id
+            type: uuid
+            required: true
+          - name: version_number
+            type: integer
+            required: true
+          - name: raw_data
+            type: jsonb
+            required: true
+          - name: metadata
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: change_reason
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+        relations:
+          - from: budget_id
+            to: budgeting.trn_monthly_budgets.id
+        indexes:
+          - name: idx_budget_versions_budget_version
+            unique: false
+            columns: "{budget_id,version_number}"
+          - name: idx_budget_versions_created_at
+            unique: false
+            columns: "{created_at}"
+          - name: idx_log_budget_versions_budget_version
+            unique: false
+            columns: "{budget_id,version_number}"
+          - name: idx_log_budget_versions_created_at
+            unique: false
+            columns: "{created_at}"
+          - name: idx_log_budget_versions_created_by
+            unique: false
+            columns: "{created_by}"
+        trace: []
+      - name: log_status_history
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: budget_id
+            type: uuid
+            required: false
+          - name: assignment_id
+            type: uuid
+            required: false
+          - name: record_type
+            type: text
+            required: true
+          - name: old_status
+            type: text
+            required: false
+          - name: new_status
+            type: text
+            required: false
+          - name: workflow_step
+            type: text
+            required: false
+          - name: change_reason
+            type: text
+            required: false
+          - name: assigned_to
+            type: uuid
+            required: false
+          - name: due_date
+            type: date
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: changed_by
+            type: uuid
+            required: true
+          - name: cto_reviewer_id
+            type: uuid
+            required: false
+        relations:
+          - from: assignment_id
+            to: budgeting.trn_resource_assignments.id
+          - from: budget_id
+            to: budgeting.trn_monthly_budgets.id
+        indexes:
+          - name: idx_log_status_history_assigned_to
+            unique: false
+            columns: "{assigned_to}"
+          - name: idx_log_status_history_assignment_timeline
+            unique: false
+            columns: "{assignment_id,created_at}"
+          - name: idx_log_status_history_budget_timeline
+            unique: false
+            columns: "{budget_id,created_at}"
+          - name: idx_log_status_history_changed_by
+            unique: false
+            columns: "{changed_by}"
+          - name: idx_log_status_history_cto_reviewer
+            unique: false
+            columns: "{cto_reviewer_id,created_at}"
+          - name: idx_log_status_history_workflow_step
+            unique: false
+            columns: "{workflow_step,created_at}"
+          - name: idx_status_history_assignment_timeline
+            unique: false
+            columns: "{assignment_id,created_at}"
+          - name: idx_status_history_budget_timeline
+            unique: false
+            columns: "{budget_id,created_at}"
+          - name: idx_status_history_workflow_step
+            unique: false
+            columns: "{workflow_step,created_at}"
+        trace: []
+      - name: trn_cost_calculations
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: assignment_id
+            type: uuid
+            required: true
+          - name: cost_type
+            type: text
+            required: true
+          - name: direct_cost
+            type: numeric
+            required: false
+            default: "0"
+          - name: indirect_cost
+            type: numeric
+            required: false
+            default: "0"
+          - name: overhead_factor
+            type: numeric
+            required: false
+            default: "1.0"
+          - name: currency
+            type: text
+            required: false
+            default: "'EUR'::text"
+          - name: calculated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+        relations:
+          - from: assignment_id
+            to: budgeting.trn_resource_assignments.id
+        indexes:
+          - name: idx_cost_calculations_assignment_type
+            unique: false
+            columns: "{assignment_id,cost_type}"
+          - name: idx_cost_calculations_calculated_at
+            unique: false
+            columns: "{calculated_at}"
+          - name: idx_trn_cost_calculations_assignment_type
+            unique: false
+            columns: "{assignment_id,cost_type}"
+          - name: idx_trn_cost_calculations_calculated_at
+            unique: false
+            columns: "{calculated_at}"
+        trace: []
+      - name: trn_monthly_budgets
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: project_id
+            type: uuid
+            required: true
+          - name: budget_month
+            type: date
+            required: true
+          - name: currency
+            type: text
+            required: false
+            default: "'EUR'::text"
+          - name: status
+            type: text
+            required: false
+            default: "'draft'::text"
+          - name: total_cost
+            type: numeric
+            required: false
+            default: "0"
+          - name: total_margin
+            type: numeric
+            required: false
+            default: "0"
+          - name: target_margin
+            type: numeric
+            required: false
+          - name: capacity_snapshot
+            type: jsonb
+            required: false
+          - name: validation_notes
+            type: text
+            required: false
+          - name: submitted_to_cto_at
+            type: timestamp with time zone
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: cto_review_status
+            type: text
+            required: false
+            default: "'pending'::text"
+          - name: capacity_risk_level
+            type: text
+            required: false
+            default: "'unknown'::text"
+          - name: technical_validation_date
+            type: timestamp with time zone
+            required: false
+          - name: cto_reviewer_id
+            type: uuid
+            required: false
+          - name: capacity_analysis
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: technical_report
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: escalation_status
+            type: text
+            required: false
+            default: "'pending'::text"
+          - name: workflow_id
+            type: uuid
+            required: false
+          - name: workflow_status
+            type: character varying
+            required: false
+            default: "'not_assigned'::character varying"
+          - name: current_stage
+            type: character varying
+            required: false
+          - name: workflow_assigned_at
+            type: timestamp with time zone
+            required: false
+          - name: workflow_completed_at
+            type: timestamp with time zone
+            required: false
+          - name: followup_activated
+            type: boolean
+            required: false
+            default: "false"
+          - name: followup_activated_at
+            type: timestamp with time zone
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: idx_monthly_budgets_currency
+            unique: false
+            columns: "{currency}"
+          - name: idx_monthly_budgets_project_month
+            unique: false
+            columns: "{project_id,budget_month}"
+          - name: idx_monthly_budgets_status_date
+            unique: false
+            columns: "{status,created_at}"
+          - name: idx_monthly_budgets_workflow_id
+            unique: false
+            columns: "{workflow_id}"
+          - name: idx_monthly_budgets_workflow_status
+            unique: false
+            columns: "{workflow_status}"
+          - name: idx_trn_monthly_budgets_capacity_risk
+            unique: false
+            columns: "{capacity_risk_level,budget_month}"
+          - name: idx_trn_monthly_budgets_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_monthly_budgets_cto_review_status
+            unique: false
+            columns: "{cto_review_status,budget_month}"
+          - name: idx_trn_monthly_budgets_cto_reviewer
+            unique: false
+            columns: "{cto_reviewer_id,cto_review_status}"
+          - name: idx_trn_monthly_budgets_currency
+            unique: false
+            columns: "{currency}"
+          - name: idx_trn_monthly_budgets_project_month
+            unique: false
+            columns: "{project_id,budget_month}"
+          - name: idx_trn_monthly_budgets_status_date
+            unique: false
+            columns: "{status,created_at}"
+          - name: idx_trn_monthly_budgets_updated_by
+            unique: false
+            columns: "{updated_by}"
+        trace: []
+      - name: trn_resource_assignments
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: budget_id
+            type: uuid
+            required: true
+          - name: employee_id
+            type: uuid
+            required: true
+          - name: dedication_percentage
+            type: numeric
+            required: true
+          - name: monthly_cost
+            type: numeric
+            required: false
+          - name: status
+            type: text
+            required: false
+            default: "'draft'::text"
+          - name: validation_notes
+            type: text
+            required: false
+          - name: skills_validated
+            type: boolean
+            required: false
+            default: "false"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: capacity_score
+            type: numeric
+            required: false
+            default: "100.00"
+          - name: cto_correction_notes
+            type: text
+            required: false
+          - name: technical_validation_status
+            type: text
+            required: false
+            default: "'pending'::text"
+          - name: original_dedication_percentage
+            type: numeric
+            required: false
+          - name: corrected_dedication_percentage
+            type: numeric
+            required: false
+          - name: revenue_contribution
+            type: numeric
+            required: false
+            default: "0"
+          - name: margin_contribution
+            type: numeric
+            required: false
+            default: "0"
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: budget_id
+            to: budgeting.trn_monthly_budgets.id
+        indexes:
+          - name: idx_resource_assignments_budget_employee
+            unique: false
+            columns: "{budget_id,employee_id}"
+          - name: idx_resource_assignments_employee_month
+            unique: false
+            columns: "{employee_id,created_at}"
+          - name: idx_resource_assignments_status_active
+            unique: false
+            columns: "{status,updated_at}"
+          - name: idx_trn_resource_assignments_budget_employee
+            unique: false
+            columns: "{budget_id,employee_id}"
+          - name: idx_trn_resource_assignments_capacity_score
+            unique: false
+            columns: "{capacity_score}"
+          - name: idx_trn_resource_assignments_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_resource_assignments_employee_month
+            unique: false
+            columns: "{employee_id,created_at}"
+          - name: idx_trn_resource_assignments_status_active
+            unique: false
+            columns: "{status,updated_at}"
+          - name: idx_trn_resource_assignments_technical_validation
+            unique: false
+            columns: "{technical_validation_status,budget_id}"
+          - name: idx_trn_resource_assignments_updated_by
+            unique: false
+            columns: "{updated_by}"
+        trace: []
+  - name: discord
+    tables:
+      - name: mst_channel_types
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: code
+            type: character varying
+            required: true
+          - name: name
+            type: character varying
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+        relations: []
+        indexes:
+          - name: mst_channel_types_code_key
+            unique: true
+            columns: "{code}"
+        trace: []
+      - name: rel_channel_members
+        purpose: ""
+        columns:
+          - name: channel_id
+            type: uuid
+            required: true
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+            pk: true
+          - name: joined_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+        relations:
+          - from: channel_id
+            to: discord.trn_channels.id
+        indexes:
+          - name: idx_discord_channel_members_user
+            unique: false
+            columns: "{user_id}"
+        trace: []
+      - name: trn_channels
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: discord_channel_id
+            type: character varying
+            required: false
+          - name: name
+            type: character varying
+            required: true
+          - name: project_id
+            type: uuid
+            required: false
+          - name: type_id
+            type: uuid
+            required: true
+          - name: status
+            type: character varying
+            required: false
+            default: "'active'::character varying"
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+        relations:
+          - from: type_id
+            to: discord.mst_channel_types.id
+        indexes:
+          - name: idx_discord_channels_project
+            unique: false
+            columns: "{project_id}"
+          - name: idx_discord_channels_type
+            unique: false
+            columns: "{type_id}"
+        trace: []
+  - name: masterdata
+    tables:
+      - name: cfg_google_calendar_integrations
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: false
+          - name: user_id
+            type: uuid
+            required: false
+          - name: google_user_id
+            type: character varying
+            required: false
+          - name: access_token
+            type: text
+            required: false
+          - name: refresh_token
+            type: text
+            required: false
+          - name: token_expires_at
+            type: timestamp with time zone
+            required: false
+          - name: calendar_ids
+            type: ARRAY
+            required: false
+          - name: sync_settings
+            type: jsonb
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes: []
+        trace: []
+      - name: mst_contacts
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: contact_code
+            type: character varying
+            required: true
+          - name: first_name
+            type: character varying
+            required: false
+          - name: last_name
+            type: character varying
+            required: false
+          - name: company_name
+            type: character varying
+            required: false
+          - name: contact_type
+            type: USER-DEFINED
+            required: true
+          - name: email
+            type: character varying
+            required: true
+          - name: phone
+            type: character varying
+            required: false
+          - name: mobile
+            type: character varying
+            required: false
+          - name: address
+            type: text
+            required: false
+          - name: city
+            type: character varying
+            required: false
+          - name: state
+            type: character varying
+            required: false
+          - name: country
+            type: character varying
+            required: false
+          - name: postal_code
+            type: character varying
+            required: false
+          - name: website
+            type: character varying
+            required: false
+          - name: economic_sector
+            type: character varying
+            required: false
+          - name: country_iso
+            type: character varying
+            required: false
+          - name: is_active
+            type: boolean
+            required: true
+            default: "true"
+          - name: notes
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_contacts_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_contacts_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: mst_contacts_contact_code_key
+            unique: true
+            columns: "{contact_code}"
+          - name: mst_contacts_email_key
+            unique: true
+            columns: "{email}"
+        trace: []
+      - name: mst_currency_rates
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: from_currency
+            type: text
+            required: true
+          - name: to_currency
+            type: text
+            required: true
+          - name: rate
+            type: numeric
+            required: true
+          - name: valid_from
+            type: date
+            required: true
+          - name: valid_until
+            type: date
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: source
+            type: text
+            required: false
+            default: "'manual'::text"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: idx_currency_rates_active
+            unique: false
+            columns: "{from_currency,to_currency,valid_from}"
+          - name: idx_currency_rates_period
+            unique: false
+            columns: "{valid_from,valid_until}"
+          - name: idx_mst_currency_rates_active
+            unique: false
+            columns: "{from_currency,to_currency,valid_from}"
+          - name: idx_mst_currency_rates_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_currency_rates_period
+            unique: false
+            columns: "{valid_from,valid_until}"
+        trace: []
+      - name: mst_employees
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: user_id
+            type: uuid
+            required: false
+          - name: employee_code
+            type: character varying
+            required: true
+          - name: first_name
+            type: character varying
+            required: true
+          - name: last_name
+            type: character varying
+            required: true
+          - name: email
+            type: character varying
+            required: true
+          - name: phone
+            type: character varying
+            required: false
+          - name: hourly_rate
+            type: numeric
+            required: true
+          - name: hire_date
+            type: date
+            required: true
+            default: CURRENT_DATE
+          - name: status
+            type: USER-DEFINED
+            required: true
+            default: "'activo'::masterdata.employee_status_enum"
+          - name: entity_id
+            type: uuid
+            required: false
+          - name: department
+            type: character varying
+            required: false
+          - name: position
+            type: character varying
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_employees_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_employees_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_mst_employees_user_id
+            unique: false
+            columns: "{user_id}"
+          - name: mst_employees_email_key
+            unique: true
+            columns: "{email}"
+          - name: mst_employees_employee_code_key
+            unique: true
+            columns: "{employee_code}"
+        trace: []
+      - name: mst_glossary_terms
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: term
+            type: character varying
+            required: true
+          - name: definition
+            type: text
+            required: true
+          - name: synonyms
+            type: ARRAY
+            required: false
+          - name: related_terms
+            type: ARRAY
+            required: false
+          - name: context
+            type: character varying
+            required: false
+          - name: language
+            type: character varying
+            required: true
+            default: "'es'::character varying"
+          - name: is_active
+            type: boolean
+            required: true
+            default: "true"
+          - name: usage_count
+            type: integer
+            required: true
+            default: "0"
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_glossary_terms_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_glossary_terms_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: mst_glossary_terms_term_key
+            unique: true
+            columns: "{term}"
+        trace: []
+  - name: notifications
+    tables:
+      - name: cfg_notification_templates
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: notification_type_id
+            type: uuid
+            required: true
+          - name: name
+            type: character varying
+            required: true
+          - name: subject_template
+            type: text
+            required: false
+          - name: body_template
+            type: text
+            required: true
+          - name: content_type
+            type: character varying
+            required: false
+            default: "'text/html'::character varying"
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+        relations:
+          - from: notification_type_id
+            to: notifications.mst_notification_types.id
+        indexes:
+          - name: idx_cfg_notification_templates_notification_type_id
+            unique: false
+            columns: "{notification_type_id}"
+        trace: []
+      - name: log_notifications
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: notification_type_id
+            type: uuid
+            required: true
+          - name: sender_user_id
+            type: uuid
+            required: false
+          - name: recipient_user_id
+            type: uuid
+            required: true
+          - name: subject
+            type: text
+            required: false
+          - name: body
+            type: text
+            required: true
+          - name: sent_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: read_at
+            type: timestamp with time zone
+            required: false
+          - name: status
+            type: character varying
+            required: false
+            default: "'sent'::character varying"
+        relations:
+          - from: notification_type_id
+            to: notifications.mst_notification_types.id
+        indexes:
+          - name: idx_log_notifications_notification_type_id
+            unique: false
+            columns: "{notification_type_id}"
+          - name: idx_log_notifications_recipient_user_id
+            unique: false
+            columns: "{recipient_user_id}"
+          - name: idx_log_notifications_sender_user_id
+            unique: false
+            columns: "{sender_user_id}"
+        trace: []
+      - name: mst_notification_types
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: code
+            type: character varying
+            required: true
+          - name: name
+            type: character varying
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: module
+            type: character varying
+            required: false
+          - name: category
+            type: character varying
+            required: false
+            default: "'info'::character varying"
+          - name: priority
+            type: character varying
+            required: false
+            default: "'normal'::character varying"
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+        relations: []
+        indexes:
+          - name: mst_notification_types_code_key
+            unique: true
+            columns: "{code}"
+        trace: []
+  - name: presence
+    tables:
+      - name: log_presence_history
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: from_state_id
+            type: uuid
+            required: false
+          - name: to_state_id
+            type: uuid
+            required: true
+          - name: changed_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: change_source
+            type: character varying
+            required: false
+            default: "'manual'::character varying"
+          - name: reason
+            type: text
+            required: false
+          - name: metadata
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: task_context
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+          - name: project_context
+            type: jsonb
+            required: false
+            default: "'{}'::jsonb"
+        relations:
+          - from: from_state_id
+            to: presence.mst_presence_states.id
+          - from: to_state_id
+            to: presence.mst_presence_states.id
+        indexes:
+          - name: idx_log_presence_history_changed_at
+            unique: false
+            columns: "{changed_at}"
+          - name: idx_log_presence_history_from_state_id
+            unique: false
+            columns: "{from_state_id}"
+          - name: idx_log_presence_history_source
+            unique: false
+            columns: "{change_source}"
+          - name: idx_log_presence_history_task_context
+            unique: false
+            columns: "{task_context}"
+          - name: idx_log_presence_history_to_state_id
+            unique: false
+            columns: "{to_state_id}"
+          - name: idx_log_presence_history_user
+            unique: false
+            columns: "{user_id}"
+        trace: []
+      - name: mst_presence_states
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: code
+            type: character varying
+            required: true
+          - name: name
+            type: character varying
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: category
+            type: character varying
+            required: false
+            default: "'available'::character varying"
+          - name: color
+            type: character varying
+            required: false
+            default: "'#28a745'::character varying"
+          - name: icon
+            type: character varying
+            required: false
+          - name: requires_justification
+            type: boolean
+            required: false
+            default: "false"
+          - name: is_temporary_allowed
+            type: boolean
+            required: false
+            default: "false"
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: sort_order
+            type: integer
+            required: false
+            default: "0"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+        relations: []
+        indexes:
+          - name: idx_mst_presence_states_active
+            unique: false
+            columns: "{is_active}"
+          - name: idx_mst_presence_states_category
+            unique: false
+            columns: "{category}"
+          - name: idx_mst_presence_states_code
+            unique: false
+            columns: "{code}"
+          - name: mst_presence_states_code_key
+            unique: true
+            columns: "{code}"
+        trace: []
+      - name: trn_user_presence
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: current_state_id
+            type: uuid
+            required: true
+          - name: set_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: expires_at
+            type: timestamp with time zone
+            required: false
+          - name: is_temporary
+            type: boolean
+            required: false
+            default: "false"
+          - name: justification
+            type: text
+            required: false
+          - name: last_activity_at
+            type: timestamp with time zone
+            required: false
+          - name: last_notification_sent
+            type: timestamp with time zone
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: last_task_context_update
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: current_task_id
+            type: uuid
+            required: false
+          - name: current_project_id
+            type: uuid
+            required: false
+        relations:
+          - from: current_state_id
+            to: presence.mst_presence_states.id
+        indexes:
+          - name: idx_trn_user_presence_current_project
+            unique: false
+            columns: "{current_project_id}"
+          - name: idx_trn_user_presence_current_task
+            unique: false
+            columns: "{current_task_id}"
+          - name: idx_trn_user_presence_expires
+            unique: false
+            columns: "{expires_at}"
+          - name: idx_trn_user_presence_state
+            unique: false
+            columns: "{current_state_id}"
+          - name: idx_trn_user_presence_temporary
+            unique: false
+            columns: "{is_temporary}"
+          - name: idx_trn_user_presence_user
+            unique: false
+            columns: "{user_id}"
+          - name: uk_trn_user_presence_user
+            unique: true
+            columns: "{user_id}"
+        trace: []
+  - name: progress
+    tables:
+      - name: trn_milestones
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: project_id
+            type: uuid
+            required: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: planned_date
+            type: date
+            required: true
+          - name: actual_date
+            type: date
+            required: false
+          - name: status
+            type: text
+            required: true
+            default: "'PENDING'::text"
+          - name: is_critical
+            type: boolean
+            required: true
+            default: "false"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: idx_trn_milestones_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_milestones_planned_date
+            unique: false
+            columns: "{planned_date}"
+          - name: idx_trn_milestones_project_id
+            unique: false
+            columns: "{project_id}"
+          - name: idx_trn_milestones_status
+            unique: false
+            columns: "{status}"
+          - name: idx_trn_milestones_updated_by
+            unique: false
+            columns: "{updated_by}"
+        trace: []
+      - name: trn_progress_updates
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: project_id
+            type: uuid
+            required: true
+          - name: task_id
+            type: uuid
+            required: false
+          - name: user_id
+            type: uuid
+            required: true
+          - name: progress_percentage
+            type: numeric
+            required: true
+          - name: status
+            type: text
+            required: true
+          - name: notes
+            type: text
+            required: false
+          - name: update_date
+            type: date
+            required: true
+            default: CURRENT_DATE
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: idx_trn_progress_updates_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_progress_updates_project_id
+            unique: false
+            columns: "{project_id}"
+          - name: idx_trn_progress_updates_task_id
+            unique: false
+            columns: "{task_id}"
+          - name: idx_trn_progress_updates_update_date
+            unique: false
+            columns: "{update_date}"
+          - name: idx_trn_progress_updates_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_trn_progress_updates_user_id
+            unique: false
+            columns: "{user_id}"
+        trace: []
+      - name: trn_project_health
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: project_id
+            type: uuid
+            required: true
+          - name: health_score
+            type: numeric
+            required: true
+          - name: budget_variance
+            type: numeric
+            required: false
+          - name: schedule_variance
+            type: integer
+            required: false
+          - name: quality_score
+            type: numeric
+            required: false
+          - name: risk_level
+            type: text
+            required: true
+          - name: assessment_date
+            type: date
+            required: true
+            default: CURRENT_DATE
+          - name: notes
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: idx_trn_project_health_assessment_date
+            unique: false
+            columns: "{assessment_date}"
+          - name: idx_trn_project_health_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_project_health_project_id
+            unique: false
+            columns: "{project_id}"
+          - name: idx_trn_project_health_risk_level
+            unique: false
+            columns: "{risk_level}"
+          - name: idx_trn_project_health_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: uk_trn_project_health_project_date
+            unique: true
+            columns: "{project_id,assessment_date}"
+        trace: []
+  - name: projects
+    tables:
+      - name: mst_project_stages
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: stage_order
+            type: integer
+            required: true
+          - name: project_type_id
+            type: uuid
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+        relations:
+          - from: project_type_id
+            to: projects.mst_project_types.id
+        indexes:
+          - name: idx_mst_project_stages_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_project_stages_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_project_stages_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_projects_stages_type_order
+            unique: false
+            columns: "{project_type_id,stage_order}"
+          - name: mst_project_stages_project_type_id_name_key
+            unique: true
+            columns: "{project_type_id,name}"
+          - name: mst_project_stages_project_type_id_stage_order_key
+            unique: true
+            columns: "{project_type_id,stage_order}"
+        trace: []
+      - name: mst_project_templates
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: project_type_id
+            type: uuid
+            required: true
+          - name: default_stages
+            type: jsonb
+            required: false
+            default: "'[]'::jsonb"
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+        relations:
+          - from: project_type_id
+            to: projects.mst_project_types.id
+        indexes:
+          - name: idx_mst_project_templates_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_project_templates_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_project_templates_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_projects_templates_type
+            unique: false
+            columns: "{project_type_id}"
+          - name: mst_project_templates_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: mst_project_types
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_project_types_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_project_types_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_project_types_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_projects_types_active
+            unique: false
+            columns: "{is_active}"
+          - name: mst_project_types_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: trn_projects
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: entity_id
+            type: uuid
+            required: true
+          - name: type_id
+            type: uuid
+            required: true
+          - name: template_id
+            type: uuid
+            required: false
+          - name: owner_id
+            type: uuid
+            required: true
+          - name: code
+            type: text
+            required: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: priority
+            type: text
+            required: true
+          - name: status
+            type: text
+            required: true
+            default: "'DRAFT'::text"
+          - name: planned_start_date
+            type: date
+            required: true
+          - name: planned_end_date
+            type: date
+            required: true
+          - name: actual_start_date
+            type: date
+            required: false
+          - name: actual_end_date
+            type: date
+            required: false
+          - name: budget
+            type: numeric
+            required: false
+          - name: progress_percentage
+            type: numeric
+            required: true
+            default: "0.00"
+          - name: current_stage_id
+            type: uuid
+            required: false
+          - name: config
+            type: jsonb
+            required: false
+          - name: is_active
+            type: boolean
+            required: true
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: budget_responsible_id
+            type: uuid
+            required: false
+          - name: default_target_margin
+            type: numeric
+            required: false
+          - name: last_budget_update
+            type: timestamp with time zone
+            required: false
+          - name: workflow_id
+            type: uuid
+            required: false
+          - name: workflow_status
+            type: character varying
+            required: false
+            default: "'not_assigned'::character varying"
+          - name: current_stage
+            type: character varying
+            required: false
+          - name: workflow_assigned_at
+            type: timestamp with time zone
+            required: false
+          - name: workflow_completed_at
+            type: timestamp with time zone
+            required: false
+          - name: critical_change_type
+            type: character varying
+            required: false
+          - name: change_justification
+            type: text
+            required: false
+          - name: change_requested_by
+            type: uuid
+            required: false
+          - name: change_requested_at
+            type: timestamp with time zone
+            required: false
+          - name: discord_channel_id
+            type: uuid
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: current_stage_id
+            to: projects.mst_project_stages.id
+          - from: template_id
+            to: projects.mst_project_templates.id
+          - from: type_id
+            to: projects.mst_project_types.id
+        indexes:
+          - name: idx_projects_critical_change_type
+            unique: false
+            columns: "{critical_change_type}"
+          - name: idx_projects_workflow_id
+            unique: false
+            columns: "{workflow_id}"
+          - name: idx_projects_workflow_status
+            unique: false
+            columns: "{workflow_status}"
+          - name: idx_trn_projects_budget_responsible_id
+            unique: false
+            columns: "{budget_responsible_id}"
+          - name: idx_trn_projects_created_at
+            unique: false
+            columns: "{created_at}"
+          - name: idx_trn_projects_current_stage_id
+            unique: false
+            columns: "{current_stage_id}"
+          - name: idx_trn_projects_deleted_null
+            unique: false
+            columns: "{id}"
+          - name: idx_trn_projects_entity_code
+            unique: false
+            columns: "{entity_id,code}"
+          - name: idx_trn_projects_entity_id
+            unique: false
+            columns: "{entity_id}"
+          - name: idx_trn_projects_owner_id
+            unique: false
+            columns: "{owner_id}"
+          - name: idx_trn_projects_status
+            unique: false
+            columns: "{status}"
+          - name: idx_trn_projects_template_id
+            unique: false
+            columns: "{template_id}"
+          - name: idx_trn_projects_type_id
+            unique: false
+            columns: "{type_id}"
+          - name: idx_trn_projects_updated_at
+            unique: false
+            columns: "{updated_at}"
+          - name: uk_trn_projects_entity_code
+            unique: true
+            columns: "{entity_id,code}"
+        trace: []
+  - name: realtime
+    tables:
+      - name: messages
+        purpose: ""
+        columns:
+          - name: topic
+            type: text
+            required: true
+          - name: extension
+            type: text
+            required: true
+          - name: payload
+            type: jsonb
+            required: false
+          - name: event
+            type: text
+            required: false
+          - name: private
+            type: boolean
+            required: false
+            default: "false"
+          - name: updated_at
+            type: timestamp without time zone
+            required: true
+            default: now()
+          - name: inserted_at
+            type: timestamp without time zone
+            required: true
+            default: now()
+            pk: true
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+        relations: []
+        indexes: []
+        trace: []
+      - name: schema_migrations
+        purpose: ""
+        columns:
+          - name: version
+            type: bigint
+            required: true
+            pk: true
+          - name: inserted_at
+            type: timestamp without time zone
+            required: false
+        relations: []
+        indexes: []
+        trace: []
+      - name: subscription
+        purpose: ""
+        columns:
+          - name: id
+            type: bigint
+            required: true
+            pk: true
+          - name: subscription_id
+            type: uuid
+            required: true
+          - name: entity
+            type: regclass
+            required: true
+          - name: filters
+            type: ARRAY
+            required: true
+            default: "'{}'::realtime.user_defined_filter[]"
+          - name: claims
+            type: jsonb
+            required: true
+          - name: claims_role
+            type: regrole
+            required: true
+          - name: created_at
+            type: timestamp without time zone
+            required: true
+            default: timezone('utc'::text, now())
+        relations: []
+        indexes:
+          - name: ix_realtime_subscription_entity
+            unique: false
+            columns: "{entity}"
+          - name: subscription_subscription_id_entity_filters_key
+            unique: true
+            columns: "{subscription_id,entity,filters}"
+        trace: []
+  - name: storage
+    tables:
+      - name: buckets
+        purpose: ""
+        columns:
+          - name: id
+            type: text
+            required: true
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: owner
+            type: uuid
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: public
+            type: boolean
+            required: false
+            default: "false"
+          - name: avif_autodetection
+            type: boolean
+            required: false
+            default: "false"
+          - name: file_size_limit
+            type: bigint
+            required: false
+          - name: allowed_mime_types
+            type: ARRAY
+            required: false
+          - name: owner_id
+            type: text
+            required: false
+        relations: []
+        indexes:
+          - name: bname
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: migrations
+        purpose: ""
+        columns:
+          - name: id
+            type: integer
+            required: true
+            pk: true
+          - name: name
+            type: character varying
+            required: true
+          - name: hash
+            type: character varying
+            required: true
+          - name: executed_at
+            type: timestamp without time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+        relations: []
+        indexes:
+          - name: migrations_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: objects
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: bucket_id
+            type: text
+            required: false
+          - name: name
+            type: text
+            required: false
+          - name: owner
+            type: uuid
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: last_accessed_at
+            type: timestamp with time zone
+            required: false
+            default: now()
+          - name: metadata
+            type: jsonb
+            required: false
+          - name: path_tokens
+            type: ARRAY
+            required: false
+          - name: version
+            type: text
+            required: false
+          - name: owner_id
+            type: text
+            required: false
+          - name: user_metadata
+            type: jsonb
+            required: false
+        relations: []
+        indexes:
+          - name: bucketid_objname
+            unique: true
+            columns: "{bucket_id,name}"
+          - name: idx_objects_bucket_id_name
+            unique: false
+            columns: "{bucket_id,name}"
+          - name: name_prefix_search
+            unique: false
+            columns: "{name}"
+        trace: []
+      - name: s3_multipart_uploads
+        purpose: ""
+        columns:
+          - name: id
+            type: text
+            required: true
+            pk: true
+          - name: in_progress_size
+            type: bigint
+            required: true
+            default: "0"
+          - name: upload_signature
+            type: text
+            required: true
+          - name: bucket_id
+            type: text
+            required: true
+          - name: key
+            type: text
+            required: true
+          - name: version
+            type: text
+            required: true
+          - name: owner_id
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: user_metadata
+            type: jsonb
+            required: false
+        relations: []
+        indexes:
+          - name: idx_multipart_uploads_list
+            unique: false
+            columns: "{bucket_id,key,created_at}"
+        trace: []
+      - name: s3_multipart_uploads_parts
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: upload_id
+            type: text
+            required: true
+          - name: size
+            type: bigint
+            required: true
+            default: "0"
+          - name: part_number
+            type: integer
+            required: true
+          - name: bucket_id
+            type: text
+            required: true
+          - name: key
+            type: text
+            required: true
+          - name: etag
+            type: text
+            required: true
+          - name: owner_id
+            type: text
+            required: false
+          - name: version
+            type: text
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+        relations: []
+        indexes: []
+        trace: []
+  - name: tasks
+    tables:
+      - name: mst_task_stages
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: stage_order
+            type: integer
+            required: true
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_task_stages_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_task_stages_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_task_stages_deleted_null
+            unique: false
+            columns: "{id}"
+          - name: idx_mst_task_stages_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_tasks_stages_order
+            unique: false
+            columns: "{stage_order}"
+          - name: mst_task_stages_name_key
+            unique: true
+            columns: "{name}"
+          - name: mst_task_stages_stage_order_key
+            unique: true
+            columns: "{stage_order}"
+        trace: []
+      - name: mst_task_types
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: dedication_type
+            type: text
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: now()
+          - name: created_by
+            type: uuid
+            required: false
+          - name: is_active
+            type: boolean
+            required: false
+            default: "true"
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations: []
+        indexes:
+          - name: idx_mst_task_types_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_mst_task_types_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_mst_task_types_deleted_null
+            unique: false
+            columns: "{id}"
+          - name: idx_mst_task_types_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_tasks_types_active
+            unique: false
+            columns: "{is_active}"
+          - name: mst_task_types_name_key
+            unique: true
+            columns: "{name}"
+        trace: []
+      - name: rel_task_assignments
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: task_id
+            type: uuid
+            required: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: assigned_by
+            type: uuid
+            required: true
+          - name: assigned_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: is_active
+            type: boolean
+            required: true
+            default: "true"
+          - name: role
+            type: text
+            required: true
+            default: "'ASSIGNEE'::text"
+          - name: created_by
+            type: uuid
+            required: false
+          - name: updated_by
+            type: uuid
+            required: false
+          - name: deleted_by
+            type: uuid
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: task_id
+            to: tasks.trn_tasks.id
+        indexes:
+          - name: idx_rel_task_assignments_active
+            unique: false
+            columns: "{is_active}"
+          - name: idx_rel_task_assignments_assigned_by
+            unique: false
+            columns: "{assigned_by}"
+          - name: idx_rel_task_assignments_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_rel_task_assignments_deleted_by
+            unique: false
+            columns: "{deleted_by}"
+          - name: idx_rel_task_assignments_task_id
+            unique: false
+            columns: "{task_id}"
+          - name: idx_rel_task_assignments_updated_by
+            unique: false
+            columns: "{updated_by}"
+          - name: idx_rel_task_assignments_user_id
+            unique: false
+            columns: "{user_id}"
+          - name: uk_rel_task_assignments_task_user
+            unique: true
+            columns: "{task_id,user_id}"
+        trace: []
+      - name: trn_task_time_records
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: user_id
+            type: uuid
+            required: true
+          - name: project_id
+            type: uuid
+            required: false
+          - name: task_id
+            type: uuid
+            required: false
+          - name: entry_date
+            type: date
+            required: true
+          - name: entry_type
+            type: text
+            required: true
+          - name: start_time
+            type: time without time zone
+            required: false
+          - name: end_time
+            type: time without time zone
+            required: false
+          - name: hours_worked
+            type: numeric
+            required: false
+          - name: description
+            type: text
+            required: false
+          - name: is_billable
+            type: boolean
+            required: false
+            default: "true"
+          - name: status
+            type: text
+            required: false
+            default: "'DRAFT'::text"
+          - name: break_type
+            type: text
+            required: false
+          - name: break_category
+            type: text
+            required: false
+            default: "'rest'::text"
+          - name: duration_minutes
+            type: integer
+            required: false
+          - name: break_notes
+            type: text
+            required: false
+          - name: approval_action
+            type: text
+            required: false
+          - name: approval_comments
+            type: text
+            required: false
+          - name: approved_at
+            type: timestamp with time zone
+            required: false
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: budget_allocation
+            type: numeric
+            required: false
+          - name: cost_category
+            type: text
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: task_id
+            to: tasks.trn_tasks.id
+        indexes:
+          - name: idx_trn_task_time_records_project_id
+            unique: false
+            columns: "{project_id}"
+          - name: idx_trn_task_time_records_task_id
+            unique: false
+            columns: "{task_id}"
+          - name: idx_trn_task_time_records_user_id
+            unique: false
+            columns: "{user_id}"
+        trace: []
+      - name: trn_tasks
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: project_id
+            type: uuid
+            required: true
+          - name: type_id
+            type: uuid
+            required: true
+          - name: parent_task_id
+            type: uuid
+            required: false
+          - name: title
+            type: text
+            required: true
+          - name: description
+            type: text
+            required: false
+          - name: priority
+            type: text
+            required: true
+            default: "'MEDIUM'::text"
+          - name: estimated_hours
+            type: numeric
+            required: false
+          - name: actual_hours
+            type: numeric
+            required: false
+            default: "0"
+          - name: progress_percentage
+            type: numeric
+            required: false
+            default: "0.00"
+          - name: planned_start_date
+            type: date
+            required: false
+          - name: planned_end_date
+            type: date
+            required: false
+          - name: actual_start_date
+            type: date
+            required: false
+          - name: actual_end_date
+            type: date
+            required: false
+          - name: is_active
+            type: boolean
+            required: true
+            default: "true"
+          - name: created_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: false
+            default: CURRENT_TIMESTAMP
+          - name: created_by
+            type: uuid
+            required: true
+          - name: updated_by
+            type: uuid
+            required: true
+          - name: stage_id
+            type: uuid
+            required: true
+          - name: workflow_id
+            type: uuid
+            required: false
+          - name: workflow_status
+            type: character varying
+            required: false
+            default: "'not_assigned'::character varying"
+          - name: current_stage
+            type: character varying
+            required: false
+          - name: workflow_assigned_at
+            type: timestamp with time zone
+            required: false
+          - name: workflow_completed_at
+            type: timestamp with time zone
+            required: false
+          - name: criticality_level
+            type: character varying
+            required: false
+            default: "'normal'::character varying"
+          - name: assignment_change_type
+            type: character varying
+            required: false
+          - name: assignment_justification
+            type: text
+            required: false
+          - name: assignment_requested_by
+            type: uuid
+            required: false
+          - name: assignment_requested_at
+            type: timestamp with time zone
+            required: false
+          - name: deleted_at
+            type: timestamp with time zone
+            required: false
+        relations:
+          - from: parent_task_id
+            to: tasks.trn_tasks.id
+          - from: type_id
+            to: tasks.mst_task_types.id
+          - from: stage_id
+            to: tasks.mst_task_stages.id
+        indexes:
+          - name: idx_tasks_assignment_change_type
+            unique: false
+            columns: "{assignment_change_type}"
+          - name: idx_tasks_criticality_level
+            unique: false
+            columns: "{criticality_level}"
+          - name: idx_tasks_workflow_id
+            unique: false
+            columns: "{workflow_id}"
+          - name: idx_tasks_workflow_status
+            unique: false
+            columns: "{workflow_status}"
+          - name: idx_trn_tasks_created_by
+            unique: false
+            columns: "{created_by}"
+          - name: idx_trn_tasks_parent_task_id
+            unique: false
+            columns: "{parent_task_id}"
+          - name: idx_trn_tasks_priority
+            unique: false
+            columns: "{priority}"
+          - name: idx_trn_tasks_project_id
+            unique: false
+            columns: "{project_id}"
+          - name: idx_trn_tasks_stage_id
+            unique: false
+            columns: "{stage_id}"
+          - name: idx_trn_tasks_type_id
+            unique: false
+            columns: "{type_id}"
+          - name: idx_trn_tasks_updated_by
+            unique: false
+            columns: "{updated_by}"
+        trace: []
+  - name: vault
+    tables:
+      - name: secrets
+        purpose: ""
+        columns:
+          - name: id
+            type: uuid
+            required: true
+            default: gen_random_uuid()
+            pk: true
+          - name: name
+            type: text
+            required: false
+          - name: description
+            type: text
+            required: true
+            default: "''::text"
+          - name: secret
+            type: text
+            required: true
+          - name: key_id
+            type: uuid
+            required: false
+          - name: nonce
+            type: bytea
+            required: false
+            default: vault._crypto_aead_det_noncegen()
+          - name: created_at
+            type: timestamp with time zone
+            required: true
+            default: CURRENT_TIMESTAMP
+          - name: updated_at
+            type: timestamp with time zone
+            required: true
+            default: CURRENT_TIMESTAMP
+        relations: []
+        indexes:
+          - name: secrets_name_idx
+            unique: true
+            columns: "{name}"
+        trace: []

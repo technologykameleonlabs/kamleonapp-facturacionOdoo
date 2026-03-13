@@ -1,0 +1,178 @@
+batches:
+  # Base system data
+  - name: entities
+    source: seeds_sql/001_entities.sql
+    table: base.mst_entities
+    order: 10
+
+  - name: roles
+    source: seeds_sql/002_roles.sql
+    table: base.mst_roles
+    order: 20
+
+  - name: permissions
+    source: seeds_sql/003_permissions.sql
+    table: base.mst_permissions
+    order: 30
+
+  - name: role_permissions
+    source: seeds_sql/004_role_permissions.sql
+    table: base.rel_role_permissions
+    order: 40
+
+  - name: users
+    source: seeds_sql/005_users.sql
+    table: base.mst_users
+    order: 50
+
+  - name: user_role_entities
+    source: seeds_sql/006_user_role_entities.sql
+    table: base.rel_user_role_entities
+    order: 60
+
+  # Project management data
+  - name: project_types
+    source: sources/mst_project_types.csv
+    table: projects.mst_project_types
+    key: [code]
+    mapping:
+      code: code
+      name: name
+    order: 100
+
+  - name: project_stages
+    source: seeds_sql/020_project_stages.sql
+    table: projects.mst_project_stages
+    order: 110
+
+  - name: project_templates
+    source: seeds_sql/030_project_templates.sql
+    table: projects.mst_project_templates
+    order: 120
+
+  - name: task_types
+    source: seeds_sql/040_task_types.sql
+    table: tasks.mst_task_types
+    order: 130
+
+  - name: task_stages
+    source: seeds_sql/050_task_stages.sql
+    table: tasks.mst_task_stages
+    order: 140
+
+  - name: contacts
+    source: seeds_sql/060_contacts.sql
+    table: masterdata.mst_contacts
+    order: 150
+
+  # Approval workflow system seeds
+  - name: workflows_maestros
+    source: seeds_sql/200_workflows_maestros.sql
+    table: approval.mst_workflows
+    order: 200
+
+  - name: workflow_stages
+    source: seeds_sql/210_workflow_stages.sql
+    table: approval.mst_workflow_stages
+    order: 210
+
+  - name: workflow_notifications
+    source: seeds_sql/220_workflow_notifications.sql
+    table: approval.cfg_workflow_notifications
+    order: 220
+
+  - name: entity_workflows
+    source: seeds_sql/230_entity_workflows.sql
+    table: approval.trn_entity_workflows
+    order: 230
+
+  - name: workflow_approvals
+    source: seeds_sql/240_workflow_approvals.sql
+    table: approval.log_workflow_approvals
+    order: 240
+
+  # Presence system seeds
+  - name: presence_states
+    source: seeds_sql/400_presence_states.sql
+    table: presence.mst_presence_states
+    order: 400
+
+  - name: presence_user_states
+    source: seeds_sql/410_presence_user_states.sql
+    table: presence.trn_user_presence
+    order: 410
+
+  - name: presence_history
+    source: seeds_sql/420_presence_history.sql
+    table: presence.log_presence_history
+    order: 420
+
+  # Notifications system seeds
+  - name: notification_types
+    source: seeds_sql/500_notification_types.sql
+    table: notifications.mst_notification_types
+    order: 500
+
+  - name: notification_templates
+    source: seeds_sql/510_notification_templates.sql
+    table: notifications.cfg_notification_templates
+    order: 510
+
+  # Configuración de destinatarios no incluida en versión simple
+  # - name: notification_recipients
+  #   source: seeds_sql/520_notification_recipients.sql
+  #   table: notifications.cfg_notification_recipients
+  #   order: 520
+
+  - name: notification_history
+    source: seeds_sql/530_notification_history.sql
+    table: notifications.log_notifications
+    order: 530
+
+  # Dashboard system seeds
+  - name: google_calendar_integrations
+    source: seeds_sql/600_google_calendar_integrations.sql
+    table: dashboard.cfg_google_calendar_integrations
+    order: 600
+
+  # Discord integration seeds
+  - name: discord_channel_types
+    source: seeds_sql/700_discord_channel_types.sql
+    table: discord.mst_channel_types
+    order: 700
+
+  - name: discord_channels
+    source: seeds_sql/710_discord_channels.sql
+    table: discord.trn_channels
+    order: 710
+
+  - name: discord_channel_members
+    source: seeds_sql/720_discord_channel_members.sql
+    table: discord.rel_channel_members
+    order: 720
+
+  - name: discord_demo_project_channel
+    source: seeds_sql/730_discord_project_channels_demo.sql
+    table: discord.trn_channels
+    order: 730
+
+  # Analytics Seeds (EP-020)
+  - name: analytics_entry_types
+    source: seeds_sql/800_analytics_entry_types.sql
+    table: analytics.mst_analytics_entry_types
+    order: 800
+
+  - name: analytics_categories
+    source: seeds_sql/810_analytics_categories.sql
+    table: analytics.mst_analytics_categories
+    order: 810
+
+  - name: analytics_sample_entries
+    source: seeds_sql/820_analytics_sample_entries.sql
+    table: analytics.trn_analytic_entries
+    order: 820
+
+  - name: analytics_views
+    source: seeds_sql/830_analytics_views.sql
+    table: analytics.v_analytic_entries_detailed
+    order: 830

@@ -1,0 +1,28 @@
+Epic,Nombre,US,SP,Fase,MVP,Prioridad,Orden
+EP-001,Captación automática de leads,3,6,Fase 1,Sí,Alta,1
+EP-002,Registro y cualificación de leads,2,4,Fase 1,Sí,Alta,2
+EP-003,Respuesta automática inicial,4,8,Fase 1,Sí,Alta,3
+EP-004,Agendamiento de reuniones,6,12,Fase 1,Sí,Alta,4
+EP-005,Registro de información durante reunión,5,10,Fase 1,Sí,Alta,5
+EP-006,Generación automática de presupuestos,6,12,Fase 1,Sí,Alta,6
+EP-007,Negociación de presupuestos,5,10,Fase 1,Sí,Alta,7
+EP-008,Generación automática de contratos,5,10,Fase 1,Sí,Alta,8
+EP-009,Gestión de firmas digitales,6,12,Fase 1,Sí,Alta,9
+EP-010,Activación automática de proyectos,5,10,Fase 2,Sí,Alta,10
+EP-011,Reserva automática de fechas,4,8,Fase 2,Sí,Alta,11
+EP-012,Registro de tiempo por proyecto,5,10,Fase 2,Opc.,Media,12
+EP-013,Gestión de recursos de producción,5,10,Fase 2,Opc.,Media,13
+EP-014,Control de rentabilidad en tiempo real,6,12,Fase 2,Opc.,Media,14
+EP-015,Preparación de bodas,5,10,Fase 2,Sí (bodas),Alta,15
+EP-016,Gestión del día de la boda,6,12,Fase 2,Sí (bodas),Alta,16
+EP-017,Seguimiento de postproducción de bodas,5,10,Fase 2,Sí (bodas),Alta,17
+EP-018,Registro de material RRSS,4,8,Fase 2,Opc.,Media,18
+EP-019,Entrega de material para revisión,5,10,Fase 2,Sí,Alta,19
+EP-020,Gestión de comentarios y modificaciones,6,12,Fase 3,Sí,Alta,20
+EP-021,Incorporación de cambios y segunda entrega,6,12,Fase 3,Sí,Alta,21
+EP-022,Generación automática de factura final,4,8,Fase 3,Sí,Alta,22
+EP-023,Solicitud automática de feedback,5,10,Fase 3,Opc.,Media,23
+EP-024,Cierre automático de proyecto,5,10,Fase 3,Sí,Alta,24
+EP-025,Almacenamiento automático de archivos,6,12,Fase 4,No,Media,25
+EP-026,Registro de ubicación en discos físicos,4,8,Fase 4,No,Media,26
+EP-027,Gestión de retención y eliminación,5,10,Fase 4,No,Media,27
