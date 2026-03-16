@@ -65,6 +65,30 @@ El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, po
 ### Estados implicados
 - **Proyecto**: de "Pendiente de activación" (o similar) a "Activo".
 
+### Campos principales
+
+| Campo                          | Descripción                                                                                   | Tipo                          |
+|--------------------------------|-----------------------------------------------------------------------------------------------|-------------------------------|
+| proyecto.id                    | Identificador único del proyecto                                                              | Entero / UUID                 |
+| proyecto.estado                | Estado del proyecto (pendiente_activacion, activo, cerrado, etc.)                            | Enumerado                     |
+| proyecto.fecha_activacion      | Fecha y hora en la que el proyecto pasa a estado Activo                                       | Fecha/hora                    |
+| proyecto.activado_por          | Usuario o proceso que disparó la activación (usuario_id o código de sistema)                 | Relación / Texto corto        |
+| proyecto.disparador_activacion | Tipo de disparador (acción_manual, contrato_firmado, regla_configurada)                      | Enumerado                     |
+| anticipo.importe               | Importe del anticipo/pago inicial registrado (si aplica)                                     | Numérico (decimal)            |
+| anticipo.moneda                | Moneda del anticipo (si MF-012 está activo)                                                  | Enumerado / Código moneda     |
+| anticipo.factura_id            | Referencia a la factura de anticipo generada                                                 | Relación (FK a factura)       |
+| calendario.evento_id           | Identificador del evento en calendario asociado a la reserva de fecha (si aplica)           | Texto / Relación externa      |
+| notificacion.equipo_enviada    | Indicador de que se envió notificación al equipo                                             | Booleano                      |
+| notificacion.cliente_enviada   | Indicador de que se envió notificación al cliente                                            | Booleano                      |
+| activacion.registro_id         | Identificador del registro de activación almacenado para trazabilidad                       | Entero / UUID                 |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Diseño de modelo de activación, anticipo y registro de activación: **0,5–0,75 días**.
+- Lógica de activación (disparadores, validaciones, registro) + API/servicio: **1–1,5 días**.
+- Ajustes de UI en ficha de proyecto (botón Activar, registrar anticipo, indicadores de estado) y notificaciones: **1–1,5 días**.
+- Estimación total para MF-001 con apoyo de IA (sin contar QA manual ni despliegue): **~2,5–3,5 días**.
+
 ### Criterios de aceptación (resumen)
 - Activar proyecto sin pago previo (manual o por evento). Opcional: registrar anticipo y generar factura por monto acordado; notificaciones y registro de activación guardados. Trazabilidad: desde proyecto, fecha de activación y factura de anticipo si existe.
 
@@ -130,6 +154,30 @@ Cuando el proyecto se cierra o se acepta la última entrega (según flujo de pro
 - Proyecto en estado que permita "factura de cierre" (evento de cierre recibido).
 - Total acordado y total ya facturado calculables correctamente; cliente de facturación disponible.
 - Serie de facturas disponible cuando saldo > 0.
+
+### Campos principales
+
+| Campo                          | Descripción                                                                                   | Tipo                          |
+|--------------------------------|-----------------------------------------------------------------------------------------------|-------------------------------|
+| proyecto.id                    | Identificador del proyecto al que se vincula la factura de cierre                            | Entero / UUID                 |
+| proyecto.total_acordado        | Importe total acordado/presupuestado para el proyecto                                        | Numérico (decimal)            |
+| proyecto.total_facturado       | Suma de importes de todas las facturas asociadas al proyecto                                 | Numérico (decimal)            |
+| proyecto.saldo_pendiente       | Diferencia entre total_acordado y total_facturado                                            | Numérico (decimal)            |
+| cierre.evento_id               | Identificador del evento de cierre (última_entrega_aceptada / listo_para_cerrar)            | Texto corto / Enumerado       |
+| factura_cierre.id              | Identificador interno de la factura de cierre                                                 | Entero / UUID                 |
+| factura_cierre.numero          | Número fiscal de la factura de cierre                                                         | Texto corto                   |
+| factura_cierre.fecha           | Fecha de emisión de la factura de cierre                                                      | Fecha                         |
+| factura_cierre.importe_total   | Importe total de la factura de cierre (saldo pendiente)                                      | Numérico (decimal)            |
+| factura_cierre.estado_documento| Estado del documento (borrador, publicada, etc.)                                             | Enumerado                     |
+| factura_cierre.estado_pago     | Estado de pago (pendiente, parcialmente_pagada, pagada)                                      | Enumerado                     |
+| factura_cierre.cliente_id      | Referencia al cliente de facturación                                                         | Relación (FK a cliente)       |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Cálculo de saldo pendiente y consolidación de totales por proyecto: **0,75–1 día**.
+- Generación automática de factura de cierre (modelo, API, numeración, vínculos a proyecto) y lógica de notificación: **1–1,5 días**.
+- UI para configuración de evento de cierre + controles en cierre de proyecto: **0,75–1 día**.
+- Estimación total para MF-002 con apoyo de IA: **~2,5–3,5 días**.
 
 ### Criterios de aceptación (resumen)
 - Al cerrar proyecto: si hay saldo pendiente > 0, factura de cierre generada en < 2 min, cliente notificado, factura con estado "Pendiente". Si saldo = 0, no se genera factura y el proyecto puede cerrarse según reglas. Tras confirmación de administración: estado de pago "Recibido"; proyecto listo para cierre formal.
@@ -221,6 +269,39 @@ Permitir crear, editar en borrador y publicar facturas de cliente con líneas, i
 - Línea de factura: factura_id, orden, descripción, cantidad, precio_unitario, impuesto_id, descuento_linea, importe_total_linea, base_imponible, importe_impuesto.
 - Serie documental: id, nombre, prefijo, siguiente_numero, ejercicio, empresa_id (opcional).
 
+### Campos principales
+
+| Campo                         | Descripción                                                                           | Tipo                          |
+|-------------------------------|---------------------------------------------------------------------------------------|-------------------------------|
+| factura.id                   | Identificador interno de la factura                                                   | Entero / UUID                 |
+| factura.numero               | Número fiscal definitivo de la factura                                               | Texto corto                   |
+| factura.serie_id             | Serie documental asociada                                                             | Relación (FK serie)          |
+| factura.fecha                | Fecha de emisión de la factura                                                        | Fecha                         |
+| factura.cliente_id           | Cliente de facturación                                                                | Relación (FK cliente)        |
+| factura.termino_pago_id      | Término de pago aplicado                                                              | Relación (FK término pago)   |
+| factura.estado_documento     | Estado del documento (borrador, publicada, enviada, vencida, cancelada, etc.)        | Enumerado                     |
+| factura.estado_pago          | Estado de pago (no_pagada, parcial, pagada)                                          | Enumerado                     |
+| factura.moneda               | Moneda de la factura (si MF-012 activo)                                              | Enumerado / código ISO       |
+| factura.total_base           | Base imponible total                                                                  | Numérico (decimal)           |
+| factura.total_impuestos      | Suma de impuestos                                                                     | Numérico (decimal)           |
+| factura.total_descuentos     | Suma de descuentos (línea + global)                                                  | Numérico (decimal)           |
+| factura.total                | Importe total de la factura                                                           | Numérico (decimal)           |
+| linea.id                     | Identificador de la línea de factura                                                  | Entero / UUID                 |
+| linea.factura_id             | Referencia a la factura                                                               | Relación (FK factura)        |
+| linea.descripcion            | Descripción de la línea                                                               | Texto                         |
+| linea.cantidad               | Cantidad                                                                              | Numérico (decimal)           |
+| linea.precio_unitario        | Precio unitario                                                                       | Numérico (decimal)           |
+| linea.impuesto_id            | Impuesto asociado a la línea                                                          | Relación (FK impuesto)       |
+| linea.descuento              | Descuento aplicado a la línea (importe o porcentaje)                                  | Numérico / Estructurado      |
+| linea.importe_total          | Importe total de la línea (tras descuento e impuestos)                               | Numérico (decimal)           |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Modelado de factura, líneas, series y estados + migraciones: **1–1,5 días**.
+- Servicios/API CRUD y lógica de ciclo de vida (publicar, numerar, bloquear, estados): **2–3 días**.
+- UI de listado, detalle y edición en borrador (con filtros y validaciones) apoyada en IA: **2–3 días**.
+- Estimación total para MF-003: **~5–7 días** de desarrollo efectivo con IA (sin contar QA/manual ni despliegue).
+
 ### Criterios de aceptación (resumen)
 - Crear factura en borrador con líneas e impuestos; totales correctos; guardar sin número definitivo.
 - Publicar: número asignado por serie, estado Publicada, campos bloqueados.
@@ -299,6 +380,31 @@ Registrar los cobros recibidos (entidad Pago/Cobro), aplicarlos a una o varias f
 - Aplicación de pago: id, pago_id, factura_id, importe_aplicado, fecha_aplicacion. (Permite trazabilidad y reverso.)
 - Factura: saldo_pendiente, estado_pago (calculado o persistido).
 
+### Campos principales
+
+| Campo                         | Descripción                                                                           | Tipo                          |
+|-------------------------------|---------------------------------------------------------------------------------------|-------------------------------|
+| pago.id                      | Identificador del pago/cobro                                                         | Entero / UUID                 |
+| pago.fecha                   | Fecha valor del cobro                                                                 | Fecha                         |
+| pago.importe_total           | Importe total registrado para el pago                                               | Numérico (decimal)           |
+| pago.metodo_pago_id          | Método de pago (transferencia, efectivo, tarjeta, etc.)                              | Relación (FK método)         |
+| pago.referencia              | Referencia externa (nº operación, cheque, etc.)                                      | Texto corto                   |
+| pago.cliente_id              | Cliente al que se asocia el pago (si aplica)                                         | Relación (FK cliente)        |
+| pago.estado_aplicacion       | Estado del pago (pendiente_aplicar, parcial, aplicado)                               | Enumerado                     |
+| aplicacion_pago.id           | Identificador de la aplicación de pago a factura                                     | Entero / UUID                 |
+| aplicacion_pago.pago_id      | Referencia al pago                                                                   | Relación (FK pago)           |
+| aplicacion_pago.factura_id   | Referencia a la factura                                                              | Relación (FK factura)        |
+| aplicacion_pago.importe      | Importe aplicado de ese pago a esa factura                                           | Numérico (decimal)           |
+| factura.saldo_pendiente      | Saldo sin cobrar de la factura                                                       | Numérico (decimal)           |
+| factura.estado_pago          | Estado de pago de la factura derivado de sus aplicaciones                           | Enumerado                     |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Diseño de entidades Pago y AplicaciónPago + migraciones: **0,5–0,75 días**.
+- Lógica de aplicación/reverso de cobros y actualización de saldo/estado de factura: **1–1,5 días**.
+- UI de registro de pagos, asistente de aplicación y listado de cobros: **1–1,5 días**.
+- Estimación total para MF-004: **~3–4 días** de desarrollo apoyado en IA.
+
 ### Criterios de aceptación (resumen)
 - Registrar pago; aplicarlo a una o varias facturas; ver estado de pago actualizado en la factura y en el listado.
 - Reverso: anular aplicación y ver saldos y estados correctos.
@@ -339,6 +445,29 @@ Emitir notas de crédito (abonos) vinculadas a una factura ya publicada, con imp
 - Total NC ≤ total factura original (si es parcial). Total NC > 0.
 - Factura original no cancelada.
 
+### Campos principales
+
+| Campo                    | Descripción                                                                  | Tipo                    |
+|--------------------------|------------------------------------------------------------------------------|-------------------------|
+| factura_original.id      | Identificador de la factura que será rectificada                            | Entero / UUID          |
+| factura_original.numero  | Número de la factura original                                               | Texto corto            |
+| factura_original.total   | Importe total de la factura original                                       | Numérico (decimal)     |
+| nc.id                    | Identificador de la nota de crédito                                         | Entero / UUID          |
+| nc.numero                | Número de la nota de crédito (serie/prefijo propio)                         | Texto corto            |
+| nc.fecha                 | Fecha de emisión de la nota de crédito                                      | Fecha                  |
+| nc.total                 | Importe total de la nota de crédito (positivo o negativo según modelo)      | Numérico (decimal)     |
+| nc.motivo                | Motivo o descripción de la rectificación                                    | Texto                  |
+| nc.lineas                | Colección de líneas rectificadas (referencia a líneas de factura)           | Colección / relación   |
+| nc.estado_documento      | Estado de la NC (borrador, publicada, cancelada, etc.)                      | Enumerado              |
+| relacion.factura_id      | Referencia desde NC a factura original                                      | Relación (FK factura)  |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Modelado de notas de crédito y relación con factura original: **0,5–0,75 días**.
+- Lógica de creación desde factura, cálculo de importes y publicación/anulación: **1–1,25 días**.
+- Ajustes de UI (acción “Crear NC”, formulario, listados) con apoyo de IA: **0,75–1 día**.
+- Estimación total para MF-005: **~2,25–3 días** de desarrollo efectivo.
+
 ### Criterios de aceptación (resumen)
 - Crear NC desde factura; definir importes/líneas a revertir; publicar con número; vinculación visible en factura y en NC.
 
@@ -365,6 +494,32 @@ Generar el documento oficial de la factura (o nota de crédito) en PDF con dise�
 ### Reglas de negocio
 - Solo facturas/NC publicadas pueden tener PDF oficial y envío.
 - El PDF debe ser reproducible (mismos datos → mismo contenido) para auditoría.
+
+### Campos principales
+
+| Campo                 | Descripción                                                        | Tipo                 |
+|-----------------------|--------------------------------------------------------------------|----------------------|
+| factura.id            | Identificador de la factura/NC                                    | Entero / UUID        |
+| factura.numero        | Número a mostrar en el PDF                                        | Texto corto          |
+| factura.fecha         | Fecha de la factura                                               | Fecha                |
+| factura.cliente_id    | Cliente de facturación                                            | Relación (FK cliente)|
+| factura.total         | Importe total a mostrar                                           | Numérico (decimal)   |
+| factura.moneda        | Moneda de la factura                                              | Enumerado / código   |
+| factura.direccion_empresa | Datos fiscales de la empresa emisora                        | Texto / compuesto    |
+| factura.direccion_cliente | Datos de facturación del cliente                             | Texto / compuesto    |
+| pdf.ruta_almacenamiento  | Ruta o identificador del PDF generado                         | Texto (ruta/URL)     |
+| pdf.plantilla_id      | Identificador de la plantilla de diseño de PDF                    | Relación / texto     |
+| envio.id              | Identificador del registro de envío                               | Entero / UUID        |
+| envio.destinatario    | Email al que se envía la factura                                  | Texto (email)        |
+| envio.fecha_envio     | Fecha/hora en que se envía el email                              | Fecha/hora           |
+| envio.asunto          | Asunto del correo                                                 | Texto corto          |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Integración con generador de PDF (plantilla, datos, snapshot) y almacenamiento: **1–1,5 días**.
+- Lógica de descarga y endpoint/acción de envío por email + registro en auditoría: **1–1,25 días**.
+- Ajustes de UI (botones Descargar PDF / Enviar por email) y pruebas básicas: **0,5–0,75 días**.
+- Estimación total para MF-006: **~2,5–3,5 días** de desarrollo apoyado en IA.
 
 ### Criterios de aceptación (resumen)
 - PDF generado correctamente con todos los datos; descarga desde ficha; envío por email con adjunto y registro.
@@ -439,6 +594,32 @@ Los proyectos se facturan **mensualmente** en función de lo realizado en cada p
 - **Tarea / Registro tiempo / Hito**: campo factura_id (o tabla facturacion_linea_origen) para marcar como facturado.
 - **Proyecto**: configuración opcional fee_mensual, presupuesto_total.
 
+### Campos principales
+
+| Campo                          | Descripción                                                                       | Tipo                          |
+|--------------------------------|-----------------------------------------------------------------------------------|-------------------------------|
+| proyecto.id                    | Identificador del proyecto                                                        | Entero / UUID                 |
+| proyecto.cliente_id           | Cliente asociado al proyecto                                                      | Relación (FK cliente)        |
+| proyecto.fee_mensual          | Importe fijo mensual configurado (si aplica)                                      | Numérico (decimal)           |
+| proyecto.presupuesto_total    | Presupuesto total del proyecto                                                    | Numérico (decimal)           |
+| proyecto.periodo_facturado[]  | Lista de periodos ya facturados para prevención de doble facturación             | Colección / estructura       |
+| factura.id                    | Identificador de la factura de periodo                                            | Entero / UUID                 |
+| factura.periodo_facturado     | Periodo (mes/año o rango) que cubre la factura                                    | Texto estructurado / fecha   |
+| factura.proyecto_id           | Proyecto desde el que se ha generado la factura                                  | Relación (FK proyecto)       |
+| linea.id                      | Identificador de la línea de factura                                              | Entero / UUID                 |
+| linea.origen_tipo             | Tipo de origen de la línea (tarea, horas, hito, fee_mensual)                     | Enumerado                     |
+| linea.origen_id               | Identificador del elemento origen (tarea_id, registro_tiempo_id, hito_id, etc.)  | Entero / UUID / Null         |
+| linea.descripcion             | Descripción generada (nombre tarea, hito, resumen de horas, etc.)                | Texto                         |
+| linea.importe                 | Importe de la línea                                                               | Numérico (decimal)           |
+| origen.facturado              | Marca en tarea/registro/hito de que ya ha sido facturado                         | Booleano                      |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Integración entre proyectos y facturación (modelo, vínculos, periodo facturado): **1–1,5 días**.
+- Lógica de generación de líneas por tareas/horas/hitos/fee y prevención de doble facturación: **2–3 días**.
+- UI en ficha de proyecto (selector de periodo, vista de facturas por periodo, totales) con apoyo de IA: **1,5–2 días**.
+- Estimación total para MF-007: **~4,5–6,5 días** de desarrollo efectivo.
+
 ### Criterios de aceptación (resumen)
 - Crear factura de periodo (mes) desde proyecto; líneas generadas desde tareas realizadas, horas facturables, hitos o fee mensual; solo conceptos no facturados previamente; al publicar, conceptos quedan marcados como facturados; no se puede crear segunda factura para el mismo proyecto+periodo; trazabilidad visible en proyecto (listado facturas, total facturado) y en factura (proyecto, periodo).
 
@@ -476,6 +657,29 @@ Soportar **anticipos** (importe o % sobre proyecto) facturados al inicio y su **
 ### Reglas de negocio
 - Un anticipo solo puede descontarse hasta su importe total (suma de descuentos aplicados en facturas ≤ importe anticipo).
 - Total descontado en una factura ≤ anticipo pendiente de ese proyecto en el momento de publicar.
+
+### Campos principales
+
+| Campo                         | Descripción                                                                       | Tipo                          |
+|-------------------------------|-----------------------------------------------------------------------------------|-------------------------------|
+| anticipo.id                  | Identificador del anticipo                                                        | Entero / UUID                 |
+| anticipo.proyecto_id         | Proyecto al que está asociado el anticipo                                         | Relación (FK proyecto)       |
+| anticipo.importe_total       | Importe total del anticipo                                                        | Numérico (decimal)           |
+| anticipo.importe_descontado  | Importe del anticipo ya aplicado en facturas                                      | Numérico (decimal)           |
+| anticipo.importe_pendiente   | Importe aún pendiente de descontar                                                | Numérico (decimal)           |
+| anticipo.moneda              | Moneda del anticipo                                                               | Enumerado / código           |
+| factura.id                   | Identificador de la factura donde se descuenta el anticipo                        | Entero / UUID                 |
+| factura.proyecto_id          | Proyecto de la factura                                                            | Relación (FK proyecto)       |
+| factura.linea_descuento_id   | Línea (o líneas) de descuento asociadas al anticipo                               | Relación / colección         |
+| proyecto.total_facturado     | Total facturado del proyecto (incluye anticipos y facturas mensuales)            | Numérico (decimal)           |
+| proyecto.presupuesto_total   | Presupuesto de referencia para comparativa                                        | Numérico (decimal)           |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Modelo de anticipo y relación con proyecto/facturas: **0,75–1 día**.
+- Lógica de descuento automático/manualmente configurable en facturas mensuales + control de pendiente: **1–1,5 días**.
+- UI para gestión de anticipos y vista de total facturado vs presupuesto: **1–1,5 días**.
+- Estimación total para MF-008: **~3–4 días** con apoyo de IA.
 
 ### Criterios de aceptación (resumen)
 - Crear factura anticipo; descontar anticipo en facturas mensuales (o cierre); ver total facturado por proyecto y anticipos pendientes; alerta si total facturado > presupuesto.
@@ -561,6 +765,38 @@ Mantener los datos base necesarios para facturación: términos de pago, impuest
 4. **Configuración empresa**: Datos para el pie o cabecera del PDF: nombre legal, NIF, dirección, logo (URL o archivo). Una empresa por defecto si no hay multi-empresa.
 5. **Productos/tarifas (opcional)**: Catálogo de productos o servicios con descripción, unidad de medida, precio, impuesto por defecto. Al añadir línea en factura se puede elegir producto y rellenar cantidad y precio. Opcional: precios por cliente o tarifa.
 
+### Campos principales (maestros)
+
+| Campo                         | Descripción                                                                 | Tipo                          |
+|-------------------------------|-----------------------------------------------------------------------------|-------------------------------|
+| termino_pago.nombre          | Nombre visible del término de pago (p.ej. Contado, 30 días)                | Texto corto                   |
+| termino_pago.tipo            | Clasificación del término (contado, 30 días, 60 días, personalizado, etc.) | Enumerado                     |
+| termino_pago.definicion      | Regla de vencimiento (días desde factura, fechas fijas, % a 30/60 días…)   | Texto estructurado / JSON    |
+| impuesto.nombre              | Nombre del impuesto (p.ej. IVA 21%)                                         | Texto corto                   |
+| impuesto.porcentaje          | Porcentaje aplicable                                                        | Numérico (decimal)           |
+| impuesto.tipo_calculo        | Indicador de si el impuesto va incluido o no en el precio                  | Enumerado                     |
+| impuesto.activo              | Marca para usar / no usar en nuevas facturas                               | Booleano                     |
+| cliente_facturacion.nombre   | Razón social / nombre del cliente de facturación                           | Texto corto                   |
+| cliente_facturacion.nif      | NIF/CIF u otro identificador fiscal                                         | Texto corto                   |
+| cliente_facturacion.direccion| Dirección fiscal                                                            | Texto largo                   |
+| cliente_facturacion.email    | Email de contacto para facturas                                            | Texto (email)                |
+| cliente_facturacion.termino_pago_id | Término de pago por defecto para este cliente                       | Relación (FK a termino_pago) |
+| empresa.nombre_legal         | Nombre legal que se mostrará en el PDF                                     | Texto corto                   |
+| empresa.nif                  | NIF/CIF de la empresa emisora                                              | Texto corto                   |
+| empresa.direccion            | Dirección fiscal de la empresa                                             | Texto largo                   |
+| empresa.logo_url             | Ruta o URL del logo a usar en PDFs                                         | Texto (URL / ruta)           |
+| producto.nombre              | Nombre del producto/servicio                                               | Texto corto                   |
+| producto.unidad_medida       | Unidad de medida (hora, unidad, servicio, etc.)                            | Texto corto / Enumerado      |
+| producto.precio_unitario     | Precio unitario por defecto                                                | Numérico (decimal)           |
+| producto.impuesto_id         | Impuesto por defecto del producto                                          | Relación (FK a impuesto)     |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- **Configuración básica de maestros (términos, impuestos, empresa)**: ~ **2–3 días** de desarrollo efectivo usando IA (modelado, API, pantallas CRUD, validaciones).
+- **Extensión cliente/contacto de facturación + vínculo con proyectos**: ~ **1–1,5 días**.
+- **Productos/tarifas y precios por cliente (opcional)**: ~ **1,5–2 días**.
+- Total estimado para MF-011 (end-to-end, sin contar QA/manual ni despliegue): alrededor de **4,5–6,5 días** de trabajo apoyado en IA.
+
 ### Reglas de negocio
 - No eliminar término de pago ni impuesto si están en uso en facturas existentes; solo desactivar o marcar "no usar en nuevas".
 - Cliente con NIF único si la normativa lo exige.
@@ -594,6 +830,28 @@ Soportar facturas en moneda distinta de la moneda base de la empresa; fijar el t
 - Una vez publicada la factura, el tipo de cambio no debe modificarse (bloqueo como el resto de campos fiscales).
 - Cobros en otra moneda: definir si el pago se registra en moneda factura o en moneda base y si se generan diferencias de cambio (habitualmente fase posterior).
 
+### Campos principales
+
+| Campo                   | Descripción                                                           | Tipo                    |
+|-------------------------|-----------------------------------------------------------------------|-------------------------|
+| empresa.moneda_base     | Moneda base configurada para la empresa                              | Enumerado / código ISO  |
+| moneda.codigo           | Código de moneda permitido (EUR, USD, etc.)                          | Enumerado / texto corto |
+| moneda.nombre           | Nombre descriptivo de la moneda                                      | Texto corto             |
+| tipo_cambio.fecha       | Fecha en la que se fija el tipo de cambio                            | Fecha                   |
+| tipo_cambio.moneda      | Moneda a la que se aplica la tasa                                    | Enumerado / código ISO  |
+| tipo_cambio.valor       | Valor de la tasa (p.ej. 1 EUR = 1,08 USD)                            | Numérico (decimal)      |
+| factura.moneda          | Moneda de la factura                                                 | Enumerado / código ISO  |
+| factura.tipo_cambio     | Tipo de cambio aplicado a la factura                                 | Numérico (decimal)      |
+| factura.total_moneda    | Total en moneda de la factura                                        | Numérico (decimal)      |
+| factura.total_base      | Total equivalente en moneda base                                     | Numérico (decimal)      |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Configuración de monedas y tipos de cambio (modelo y mantenimiento): **0,75–1 día**.
+- Adaptación de facturación para manejar moneda y tipo de cambio congelado en factura: **1–1,25 días**.
+- Ajustes de listados/reportes para mostrar importes en moneda factura y moneda base: **0,75–1 día**.
+- Estimación total para MF-012: **~2,5–3,25 días** con apoyo de IA.
+
 ### Criterios de aceptación (resumen)
 - Factura en moneda base u otra; tipo de cambio fijado al publicar; totales en ambas monedas si aplica.
 
@@ -623,6 +881,28 @@ Definir quién puede ver, crear, editar, publicar, anular facturas y registrar c
 - Sin permiso "Registrar cobros" no se puede aplicar un pago a facturas.
 - Anulación suele requerir permiso específico por riesgo fiscal.
 
+### Campos principales
+
+| Campo                    | Descripción                                                        | Tipo                    |
+|--------------------------|--------------------------------------------------------------------|-------------------------|
+| rol.id                   | Identificador del rol                                             | Entero / UUID          |
+| rol.nombre               | Nombre del rol (Admin facturación, Operador, etc.)               | Texto corto            |
+| permiso.id               | Identificador del permiso (accion_ver, accion_publicar, etc.)    | Entero / UUID          |
+| permiso.codigo           | Código de permiso (ver_facturacion, publicar_facturas, etc.)     | Texto corto            |
+| rol_permiso.rol_id       | Rol al que se asigna el permiso                                  | Relación (FK rol)      |
+| rol_permiso.permiso_id   | Permiso asignado                                                  | Relación (FK permiso)  |
+| usuario.id               | Identificador de usuario                                          | Entero / UUID          |
+| usuario.rol_id           | Rol o roles asociados al usuario                                  | Relación / colección   |
+| visibilidad.tipo         | Tipo de visibilidad (todos_los_clientes, solo_mis_clientes)      | Enumerado              |
+| modulo_facturacion.activo| Indica si el módulo de facturación está activo                    | Booleano               |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Diseño de modelo de roles/permisos y asignación a usuarios: **0,75–1 día**.
+- Aplicación de permisos en menú, listados y acciones clave de facturación: **1–1,5 días**.
+- UI de administración de roles/permisos (lista, alta/edición rápida) con IA: **0,75–1 día**.
+- Estimación total para MF-013: **~2,5–3,5 días** de desarrollo efectivo.
+
 ### Criterios de aceptación (resumen)
 - Permisos aplicados en menú, listados y acciones; visibilidad por cliente según rol.
 
@@ -650,6 +930,34 @@ Registrar cambios en facturas y cobros, envíos de email y opcionalmente snapsho
 ### Reglas de negocio
 - Los logs no deben ser editables ni eliminables por usuarios normales (solo lectura para admins).
 - Retención de logs según política de cumplimiento (ej. 5 años).
+
+### Campos principales
+
+| Campo                        | Descripción                                                                 | Tipo                    |
+|------------------------------|-----------------------------------------------------------------------------|-------------------------|
+| audit_log.id                | Identificador del registro de auditoría                                     | Entero / UUID          |
+| audit_log.entidad           | Tipo de entidad (factura, cobro, nota_credito, etc.)                        | Texto corto / Enumerado|
+| audit_log.entidad_id        | Identificador de la entidad afectada                                        | Entero / UUID          |
+| audit_log.usuario_id        | Usuario que realizó la acción                                               | Relación (FK usuario)  |
+| audit_log.fecha             | Fecha/hora del cambio                                                       | Fecha/hora             |
+| audit_log.tipo_cambio       | Tipo de cambio (creacion, modificacion, cambio_estado, reverso_pago, etc.) | Enumerado              |
+| audit_log.detalle           | Detalle del cambio (campo anterior/nuevo, diff JSON, etc.)                 | Texto / JSON           |
+| envio_log.id                | Identificador de registro de envío de email                                 | Entero / UUID          |
+| envio_log.factura_id        | Factura asociada al envío                                                   | Relación (FK factura)  |
+| envio_log.destinatario      | Dirección de email a la que se envió                                        | Texto (email)          |
+| envio_log.fecha_envio       | Fecha/hora de envío                                                         | Fecha/hora             |
+| envio_log.adjunto_pdf       | Indicador de que se adjuntó el PDF                                          | Booleano               |
+| cobro_log.id                | Identificador de registro de aplicación/reverso de cobro                    | Entero / UUID          |
+| cobro_log.pago_id           | Pago asociado                                                                | Relación (FK pago)     |
+| cobro_log.factura_id        | Factura asociada                                                             | Relación (FK factura)  |
+| cobro_log.importe           | Importe aplicado o revertido                                                | Numérico (decimal)     |
+
+### Estimación de esfuerzo (con soporte de IA)
+
+- Implementación de tabla de auditoría genérica y hooks en operaciones clave (facturas, cobros, envíos): **1–1,5 días**.
+- UI de consulta de historial (pestaña Historial en factura, listados de logs básicos): **1–1,25 días**.
+- Gestión de snapshots PDF (opcional) y políticas de retención: **0,75–1 día**.
+- Estimación total para MF-014: **~3–3,75 días** de desarrollo efectivo.
 
 ### Criterios de aceptación (resumen)
 - Historial de cambios en factura visible; registro de envíos de email y de aplicaciones de pago; opcional snapshot PDF.

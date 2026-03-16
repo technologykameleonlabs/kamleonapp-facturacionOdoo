@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Requisitos funcionales detallados — Módulo de facturación Kameleon App</title>
+  <style>
+    :root {
+      --color-primary: #1a365d;
+      --color-primary-light: #2c5282;
+      --color-accent: #2b6cb0;
+      --color-text: #2d3748;
+      --color-text-muted: #4a5568;
+      --color-border: #e2e8f0;
+      --color-bg: #f7fafc;
+      --color-bg-card: #fff;
+      --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Consolas', 'Monaco', monospace;
+      --shadow: 0 1px 3px rgba(0,0,0,.08);
+      --radius: 6px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+    .page-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #1a365d;
+      color: #fff;
+      padding: 1rem 2rem;
+      min-height: 72px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .page-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 .35rem 0;
+    }
+    .page-header .subtitle {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,.85);
+      margin: 0;
+    }
+    .sidebar {
+      position: fixed;
+      top: 72px;
+      left: 0;
+      width: 220px;
+      bottom: 0;
+      z-index: 50;
+      background: var(--color-bg-card);
+      border-right: 1px solid var(--color-border);
+      overflow-y: auto;
+      padding: 1rem 0;
+    }
+    .sidebar nav {
+      padding: 0 .75rem;
+    }
+    .sidebar .nav-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--color-text-muted);
+      margin: 0 0 .5rem 0;
+      padding: 0 .5rem;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar li { margin: 0; }
+    .sidebar a {
+      display: block;
+      padding: .4rem .5rem;
+      font-size: 0.875rem;
+      color: var(--color-accent);
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .sidebar a:hover {
+      background: var(--color-bg);
+      color: var(--color-primary);
+    }
+    .main-with-sidebar {
+      margin-left: 220px;
+      margin-top: 72px;
+      min-height: calc(100vh - 72px);
+    }
+    .doc {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: var(--color-bg-card);
+      box-shadow: var(--shadow);
+    }
+    header.doc-header {
+      border-bottom: 3px solid var(--color-primary);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    header.doc-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin: 0 0 .5rem 0;
+    }
+    .doc .subtitle {
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    h2 {
+      font-size: 1.35rem;
+      color: var(--color-primary);
+      margin: 2.5rem 0 1rem 0;
+      padding-bottom: .35rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+    h2:first-of-type { margin-top: 0; }
+    h3 {
+      font-size: 1.1rem;
+      color: var(--color-primary-light);
+      margin: 1.25rem 0 .5rem 0;
+    }
+    p { margin: .5rem 0 1rem 0; }
+    ul, ol { margin: .5rem 0 1rem 0; padding-left: 1.5rem; }
+    li { margin: .25rem 0; }
+    li ul, li ol { margin: .25rem 0; }
+    strong { color: var(--color-primary); font-weight: 600; }
+    hr {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: 2rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    th, td {
+      padding: .6rem .85rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    th {
+      background: var(--color-primary);
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: var(--color-bg); }
+    tr:hover { background: #edf2f7; }
+    .epic-id { font-weight: 600; color: var(--color-accent); }
+    section { margin-bottom: 2rem; }
+    section[id] { scroll-margin-top: 130px; }
+    footer.doc-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+    @media print {
+      body { background: #fff; }
+      .page-header { position: static; background: #1a365d; color: #fff; }
+      .sidebar { display: none; }
+      .main-with-sidebar { margin-left: 0; margin-top: 0; }
+      .doc { box-shadow: none; max-width: none; }
+      h2 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Definición de Requisitos: Módulo de Finanzas</h1>
+    <p class="subtitle">Sistema: Kameleon App</p>
+  </header>
+
+  <aside class="sidebar" aria-label="Índice del documento">
+    <nav>
+      <p class="nav-title"></p>
+      <p class="nav-title"></p>
+      <ul>
+        <li><a href="#como-usar">Cómo usar</a></li>
+        <li><a href="#mf-001">MF-001 Activación</a></li>
+        <li><a href="#mf-002">MF-002 Factura cierre</a></li>
+        <li><a href="#mf-003">MF-003 Facturación núcleo</a></li>
+        <li><a href="#mf-004">MF-004 Cobros</a></li>
+        <li><a href="#mf-005">MF-005 Notas de crédito</a></li>
+        <li><a href="#mf-006">MF-006 PDF y email</a></li>
+        <li><a href="#mf-007">MF-007 Facturación proyecto</a></li>
+        <li><a href="#mf-008">MF-008 Anticipos</a></li>
+        <li><a href="#mf-009">MF-009 Portal cliente</a></li>
+        <li><a href="#mf-010">MF-010 Dashboard</a></li>
+        <li><a href="#mf-011">MF-011 Maestros</a></li>
+        <li><a href="#mf-012">MF-012 Moneda</a></li>
+        <li><a href="#mf-013">MF-013 Roles</a></li>
+        <li><a href="#mf-014">MF-014 Auditoría</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-with-sidebar">
+    <div class="doc">
+      <header class="doc-header">
+        <h1>Requisitos funcionales detallados — Módulo de facturación Kameleon App</h1>
+        <p class="subtitle">Documento para desarrolladores: especificación en profundidad de cada funcionalidad del módulo de facturación, con procesos, reglas de negocio, validaciones y criterios de aceptación.</p>
+      </header>
+
+    <main>
+      <section id="como-usar">
+        <h2>Cómo usar este documento</h2>
+        <ul>
+          <li>Cada sección corresponde a una <strong>épica</strong> (bloque funcional). Dentro se describe <strong>qué debe hacer el sistema y el usuario</strong>, <strong>en qué orden</strong> y <strong>con qué reglas</strong>.</li>
+          <li><strong>Proceso detallado</strong>: pasos que debe implementar el flujo (backend + frontend).</li>
+          <li><strong>Reglas de negocio</strong>: condiciones que la lógica debe cumplir siempre.</li>
+          <li><strong>Validaciones</strong>: qué comprobar antes de guardar o cambiar de estado.</li>
+          <li><strong>Historias de usuario</strong>: se referencian al final de cada épica; el detalle por US está en las carpetas <code>MF-0XX-*/stories/</code>.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section id="mf-001">
+        <h2>MF-001 — Activación de proyecto (sin pago inicial obligatorio)</h2>
+        <h3>Objetivo</h3>
+        <p>El proyecto se <strong>activa</strong> (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. Opcionalmente se puede registrar un anticipo o pago inicial acordado (cualquier importe) y generar una factura por ese monto; en ese caso se notifica al cliente y se deja trazabilidad. La facturación principal del proyecto será <strong>mensual</strong> (MF-007).</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li><strong>Incluye</strong>: Activación del proyecto (estado "Activo", fecha de activación); disparador por evento (ej. contrato firmado) o por acción manual; opcional: registro de anticipo/pago inicial (importe acordado) y generación de factura por ese importe; reserva de fecha en calendario; notificaciones a equipo y cliente; registro de activación para trazabilidad.</li>
+          <li><strong>Excluye</strong>: Pasarela de pago integrada.</li>
+        </ul>
+        <h3>Actores</h3>
+        <ul>
+          <li><strong>Usuario/Administración</strong>: activa el proyecto manualmente o el sistema lo hace al detectar contrato firmado; opcionalmente registra anticipo.</li>
+          <li><strong>Sistema</strong>: activa proyecto, opcionalmente genera factura de anticipo, reserva fecha, notifica, registra activación.</li>
+          <li><strong>Equipo y Cliente</strong>: receptores de notificaciones.</li>
+        </ul>
+        <h3>Proceso detallado (qué debe hacer el sistema)</h3>
+        <ol>
+          <li><strong>Activación del proyecto</strong>
+            <ul>
+              <li><strong>Disparador</strong>: (a) El usuario ejecuta la acción "Activar proyecto" en la ficha del proyecto (con permiso adecuado), o (b) el sistema detecta que el contrato está firmado (integración con flujo de contratos) y activa automáticamente, o (c) otra regla configurable (ej. "proyecto aprobado").</li>
+              <li>El proyecto pasa a estado "Activo" y se registra la fecha (y hora) de activación.</li>
+              <li>Comprobar que el proyecto no esté ya activo (idempotencia). Si ya está activo, no duplicar activación.</li>
+            </ul>
+          </li>
+          <li><strong>Opcional: registro de anticipo y factura</strong>
+            <ul>
+              <li>Si el negocio acuerda un anticipo con el cliente, el usuario puede <strong>opcionalmente</strong> registrar que se ha recibido ese anticipo (importe acordado) y solicitar la generación de una factura por ese importe.</li>
+              <li>Flujo: desde el proyecto recién activado (o en cualquier momento), acción "Registrar anticipo" o "Generar factura de anticipo". Usuario indica el monto recibido/acordado. El sistema genera una factura (tipo "Anticipo" o "Factura inicial") con número, fecha, cliente del proyecto, concepto (ej. "Proyecto [nombre] – Anticipo"), importe = el indicado. Se asocia al proyecto y queda disponible para descontar en facturas mensuales (MF-008).</li>
+              <li>Si no hay anticipo, se omite este paso; el proyecto sigue activo y se facturará mensualmente (MF-007).</li>
+            </ul>
+          </li>
+          <li><strong>Reserva de fecha (opcional)</strong> — Si aplica integración con calendario: obtener la fecha del proyecto/evento y reservar/bloquear en el calendario.</li>
+          <li><strong>Notificaciones</strong> — A equipo: "Proyecto [nombre] activado." (+ fecha reservada si aplica; + "Factura de anticipo [número] generada" si hubo anticipo). A cliente: "Proyecto activado." Si hubo factura de anticipo: "Factura [número] generada" con enlace o adjunto según configuración. Enviar por canal configurado (email, notificación in-app).</li>
+          <li><strong>Registro de activación</strong> — Guardar registro de "Activación": proyecto_id, timestamp, usuario o evento que disparó, referencia de factura de anticipo (si existe), fecha reservada (si aplica).</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>La activación <strong>no depende</strong> de ningún pago. El proyecto puede activarse sin factura de anticipo.</li>
+          <li>Si se genera factura de anticipo, debe usar la misma moneda que el proyecto; número por serie configurada; una factura de anticipo por proyecto (o política clara si se permiten varias).</li>
+          <li>Un proyecto solo se activa una vez (estado "Activo" es persistente hasta cierre).</li>
+        </ul>
+        <h3>Validaciones</h3>
+        <ul>
+          <li>Proyecto en estado que permita activación (ej. contrato firmado, o pendiente de activación). No activar si ya está activo.</li>
+          <li>Si se registra anticipo: monto &gt; 0; cliente de facturación con datos mínimos; serie de facturas disponible.</li>
+        </ul>
+        <h3>Estados implicados</h3>
+        <p><strong>Proyecto</strong>: de "Pendiente de activación" (o similar) a "Activo".</p>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>proyecto.id</td><td>Identificador único del proyecto</td><td>Entero / UUID</td></tr>
+            <tr><td>proyecto.estado</td><td>Estado del proyecto (pendiente_activacion, activo, cerrado, etc.)</td><td>Enumerado</td></tr>
+            <tr><td>proyecto.fecha_activacion</td><td>Fecha y hora en la que el proyecto pasa a estado Activo</td><td>Fecha/hora</td></tr>
+            <tr><td>proyecto.activado_por</td><td>Usuario o proceso que disparó la activación (usuario_id o código de sistema)</td><td>Relación / Texto corto</td></tr>
+            <tr><td>proyecto.disparador_activacion</td><td>Tipo de disparador (acción_manual, contrato_firmado, regla_configurada)</td><td>Enumerado</td></tr>
+            <tr><td>anticipo.importe</td><td>Importe del anticipo/pago inicial registrado (si aplica)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>anticipo.moneda</td><td>Moneda del anticipo (si MF-012 está activo)</td><td>Enumerado / Código moneda</td></tr>
+            <tr><td>anticipo.factura_id</td><td>Referencia a la factura de anticipo generada</td><td>Relación (FK a factura)</td></tr>
+            <tr><td>calendario.evento_id</td><td>Identificador del evento en calendario asociado a la reserva de fecha (si aplica)</td><td>Texto / Relación externa</td></tr>
+            <tr><td>notificacion.equipo_enviada</td><td>Indicador de que se envió notificación al equipo</td><td>Booleano</td></tr>
+            <tr><td>notificacion.cliente_enviada</td><td>Indicador de que se envió notificación al cliente</td><td>Booleano</td></tr>
+            <tr><td>activacion.registro_id</td><td>Identificador del registro de activación almacenado para trazabilidad</td><td>Entero / UUID</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Diseño de modelo de activación, anticipo y registro de activación: <strong>0,5–0,75 días</strong>.</li>
+          <li>Lógica de activación (disparadores, validaciones, registro) + API/servicio: <strong>1–1,5 días</strong>.</li>
+          <li>Ajustes de UI en ficha de proyecto (botón Activar, registrar anticipo, indicadores de estado) y notificaciones: <strong>1–1,5 días</strong>.</li>
+          <li>Estimación total para MF-001 con apoyo de IA (sin contar QA manual ni despliegue): <strong>~2,5–3,5 días</strong>.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Activar proyecto sin pago previo (manual o por evento). Opcional: registrar anticipo y generar factura por monto acordado; notificaciones y registro de activación guardados. Trazabilidad: desde proyecto, fecha de activación y factura de anticipo si existe.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-001-US-001</td><td>Activación del proyecto (manual o por evento: contrato firmado)</td></tr>
+            <tr><td class="epic-id">MF-001-US-002</td><td>Opcional: registro de anticipo/pago inicial y generación de factura por monto acordado</td></tr>
+            <tr><td class="epic-id">MF-001-US-003</td><td>Registro de fecha de activación y notificaciones a equipo y cliente</td></tr>
+            <tr><td class="epic-id">MF-001-US-004</td><td>Reserva automática de fecha en calendario (si aplica)</td></tr>
+            <tr><td class="epic-id">MF-001-US-005</td><td>Registro de activación (timestamp, referencia factura si hay anticipo) para trazabilidad</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-002">
+        <h2>MF-002 — Factura de cierre / liquidación y registro de pago</h2>
+        <h3>Objetivo</h3>
+        <p>Cuando el proyecto se cierra o se acepta la última entrega (según flujo de proyectos), el sistema genera una <strong>factura de cierre</strong> (o de liquidación) por el <strong>saldo pendiente de facturar</strong>: lo que falte por facturar respecto al total acordado/presupuesto, después de descontar lo ya facturado mensualmente (MF-007) y los anticipos ya descontados (MF-008). Si el saldo pendiente es 0 (todo ya facturado), no se genera factura. Notificación al cliente, registro de pago y confirmación por administración para habilitar el cierre formal del proyecto.</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li><strong>Incluye</strong>: Detección de evento de cierre (proyecto listo para cerrar, última entrega aceptada o "cerrar facturación"); cálculo del saldo pendiente (total acordado − facturas ya emitidas para el proyecto − anticipos ya descontados); generación de factura de cierre por ese saldo (solo si saldo &gt; 0); notificación al cliente; registro de factura y estado de pago; confirmación por administración de la recepción del pago.</li>
+          <li><strong>Excluye</strong>: Pasarela de pago integrada.</li>
+        </ul>
+        <h3>Actores</h3>
+        <ul>
+          <li><strong>Sistema</strong>: detecta cierre, calcula saldo, genera factura si hay saldo, notifica, registra estado de pago.</li>
+          <li><strong>Cliente</strong>: recibe notificación y paga fuera del sistema.</li>
+          <li><strong>Administración</strong>: confirma recepción del pago para habilitar cierre del proyecto.</li>
+        </ul>
+        <h3>Proceso detallado (qué debe hacer el sistema)</h3>
+        <ol>
+          <li><strong>Detección de cierre del proyecto</strong> — El flujo de proyectos debe exponer un evento o estado "Proyecto listo para cerrar" o "Última entrega aceptada" (o equivalente) por proyecto_id. El módulo de facturación se suscribe a ese evento o lo consulta y, cuando se cumpla, ejecuta el flujo de factura de cierre. El proyecto puede haberse facturado solo por facturas mensuales (MF-007).</li>
+          <li><strong>Cálculo del saldo pendiente de facturar</strong> — Obtener el total acordado del proyecto; obtener el total ya facturado para ese proyecto; Saldo pendiente = total acordado − total ya facturado. Si saldo ≤ 0: no se genera factura de cierre. Si saldo &gt; 0: continuar a generación.</li>
+          <li><strong>Generación de la factura de cierre</strong> — Crear factura con número por serie, fecha actual, cliente del proyecto, concepto (ej. "Proyecto [nombre] – Factura de cierre / liquidación"), importe = saldo pendiente calculado. Estado: "Publicada"/"Emitida". Estado de pago: "Pendiente". Vincular al proyecto. Tiempo objetivo: factura generada en menos de 2 minutos desde el evento de cierre.</li>
+          <li><strong>Notificación y registro de pago</strong> — Notificar al cliente (email y/o portal); la factura queda con estado de pago "Pendiente".</li>
+          <li><strong>Confirmación de recepción de pago (administración)</strong> — El usuario con permiso ejecuta "Confirmar recepción de pago" en la factura de cierre. El sistema actualiza estado de pago a "Recibido" y registra fecha y usuario.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>La factura de cierre tiene como importe el <strong>saldo pendiente</strong> resultante de total acordado − ya facturado.</li>
+          <li>Solo una factura de cierre por proyecto en este flujo (idempotencia).</li>
+          <li>Si no hay saldo pendiente, no se crea factura; el cierre del proyecto puede basarse en "no hay facturas pendientes de emitir" y "facturas pendientes de cobro" según política.</li>
+        </ul>
+        <h3>Validaciones</h3>
+        <ul>
+          <li>Proyecto en estado que permita "factura de cierre" (evento de cierre recibido).</li>
+          <li>Total acordado y total ya facturado calculables correctamente; cliente de facturación disponible.</li>
+          <li>Serie de facturas disponible cuando saldo &gt; 0.</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>proyecto.id</td><td>Identificador del proyecto al que se vincula la factura de cierre</td><td>Entero / UUID</td></tr>
+            <tr><td>proyecto.total_acordado</td><td>Importe total acordado/presupuestado para el proyecto</td><td>Numérico (decimal)</td></tr>
+            <tr><td>proyecto.total_facturado</td><td>Suma de importes de todas las facturas asociadas al proyecto</td><td>Numérico (decimal)</td></tr>
+            <tr><td>proyecto.saldo_pendiente</td><td>Diferencia entre total_acordado y total_facturado</td><td>Numérico (decimal)</td></tr>
+            <tr><td>cierre.evento_id</td><td>Identificador del evento de cierre (última_entrega_aceptada / listo_para_cerrar)</td><td>Texto corto / Enumerado</td></tr>
+            <tr><td>factura_cierre.id</td><td>Identificador interno de la factura de cierre</td><td>Entero / UUID</td></tr>
+            <tr><td>factura_cierre.numero</td><td>Número fiscal de la factura de cierre</td><td>Texto corto</td></tr>
+            <tr><td>factura_cierre.fecha</td><td>Fecha de emisión de la factura de cierre</td><td>Fecha</td></tr>
+            <tr><td>factura_cierre.importe_total</td><td>Importe total de la factura de cierre (saldo pendiente)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura_cierre.estado_documento</td><td>Estado del documento (borrador, publicada, etc.)</td><td>Enumerado</td></tr>
+            <tr><td>factura_cierre.estado_pago</td><td>Estado de pago (pendiente, parcialmente_pagada, pagada)</td><td>Enumerado</td></tr>
+            <tr><td>factura_cierre.cliente_id</td><td>Referencia al cliente de facturación</td><td>Relación (FK a cliente)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Cálculo de saldo pendiente y consolidación de totales por proyecto: <strong>0,75–1 día</strong>.</li>
+          <li>Generación automática de factura de cierre (modelo, API, numeración, vínculos a proyecto) y lógica de notificación: <strong>1–1,5 días</strong>.</li>
+          <li>UI para configuración de evento de cierre + controles en cierre de proyecto: <strong>0,75–1 día</strong>.</li>
+          <li>Estimación total para MF-002 con apoyo de IA: <strong>~2,5–3,5 días</strong>.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Al cerrar proyecto: si hay saldo pendiente &gt; 0, factura de cierre generada en &lt; 2 min, cliente notificado, factura con estado "Pendiente". Si saldo = 0, no se genera factura y el proyecto puede cerrarse según reglas. Tras confirmación de administración: estado de pago "Recibido"; proyecto listo para cierre formal.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-002-US-001</td><td>Detección de cierre de proyecto / última entrega y cálculo de saldo pendiente de facturar</td></tr>
+            <tr><td class="epic-id">MF-002-US-002</td><td>Generación de factura de cierre por saldo pendiente (si &gt; 0)</td></tr>
+            <tr><td class="epic-id">MF-002-US-003</td><td>Notificación al cliente y registro de factura y estado de pago</td></tr>
+            <tr><td class="epic-id">MF-002-US-004</td><td>Administración confirma recepción de pago (habilita cierre formal del proyecto)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-003">
+        <h2>MF-003 — Facturación núcleo</h2>
+        <h3>Objetivo</h3>
+        <p>Permitir crear, editar en borrador y publicar facturas de cliente con líneas, impuestos y términos de pago, con numeración fiscal por serie, ciclo de vida definido (Borrador → Publicada → Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada) y bloqueo de campos tras publicar, para cumplir reglas fiscales y de negocio.</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li><strong>Incluye</strong>: Listado de facturas con filtros; creación manual en borrador (cliente, líneas con descripción/cantidad/precio/impuesto, término de pago); edición en borrador; acción Publicar (asignar número por serie, pasar a Publicada, bloquear edición); gestión de estados del ciclo de vida; numeración fiscal; reglas de bloqueo; detalle de factura con totales e impuestos; vencimientos múltiples según término de pago.</li>
+          <li><strong>Excluye</strong>: Registro de cobros (MF-004), notas de crédito (MF-005), generación/envió de PDF (MF-006).</li>
+        </ul>
+        <h3>Actores</h3>
+        <p>Usuario con permisos de facturación (crear, editar, publicar según matriz MF-013).</p>
+        <h3>Proceso detallado (qué debe hacer el sistema)</h3>
+        <ol>
+          <li><strong>Listado de facturas</strong> — Mostrar tabla con número, fecha, cliente, total, estado de documento (Borrador, Publicada, Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada), estado de pago. Filtros por cliente, estado de documento, estado de pago, rango de fechas. Ordenación por defecto (ej. fecha descendente). Paginación. Permisos según MF-013.</li>
+          <li><strong>Creación manual en borrador</strong> — Formulario: cliente, fecha, término de pago, moneda (si MF-012). Líneas: descripción, cantidad, precio unitario, impuesto; importe línea = cantidad × precio; impuesto según tipo; descuento por línea opcional; descuento global opcional. Totales: subtotal, impuestos, descuentos, total factura. Al guardar: estado = Borrador; sin número definitivo. Validaciones: cliente obligatorio; al menos una línea con importe &gt; 0; total &gt; 0.</li>
+          <li><strong>Edición en borrador</strong> — Mismos campos que creación. Añadir, editar y eliminar líneas; cambiar descuentos. No permitir editar si estado ≠ Borrador.</li>
+          <li><strong>Publicar factura</strong> — Solo si estado = Borrador. Asignar número definitivo de la serie configurada (ej. FAC-2026-00001). Cambiar estado a "Publicada". Bloquear edición de importes, líneas, cliente, fechas fiscales.</li>
+          <li><strong>Ciclo de vida (estados)</strong> — Borrador (editable); Publicada (no editable contenido fiscal); Enviada (al enviar por email MF-006); Vencida (fecha vencimiento pasada sin pagar); Parcialmente Pagada / Pagada (MF-004); Cancelada (anulación lógica); Rectificada (existe NC que la rectifica, MF-005).</li>
+          <li><strong>Numeración fiscal</strong> — Series por empresa; al publicar reservar número; no reutilizar; control de huecos según normativa. Notas de crédito: serie o prefijo distinto (MF-005).</li>
+          <li><strong>Reglas de bloqueo</strong> — Tras Publicada: no editar cliente, fechas, líneas, importes. Cierre de periodo (opcional): no publicar facturas con fecha en periodo cerrado.</li>
+          <li><strong>Vencimientos múltiples</strong> — Si término de pago define varios vencimientos (ej. 50% a 30 días, 50% a 60 días), calcular fechas y mostrarlas; estado "Vencida" según regla.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Una factura en Borrador no tiene número fiscal; el número se asigna una sola vez al publicar.</li>
+          <li>No se puede eliminar físicamente una factura publicada; solo cancelar (anulación lógica).</li>
+          <li>Redondeo de totales: definir política (por línea o por total; decimales según moneda).</li>
+          <li>Impuestos: si el impuesto es "incluido en precio", el precio unitario incluye impuesto; si "no incluido", el impuesto se suma al importe de la línea.</li>
+        </ul>
+        <h3>Validaciones</h3>
+        <ul>
+          <li>Cliente con datos mínimos (nombre, NIF si obligatorio).</li>
+          <li>Todas las líneas con cantidad &gt; 0, precio ≥ 0, impuesto seleccionado.</li>
+          <li>Total factura &gt; 0. Fecha de factura dentro de periodo abierto (si hay cierre de periodo). Serie con siguiente número disponible.</li>
+        </ul>
+        <h3>Entidades implicadas</h3>
+        <ul>
+          <li><strong>Factura (cabecera)</strong>: número, fecha, cliente_id, término_pago_id, estado, estado_pago, totales, moneda, proyecto_id (opcional), serie_id.</li>
+          <li><strong>Línea de factura</strong>: factura_id, orden, descripción, cantidad, precio_unitario, impuesto_id, descuento_linea, importe_total_linea, base_imponible, importe_impuesto.</li>
+          <li><strong>Serie documental</strong>: id, nombre, prefijo, siguiente_numero, ejercicio, empresa_id (opcional).</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>factura.id</td><td>Identificador interno de la factura</td><td>Entero / UUID</td></tr>
+            <tr><td>factura.numero</td><td>Número fiscal definitivo de la factura</td><td>Texto corto</td></tr>
+            <tr><td>factura.serie_id</td><td>Serie documental asociada</td><td>Relación (FK serie)</td></tr>
+            <tr><td>factura.fecha</td><td>Fecha de emisión de la factura</td><td>Fecha</td></tr>
+            <tr><td>factura.cliente_id</td><td>Cliente de facturación</td><td>Relación (FK cliente)</td></tr>
+            <tr><td>factura.termino_pago_id</td><td>Término de pago aplicado</td><td>Relación (FK término pago)</td></tr>
+            <tr><td>factura.estado_documento</td><td>Estado del documento (borrador, publicada, enviada, vencida, cancelada, etc.)</td><td>Enumerado</td></tr>
+            <tr><td>factura.estado_pago</td><td>Estado de pago (no_pagada, parcial, pagada)</td><td>Enumerado</td></tr>
+            <tr><td>factura.moneda</td><td>Moneda de la factura (si MF-012 activo)</td><td>Enumerado / código ISO</td></tr>
+            <tr><td>factura.total_base</td><td>Base imponible total</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.total_impuestos</td><td>Suma de impuestos</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.total_descuentos</td><td>Suma de descuentos (línea + global)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.total</td><td>Importe total de la factura</td><td>Numérico (decimal)</td></tr>
+            <tr><td>linea.id</td><td>Identificador de la línea de factura</td><td>Entero / UUID</td></tr>
+            <tr><td>linea.factura_id</td><td>Referencia a la factura</td><td>Relación (FK factura)</td></tr>
+            <tr><td>linea.descripcion</td><td>Descripción de la línea</td><td>Texto</td></tr>
+            <tr><td>linea.cantidad</td><td>Cantidad</td><td>Numérico (decimal)</td></tr>
+            <tr><td>linea.precio_unitario</td><td>Precio unitario</td><td>Numérico (decimal)</td></tr>
+            <tr><td>linea.impuesto_id</td><td>Impuesto asociado a la línea</td><td>Relación (FK impuesto)</td></tr>
+            <tr><td>linea.descuento</td><td>Descuento aplicado a la línea (importe o porcentaje)</td><td>Numérico / Estructurado</td></tr>
+            <tr><td>linea.importe_total</td><td>Importe total de la línea (tras descuento e impuestos)</td><td>Numérico (decimal)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Modelado de factura, líneas, series y estados + migraciones: <strong>1–1,5 días</strong>.</li>
+          <li>Servicios/API CRUD y lógica de ciclo de vida (publicar, numerar, bloquear, estados): <strong>2–3 días</strong>.</li>
+          <li>UI de listado, detalle y edición en borrador (con filtros y validaciones) apoyada en IA: <strong>2–3 días</strong>.</li>
+          <li>Estimación total para MF-003: <strong>~5–7 días</strong> de desarrollo efectivo con IA (sin contar QA/manual ni despliegue).</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Crear factura en borrador con líneas e impuestos; totales correctos; guardar sin número definitivo. Publicar: número asignado por serie, estado Publicada, campos bloqueados. Listado con filtros y estados correctos; detalle con totales e impuestos desglosados.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-003-US-001</td><td>Listado de facturas con filtros por cliente y estado</td></tr>
+            <tr><td class="epic-id">MF-003-US-002</td><td>Creación manual de factura en borrador (cliente, líneas, impuestos, términos)</td></tr>
+            <tr><td class="epic-id">MF-003-US-003</td><td>Edición de factura en borrador (líneas, descuentos por línea o global)</td></tr>
+            <tr><td class="epic-id">MF-003-US-004</td><td>Publicar factura: asignar número definitivo (serie), pasar a Publicada, bloquear edición</td></tr>
+            <tr><td class="epic-id">MF-003-US-005</td><td>Ciclo de vida: estados Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada</td></tr>
+            <tr><td class="epic-id">MF-003-US-006</td><td>Numeración fiscal: series por país/empresa, prefijos, control de huecos</td></tr>
+            <tr><td class="epic-id">MF-003-US-007</td><td>Reglas de bloqueo: campos inamovibles tras publicar; cierre de periodo (opcional)</td></tr>
+            <tr><td class="epic-id">MF-003-US-008</td><td>Descuentos por línea y descuento global; recargos (pronto pago, mora)</td></tr>
+            <tr><td class="epic-id">MF-003-US-009</td><td>Detalle de factura (cabecera y líneas) con totales e impuestos desglosados</td></tr>
+            <tr><td class="epic-id">MF-003-US-010</td><td>Vencimientos múltiples según término de pago (fechas de vencimiento)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-004">
+        <h2>MF-004 — Cobros y estado de pago</h2>
+        <h3>Objetivo</h3>
+        <p>Registrar los cobros recibidos (entidad Pago/Cobro), aplicarlos a una o varias facturas (total o parcial), y mantener actualizado el estado de pago de cada factura (No pagada, Parcialmente pagada, Pagada) con trazabilidad.</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li><strong>Incluye</strong>: Asistente o formulario para registrar un pago (fecha, importe, método de pago, referencia); aplicación de ese pago a una factura (total o parcial); aplicación de un mismo pago a varias facturas; actualización del saldo pendiente y del estado de pago de la factura; listado de cobros con relación cobro ↔ factura(s); reverso de una aplicación.</li>
+          <li><strong>Excluye</strong>: Pasarela de pago online (MF-009); lógica de anticipos y descuento en factura (MF-008).</li>
+        </ul>
+        <h3>Actores</h3>
+        <p>Usuario con permiso "Registrar cobros" (MF-013).</p>
+        <h3>Proceso detallado (qué debe hacer el sistema)</h3>
+        <ol>
+          <li><strong>Registrar un pago (crear entidad Pago/Cobro)</strong> — Formulario: fecha del cobro, importe total, método de pago (transferencia, efectivo, tarjeta, etc.), referencia, opcional nota. Guardar como registro "Pago" con estado "Pendiente de aplicar" / "Parcialmente aplicado" / "Aplicado" según importe ya aplicado a facturas.</li>
+          <li><strong>Aplicar pago a una factura</strong> — Desde el pago: "Aplicar a factura(s)". Seleccionar factura (mismo cliente; No pagada o Parcialmente pagada). Indicar importe a aplicar (≤ saldo pendiente de factura y ≤ importe disponible del pago). Crear registro "Aplicación de pago": pago_id, factura_id, importe_aplicado, fecha. Actualizar saldo pendiente y estado de pago de la factura (Pagada / Parcialmente pagada / No pagada). Actualizar importe restante del pago.</li>
+          <li><strong>Aplicar un pago a varias facturas</strong> — Mismo pago puede aplicarse a varias facturas. Validar: suma de importes aplicados ≤ importe del pago; por factura, importe aplicado ≤ saldo pendiente.</li>
+          <li><strong>Listado de cobros</strong> — Tabla: fecha, importe, método de pago, referencia, cliente, estado, detalle de facturas aplicadas. Filtros por fecha, cliente, método de pago.</li>
+          <li><strong>Reverso de aplicación</strong> — Acción "Anular aplicación": eliminar o marcar como anulada la aplicación; devolver importe al saldo de la factura; actualizar estado de pago; aumentar importe disponible del pago.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>El importe aplicado a una factura no puede superar el saldo pendiente de la factura ni el importe disponible del pago.</li>
+          <li>Una factura en estado "Cancelada" no debe recibir aplicaciones de pago.</li>
+          <li>Saldo pendiente de factura = total_factura − suma(importes aplicados). Estado de pago: derivado siempre del saldo pendiente (no editable manualmente).</li>
+        </ul>
+        <h3>Validaciones</h3>
+        <ul>
+          <li>Fecha de cobro coherente (no futura si el sistema no lo permite). Importe del pago &gt; 0.</li>
+          <li>Al aplicar: factura en estado que permita cobro (Publicada, no Cancelada); mismo cliente (si el pago está asociado a cliente).</li>
+        </ul>
+        <h3>Entidades implicadas</h3>
+        <ul>
+          <li><strong>Pago/Cobro</strong>: id, fecha, importe, metodo_pago_id, referencia, cliente_id (opcional), estado_aplicacion.</li>
+          <li><strong>Aplicación de pago</strong>: id, pago_id, factura_id, importe_aplicado, fecha_aplicacion.</li>
+          <li><strong>Factura</strong>: saldo_pendiente, estado_pago (calculado o persistido).</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>pago.id</td><td>Identificador del pago/cobro</td><td>Entero / UUID</td></tr>
+            <tr><td>pago.fecha</td><td>Fecha valor del cobro</td><td>Fecha</td></tr>
+            <tr><td>pago.importe_total</td><td>Importe total registrado para el pago</td><td>Numérico (decimal)</td></tr>
+            <tr><td>pago.metodo_pago_id</td><td>Método de pago (transferencia, efectivo, tarjeta, etc.)</td><td>Relación (FK método)</td></tr>
+            <tr><td>pago.referencia</td><td>Referencia externa (nº operación, cheque, etc.)</td><td>Texto corto</td></tr>
+            <tr><td>pago.cliente_id</td><td>Cliente al que se asocia el pago (si aplica)</td><td>Relación (FK cliente)</td></tr>
+            <tr><td>pago.estado_aplicacion</td><td>Estado del pago (pendiente_aplicar, parcial, aplicado)</td><td>Enumerado</td></tr>
+            <tr><td>aplicacion_pago.id</td><td>Identificador de la aplicación de pago a factura</td><td>Entero / UUID</td></tr>
+            <tr><td>aplicacion_pago.pago_id</td><td>Referencia al pago</td><td>Relación (FK pago)</td></tr>
+            <tr><td>aplicacion_pago.factura_id</td><td>Referencia a la factura</td><td>Relación (FK factura)</td></tr>
+            <tr><td>aplicacion_pago.importe</td><td>Importe aplicado de ese pago a esa factura</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.saldo_pendiente</td><td>Saldo sin cobrar de la factura</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.estado_pago</td><td>Estado de pago de la factura derivado de sus aplicaciones</td><td>Enumerado</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Diseño de entidades Pago y AplicaciónPago + migraciones: <strong>0,5–0,75 días</strong>.</li>
+          <li>Lógica de aplicación/reverso de cobros y actualización de saldo/estado de factura: <strong>1–1,5 días</strong>.</li>
+          <li>UI de registro de pagos, asistente de aplicación y listado de cobros: <strong>1–1,5 días</strong>.</li>
+          <li>Estimación total para MF-004: <strong>~3–4 días</strong> de desarrollo apoyado en IA.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Registrar pago; aplicarlo a una o varias facturas; ver estado de pago actualizado en la factura y en el listado. Reverso: anular aplicación y ver saldos y estados correctos.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-004-US-001</td><td>Asistente Registrar pago: fecha, importe, método de pago, referencia</td></tr>
+            <tr><td class="epic-id">MF-004-US-002</td><td>Aplicar pago a una factura (total o parcial); actualizar saldo pendiente</td></tr>
+            <tr><td class="epic-id">MF-004-US-003</td><td>Aplicar un pago a varias facturas (reparto manual o por orden)</td></tr>
+            <tr><td class="epic-id">MF-004-US-004</td><td>Estado de pago en factura: No pagada, Parcialmente pagada, Pagada</td></tr>
+            <tr><td class="epic-id">MF-004-US-005</td><td>Listado de cobros y relación cobro ↔ factura(s) aplicadas</td></tr>
+            <tr><td class="epic-id">MF-004-US-006</td><td>Reverso de aplicación de pago (anular aplicación, devolver estado)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-005">
+        <h2>MF-005 — Notas de crédito</h2>
+        <h3>Objetivo</h3>
+        <p>Emitir notas de crédito (abonos) vinculadas a una factura ya publicada, con importes o líneas a revertir, numeración propia y trazabilidad con la factura original.</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li><strong>Incluye</strong>: Acción "Crear nota de crédito" desde una factura publicada; formulario con importes o líneas a revertir; documento tipo "Nota de crédito" con serie/prefijo distinto; vinculación factura original; publicar NC y actualizar trazabilidad (factura "Rectificada" o relación NC ↔ Factura).</li>
+          <li><strong>Excluye</strong>: Notas de débito (fuera de alcance inicial).</li>
+        </ul>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li>Desde la ficha de una factura en estado Publicada (y no Cancelada), el usuario con permiso ejecuta "Crear nota de crédito".</li>
+          <li>Se abre formulario de NC: factura original ya vinculada (solo lectura). Opciones: (a) revertir total de la factura, (b) revertir importe parcial, (c) revertir por líneas (seleccionar líneas y cantidades/importes). Totales de la NC se calculan.</li>
+          <li>La NC se guarda en borrador; se puede editar y luego "Publicar". Al publicar: se asigna número por serie de "Nota de crédito" (prefijo ej. NC- o R-); estado NC = Publicada; factura original se marca como "Rectificada" o se guarda relación factura_id → nc_id.</li>
+          <li>No se permite eliminar la factura original; la NC es el documento que rectifica. Contablemente el efecto es reducir el débito del cliente (abono).</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Solo una factura en estado Publicada (no Cancelada) puede tener una NC asociada (o varias NC si el negocio lo permite; el total de NC no debe superar el total de la factura).</li>
+          <li>Numeración de NC independiente de la de facturas (serie o prefijo distinto). La NC tiene los mismos datos fiscales de cliente y fechas coherentes.</li>
+        </ul>
+        <h3>Validaciones</h3>
+        <ul>
+          <li>Total NC ≤ total factura original (si es parcial). Total NC &gt; 0. Factura original no cancelada.</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>factura_original.id</td><td>Identificador de la factura que será rectificada</td><td>Entero / UUID</td></tr>
+            <tr><td>factura_original.numero</td><td>Número de la factura original</td><td>Texto corto</td></tr>
+            <tr><td>factura_original.total</td><td>Importe total de la factura original</td><td>Numérico (decimal)</td></tr>
+            <tr><td>nc.id</td><td>Identificador de la nota de crédito</td><td>Entero / UUID</td></tr>
+            <tr><td>nc.numero</td><td>Número de la nota de crédito (serie/prefijo propio)</td><td>Texto corto</td></tr>
+            <tr><td>nc.fecha</td><td>Fecha de emisión de la nota de crédito</td><td>Fecha</td></tr>
+            <tr><td>nc.total</td><td>Importe total de la nota de crédito (positivo o negativo según modelo)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>nc.motivo</td><td>Motivo o descripción de la rectificación</td><td>Texto</td></tr>
+            <tr><td>nc.lineas</td><td>Colección de líneas rectificadas (referencia a líneas de factura)</td><td>Colección / relación</td></tr>
+            <tr><td>nc.estado_documento</td><td>Estado de la NC (borrador, publicada, cancelada, etc.)</td><td>Enumerado</td></tr>
+            <tr><td>relacion.factura_id</td><td>Referencia desde NC a factura original</td><td>Relación (FK factura)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Modelado de notas de crédito y relación con factura original: <strong>0,5–0,75 días</strong>.</li>
+          <li>Lógica de creación desde factura, cálculo de importes y publicación/anulación: <strong>1–1,25 días</strong>.</li>
+          <li>Ajustes de UI (acción "Crear NC", formulario, listados) con apoyo de IA: <strong>0,75–1 día</strong>.</li>
+          <li>Estimación total para MF-005: <strong>~2,25–3 días</strong> de desarrollo efectivo.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Crear NC desde factura; definir importes/líneas a revertir; publicar con número; vinculación visible en factura y en NC.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-005-US-001</td><td>Crear nota de crédito desde factura publicada (acción en factura)</td></tr>
+            <tr><td class="epic-id">MF-005-US-002</td><td>Definir importes o líneas a revertir en la NC</td></tr>
+            <tr><td class="epic-id">MF-005-US-003</td><td>Vincular NC a factura original; numeración con serie/prefijo para NC</td></tr>
+            <tr><td class="epic-id">MF-005-US-004</td><td>Publicar NC y actualizar trazabilidad (factura rectificada / estado)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-006">
+        <h2>MF-006 — PDF y envío por email</h2>
+        <h3>Objetivo</h3>
+        <p>Generar el documento oficial de la factura (o nota de crédito) en PDF con diseño estándar y datos de empresa y cliente; permitir descargar el PDF desde la ficha y enviar la factura por email al cliente con el PDF adjunto.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Generar PDF</strong>: A partir de los datos de la factura (cabecera, líneas, totales, impuestos, datos empresa desde MF-011, datos cliente), generar un archivo PDF con diseño estándar. Mismo criterio para nota de crédito con indicación clara de "Nota de crédito" y referencia a factura original.</li>
+          <li><strong>Descargar PDF</strong>: En la ficha de factura (o NC), botón "Descargar PDF" que genera (o recupera si está cacheado) el PDF y lo sirve para descarga.</li>
+          <li><strong>Enviar por email</strong>: Botón "Enviar por email"; formulario con destinatario (por defecto email del cliente), asunto y cuerpo opcional; adjuntar el PDF generado; enviar y registrar envío (MF-014). Marcar factura como "Enviada" si aplica.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <p>Solo facturas/NC publicadas pueden tener PDF oficial y envío. El PDF debe ser reproducible (mismos datos → mismo contenido) para auditoría.</p>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>factura.id</td><td>Identificador de la factura/NC</td><td>Entero / UUID</td></tr>
+            <tr><td>factura.numero</td><td>Número a mostrar en el PDF</td><td>Texto corto</td></tr>
+            <tr><td>factura.fecha</td><td>Fecha de la factura</td><td>Fecha</td></tr>
+            <tr><td>factura.cliente_id</td><td>Cliente de facturación</td><td>Relación (FK cliente)</td></tr>
+            <tr><td>factura.total</td><td>Importe total a mostrar</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.moneda</td><td>Moneda de la factura</td><td>Enumerado / código</td></tr>
+            <tr><td>factura.direccion_empresa</td><td>Datos fiscales de la empresa emisora</td><td>Texto / compuesto</td></tr>
+            <tr><td>factura.direccion_cliente</td><td>Datos de facturación del cliente</td><td>Texto / compuesto</td></tr>
+            <tr><td>pdf.ruta_almacenamiento</td><td>Ruta o identificador del PDF generado</td><td>Texto (ruta/URL)</td></tr>
+            <tr><td>pdf.plantilla_id</td><td>Identificador de la plantilla de diseño de PDF</td><td>Relación / texto</td></tr>
+            <tr><td>envio.id</td><td>Identificador del registro de envío</td><td>Entero / UUID</td></tr>
+            <tr><td>envio.destinatario</td><td>Email al que se envía la factura</td><td>Texto (email)</td></tr>
+            <tr><td>envio.fecha_envio</td><td>Fecha/hora en que se envía el email</td><td>Fecha/hora</td></tr>
+            <tr><td>envio.asunto</td><td>Asunto del correo</td><td>Texto corto</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Integración con generador de PDF (plantilla, datos, snapshot) y almacenamiento: <strong>1–1,5 días</strong>.</li>
+          <li>Lógica de descarga y endpoint/acción de envío por email + registro en auditoría: <strong>1–1,25 días</strong>.</li>
+          <li>Ajustes de UI (botones Descargar PDF / Enviar por email) y pruebas básicas: <strong>0,5–0,75 días</strong>.</li>
+          <li>Estimación total para MF-006: <strong>~2,5–3,5 días</strong> de desarrollo apoyado en IA.</li>
+        </ul>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-006-US-001</td><td>Generar PDF oficial de factura (diseño estándar, datos empresa y cliente)</td></tr>
+            <tr><td class="epic-id">MF-006-US-002</td><td>Descargar PDF desde la ficha de factura o nota de crédito</td></tr>
+            <tr><td class="epic-id">MF-006-US-003</td><td>Enviar factura por email al cliente con PDF adjunto (desde ficha)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-007">
+        <h2>MF-007 — Facturación desde proyecto (mensual por tareas/horas/hitos/fee)</h2>
+        <h3>Objetivo</h3>
+        <p>Los proyectos se facturan <strong>mensualmente</strong> en función de lo realizado en cada periodo: <strong>tareas realizadas</strong>, <strong>horas registradas</strong> (facturables), <strong>hitos completados</strong> o <strong>fee mensual</strong> acordado. El sistema debe permitir generar la factura del periodo con líneas derivadas de esos conceptos, <strong>evitando doble facturación</strong> y manteniendo <strong>trazabilidad factura → proyecto</strong>.</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li><strong>Incluye</strong>: Facturación por periodo mensual (o configurable); líneas generadas desde tareas realizadas, horas facturables, hitos completados o fee mensual; prevención de doble facturación (marcar como facturados tareas/horas/hitos/periodos); trazabilidad factura ↔ proyecto; prerellenar cliente desde el proyecto.</li>
+          <li><strong>Excluye</strong>: Facturación totalmente automática sin revisión del usuario.</li>
+        </ul>
+        <h3>Actores</h3>
+        <p>Usuario con permisos de facturación y acceso al proyecto (responsable, administración).</p>
+        <h3>Proceso detallado (qué debe hacer el sistema)</h3>
+        <ol>
+          <li><strong>Inicio: facturación mensual desde proyecto</strong> — En la ficha del proyecto (o panel "Facturación"), botón "Crear factura de periodo" o "Facturar mes". Usuario selecciona el periodo a facturar (ej. mes enero 2026). Solo periodos con tareas/horas/hitos realizados y no ya facturados. Si el periodo ya tiene factura asociada al proyecto, el sistema indica y no permite duplicar.</li>
+          <li><strong>Generación de líneas</strong> — Por tareas realizadas: tareas "Completada" en el periodo no facturadas; por horas: registros de tiempo facturables no vinculados a factura; por hitos: hitos "Completado" en el periodo no facturados; por fee mensual: línea con importe fijo para el periodo. Usuario puede revisar, editar en borrador o excluir líneas antes de publicar.</li>
+          <li><strong>Cliente y cabecera</strong> — Cliente = cliente del proyecto (prerellenado). Proyecto_id = proyecto actual. Periodo facturado guardado en la factura. Factura en Borrador (MF-003); al publicar se marcan como facturados todos los conceptos incluidos.</li>
+          <li><strong>Prevención de doble facturación</strong> — Para mismo proyecto y mismo mes, solo una factura "de periodo" publicada. Por tarea/hora/hito: cada uno solo en una factura. Fee mensual: una línea de fee por mes en una sola factura.</li>
+          <li><strong>Trazabilidad factura → proyecto</strong> — Factura generada desde proyecto tiene proyecto_id no nulo y periodo_facturado. En ficha proyecto: sección "Facturación" con listado de facturas (número, fecha, periodo, total, estado de pago). En ficha factura: "Proyecto: [nombre]", "Periodo facturado: [mes/año]".</li>
+          <li><strong>Vista en proyecto</strong> — Mostrar facturas emitidas, total facturado, total pendiente de cobro, y por cada mes si hay factura o "Pendiente de facturar".</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Una factura de periodo está asociada a un solo proyecto y a un solo periodo (mes o rango). No se puede reasignar a otro proyecto.</li>
+          <li>Ninguna tarea, registro de horas ni hito puede estar en más de una factura (campo factura_id o tabla de asignación).</li>
+          <li>El periodo a facturar debe ser coherente con las fechas de las tareas/horas/hitos. Si el proyecto tiene presupuesto total, el sistema puede alertar si el total facturado supera el presupuesto (MF-008).</li>
+        </ul>
+        <h3>Validaciones</h3>
+        <ul>
+          <li>Proyecto existe y usuario tiene permiso. Periodo no futuro (o según política).</li>
+          <li>Al menos una línea con importe &gt; 0 para poder publicar. No existir ya factura publicada para el mismo proyecto + mismo periodo (salvo flujo de rectificación). Cliente de facturación del proyecto con datos mínimos.</li>
+        </ul>
+        <h3>Entidades implicadas</h3>
+        <ul>
+          <li><strong>Factura</strong>: proyecto_id, periodo_facturado (mes/año o fecha_desde/fecha_hasta), cliente_id (desde proyecto).</li>
+          <li><strong>Línea de factura</strong>: factura_id, origen_tipo (tarea | horas | hito | fee_mensual), origen_id, descripción, importe.</li>
+          <li><strong>Tarea / Registro tiempo / Hito</strong>: campo factura_id (o tabla facturacion_linea_origen) para marcar como facturado.</li>
+          <li><strong>Proyecto</strong>: configuración opcional fee_mensual, presupuesto_total.</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>proyecto.id</td><td>Identificador del proyecto</td><td>Entero / UUID</td></tr>
+            <tr><td>proyecto.cliente_id</td><td>Cliente asociado al proyecto</td><td>Relación (FK cliente)</td></tr>
+            <tr><td>proyecto.fee_mensual</td><td>Importe fijo mensual configurado (si aplica)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>proyecto.presupuesto_total</td><td>Presupuesto total del proyecto</td><td>Numérico (decimal)</td></tr>
+            <tr><td>proyecto.periodo_facturado[]</td><td>Lista de periodos ya facturados para prevención de doble facturación</td><td>Colección / estructura</td></tr>
+            <tr><td>factura.id</td><td>Identificador de la factura de periodo</td><td>Entero / UUID</td></tr>
+            <tr><td>factura.periodo_facturado</td><td>Periodo (mes/año o rango) que cubre la factura</td><td>Texto estructurado / fecha</td></tr>
+            <tr><td>factura.proyecto_id</td><td>Proyecto desde el que se ha generado la factura</td><td>Relación (FK proyecto)</td></tr>
+            <tr><td>linea.id</td><td>Identificador de la línea de factura</td><td>Entero / UUID</td></tr>
+            <tr><td>linea.origen_tipo</td><td>Tipo de origen de la línea (tarea, horas, hito, fee_mensual)</td><td>Enumerado</td></tr>
+            <tr><td>linea.origen_id</td><td>Identificador del elemento origen (tarea_id, registro_tiempo_id, hito_id, etc.)</td><td>Entero / UUID / Null</td></tr>
+            <tr><td>linea.descripcion</td><td>Descripción generada (nombre tarea, hito, resumen de horas, etc.)</td><td>Texto</td></tr>
+            <tr><td>linea.importe</td><td>Importe de la línea</td><td>Numérico (decimal)</td></tr>
+            <tr><td>origen.facturado</td><td>Marca en tarea/registro/hito de que ya ha sido facturado</td><td>Booleano</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Integración entre proyectos y facturación (modelo, vínculos, periodo facturado): <strong>1–1,5 días</strong>.</li>
+          <li>Lógica de generación de líneas por tareas/horas/hitos/fee y prevención de doble facturación: <strong>2–3 días</strong>.</li>
+          <li>UI en ficha de proyecto (selector de periodo, vista de facturas por periodo, totales) con apoyo de IA: <strong>1,5–2 días</strong>.</li>
+          <li>Estimación total para MF-007: <strong>~4,5–6,5 días</strong> de desarrollo efectivo.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Crear factura de periodo (mes) desde proyecto; líneas generadas desde tareas realizadas, horas facturables, hitos o fee mensual; solo conceptos no facturados previamente; al publicar, conceptos quedan marcados como facturados; no se puede crear segunda factura para el mismo proyecto+periodo; trazabilidad visible en proyecto (listado facturas, total facturado) y en factura (proyecto, periodo).</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-007-US-001</td><td>Facturación mensual: seleccionar proyecto y periodo (mes) a facturar</td></tr>
+            <tr><td class="epic-id">MF-007-US-002</td><td>Generar líneas desde tareas realizadas en el periodo (no facturadas previamente)</td></tr>
+            <tr><td class="epic-id">MF-007-US-003</td><td>Generar líneas desde horas registradas facturables en el periodo (no facturadas)</td></tr>
+            <tr><td class="epic-id">MF-007-US-004</td><td>Generar líneas desde hitos completados en el periodo (no facturados previamente)</td></tr>
+            <tr><td class="epic-id">MF-007-US-005</td><td>Facturación por fee mensual: importe fijo por mes asociado al proyecto</td></tr>
+            <tr><td class="epic-id">MF-007-US-006</td><td>Prevención doble facturación: marcar tareas/horas/hitos/periodos como facturados; alertas</td></tr>
+            <tr><td class="epic-id">MF-007-US-007</td><td>Trazabilidad factura → proyecto; listado de facturas por proyecto y por periodo</td></tr>
+            <tr><td class="epic-id">MF-007-US-008</td><td>Prerellenar cliente/contacto de facturación desde proyecto</td></tr>
+            <tr><td class="epic-id">MF-007-US-009</td><td>Vista en proyecto: total facturado, pendiente por periodo, facturas del proyecto</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-008">
+        <h2>MF-008 — Anticipos y facturación parcial (en contexto de facturación mensual)</h2>
+        <h3>Objetivo</h3>
+        <p>Soportar <strong>anticipos</strong> (importe o % sobre proyecto) facturados al inicio y su <strong>descuento en las facturas mensuales</strong> (o en factura de cierre) del mismo proyecto. <strong>Facturación parcial</strong> en este modelo son las múltiples facturas mensuales por proyecto (MF-007); aquí se añade el control de <strong>total facturado vs presupuesto</strong> y la gestión de anticipos pendientes de descontar.</p>
+        <h3>Alcance</h3>
+        <ul>
+          <li>Anticipos asociados a proyecto; descuento del anticipo repartido en facturas mensuales posteriores (o en una sola factura de cierre).</li>
+          <li>Vista de anticipos pendientes de descontar por proyecto/cliente. Total facturado por proyecto (suma de facturas mensuales + anticipos) vs presupuesto; alertas si se supera.</li>
+        </ul>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Factura de anticipo</strong>: Crear factura con tipo "Anticipo", asociada a proyecto/cliente; importe = anticipo (fijo o % del presupuesto). Al publicar, se registra como anticipo pendiente de descontar (importe restante a descontar = importe del anticipo). Tabla o campo: anticipo_id, proyecto_id, importe_total, importe_descontado.</li>
+          <li><strong>Descontar en facturas mensuales</strong>: Al crear una factura de periodo (MF-007) para el mismo proyecto, el sistema muestra "Anticipos pendientes de descontar: X". El usuario puede añadir una línea negativa (descuento) por todo o parte del anticipo pendiente. Al publicar la factura, se actualiza importe_descontado del anticipo; no se puede descontar más del pendiente. Opción: reparto automático (ej. descontar X% del anticipo en cada factura mensual hasta agotar).</li>
+          <li><strong>Total facturado vs presupuesto</strong>: En la vista de facturación del proyecto (MF-007), mostrar "Total facturado: X" (suma de todas las facturas del proyecto, incluidas de anticipo y mensuales) y "Presupuesto: Y". Alerta (warning) si X &gt; Y. No bloquear por defecto la emisión si se supera (decisión de negocio).</li>
+          <li><strong>Vista anticipos pendientes</strong>: Listado por proyecto o por cliente: anticipos con importe_descontado &lt; importe_total; indicar "Pendiente de descontar: Z".</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Un anticipo solo puede descontarse hasta su importe total (suma de descuentos aplicados en facturas ≤ importe anticipo).</li>
+          <li>Total descontado en una factura ≤ anticipo pendiente de ese proyecto en el momento de publicar.</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>anticipo.id</td><td>Identificador del anticipo</td><td>Entero / UUID</td></tr>
+            <tr><td>anticipo.proyecto_id</td><td>Proyecto al que está asociado el anticipo</td><td>Relación (FK proyecto)</td></tr>
+            <tr><td>anticipo.importe_total</td><td>Importe total del anticipo</td><td>Numérico (decimal)</td></tr>
+            <tr><td>anticipo.importe_descontado</td><td>Importe del anticipo ya aplicado en facturas</td><td>Numérico (decimal)</td></tr>
+            <tr><td>anticipo.importe_pendiente</td><td>Importe aún pendiente de descontar</td><td>Numérico (decimal)</td></tr>
+            <tr><td>anticipo.moneda</td><td>Moneda del anticipo</td><td>Enumerado / código</td></tr>
+            <tr><td>factura.id</td><td>Identificador de la factura donde se descuenta el anticipo</td><td>Entero / UUID</td></tr>
+            <tr><td>factura.proyecto_id</td><td>Proyecto de la factura</td><td>Relación (FK proyecto)</td></tr>
+            <tr><td>factura.linea_descuento_id</td><td>Línea (o líneas) de descuento asociadas al anticipo</td><td>Relación / colección</td></tr>
+            <tr><td>proyecto.total_facturado</td><td>Total facturado del proyecto (incluye anticipos y facturas mensuales)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>proyecto.presupuesto_total</td><td>Presupuesto de referencia para comparativa</td><td>Numérico (decimal)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Modelo de anticipo y relación con proyecto/facturas: <strong>0,75–1 día</strong>.</li>
+          <li>Lógica de descuento automático/manualmente configurable en facturas mensuales + control de pendiente: <strong>1–1,5 días</strong>.</li>
+          <li>UI para gestión de anticipos y vista de total facturado vs presupuesto: <strong>1–1,5 días</strong>.</li>
+          <li>Estimación total para MF-008: <strong>~3–4 días</strong> con apoyo de IA.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Crear factura anticipo; descontar anticipo en facturas mensuales (o cierre); ver total facturado por proyecto y anticipos pendientes; alerta si total facturado &gt; presupuesto.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-008-US-001</td><td>Crear factura de anticipo (importe o %) asociada a proyecto/cliente</td></tr>
+            <tr><td class="epic-id">MF-008-US-002</td><td>Descontar anticipo en facturas mensuales (reparto por factura o en cierre)</td></tr>
+            <tr><td class="epic-id">MF-008-US-003</td><td>Facturación parcial: total facturado por proyecto (mensual + anticipos) vs presupuesto</td></tr>
+            <tr><td class="epic-id">MF-008-US-004</td><td>Vista de anticipos pendientes de descontar por proyecto/cliente</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-009">
+        <h2>MF-009 — Portal del cliente</h2>
+        <h3>Objetivo</h3>
+        <p>Dar al cliente un área (portal) donde ver y descargar sus facturas sin acceder al back-office, mediante token mágico o autenticación por cliente, con evidencia de visualización/descarga si se requiere.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Acceso</strong>: URL del portal (ej. /facturacion-portal o enlace con token). Si es token: parámetro ?token=XXX que identifica al cliente; validar token y mostrar solo facturas de ese cliente. Si es login: usuario "cliente" con ámbito restringido a sus facturas.</li>
+          <li><strong>Listado</strong>: Mostrar facturas del cliente (número, fecha, total, estado de pago, enlace "Descargar PDF").</li>
+          <li><strong>Descarga</strong>: Al descargar un PDF, opcionalmente registrar "evidencia de visualización" (fecha, IP, documento) en MF-014.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Un cliente solo ve sus propias facturas (filtro por cliente_id según identidad del token/usuario).</li>
+          <li>Token con caducidad o uso único según política de seguridad.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Acceso seguro; listado de facturas del cliente; descarga PDF; opcional evidencia de visualización.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-009-US-001</td><td>Acceso al portal de facturación con token mágico o login cliente</td></tr>
+            <tr><td class="epic-id">MF-009-US-002</td><td>Historial de facturas del cliente (listado con estado de pago)</td></tr>
+            <tr><td class="epic-id">MF-009-US-003</td><td>Descargar PDF de factura y nota de crédito desde el portal</td></tr>
+            <tr><td class="epic-id">MF-009-US-004</td><td>Registro de evidencia de visualización/descarga (auditoría)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-010">
+        <h2>MF-010 — Dashboard y reportes operativos</h2>
+        <h3>Objetivo</h3>
+        <p>Ofrecer una vista resumen (dashboard) y reportes de facturación y cobro: pendiente de cobro, cobrado por período, por cliente/proyecto, aging de saldos y exportaciones.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Dashboard</strong>: Tarjetas o KPIs: "Total pendiente de cobro" (suma de saldos pendientes de facturas no canceladas); "Total cobrado en [período]" (suma de cobros con fecha en el período); opcional "Facturación emitida en [período]". Filtro por fechas y opcionalmente por cliente.</li>
+          <li><strong>Resumen por cliente</strong>: Tabla cliente, total facturado, total cobrado, pendiente de cobro.</li>
+          <li><strong>Resumen por proyecto</strong>: Si hay proyecto_id en facturas: proyecto, total facturado, total cobrado, pendiente.</li>
+          <li><strong>Aging</strong>: Listado de facturas con saldo pendiente &gt; 0, con columnas "0-30 días", "31-60", "61-90", "&gt;90" según días desde vencimiento (o desde fecha factura). Totales por antigüedad.</li>
+          <li><strong>Exportar</strong>: Botón exportar listado de facturas o de cobros a Excel/CSV con columnas configuradas (número, fecha, cliente, total, estado pago, saldo, etc.).</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Cálculos en tiempo real desde datos de facturas y aplicaciones de pago (o vistas materializadas si hay volumen).</li>
+          <li>Filtros de fecha coherentes con zona horaria y periodo contable si aplica.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Dashboard con pendiente y cobrado; aging; exportación Excel/CSV.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-010-US-001</td><td>Dashboard: facturas pendientes de cobro y total cobrado por período</td></tr>
+            <tr><td class="epic-id">MF-010-US-002</td><td>Resumen por cliente y por proyecto (facturado, cobrado, pendiente)</td></tr>
+            <tr><td class="epic-id">MF-010-US-003</td><td>Reporte aging (antigüedad de saldos por factura/cliente)</td></tr>
+            <tr><td class="epic-id">MF-010-US-004</td><td>Exportar listados a Excel/CSV (facturas, cobros)</td></tr>
+            <tr><td class="epic-id">MF-010-US-005</td><td>Filtros por fecha, estado de pago, cliente, proyecto</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-011">
+        <h2>MF-011 — Maestros</h2>
+        <h3>Objetivo</h3>
+        <p>Mantener los datos base necesarios para facturación: términos de pago, impuestos, cliente/contacto de facturación (o extensión del cliente/área de Kameleon), configuración de empresa para documentos, y opcionalmente productos/tarifas y precios por cliente.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Términos de pago</strong>: CRUD. Campos: nombre, tipo (contado, 30 días, 60 días, etc.), definición de vencimientos (días desde fecha factura, o fechas fijas, o porcentaje a 30/60 días). Usado al crear factura para calcular fecha(s) de vencimiento.</li>
+          <li><strong>Impuestos</strong>: CRUD. Campos: nombre, porcentaje, tipo (incluido en precio / no incluido), cuenta contable si aplica. Opcional: exenciones, retenciones. Al añadir línea de factura se selecciona impuesto; el sistema calcula base e importe de impuesto según el tipo.</li>
+          <li><strong>Cliente/contacto de facturación</strong>: Reutilizar o extender entidad "cliente" o "contacto" de Kameleon. Campos mínimos: nombre, NIF/CIF, dirección, email, término de pago por defecto. Vincular a proyecto (cliente del proyecto) para prerellenar en MF-007.</li>
+          <li><strong>Configuración empresa</strong>: Datos para el pie o cabecera del PDF: nombre legal, NIF, dirección, logo (URL o archivo). Una empresa por defecto si no hay multi-empresa.</li>
+          <li><strong>Productos/tarifas (opcional)</strong>: Catálogo de productos o servicios con descripción, unidad de medida, precio, impuesto por defecto. Opcional: precios por cliente o tarifa.</li>
+        </ol>
+        <h3>Campos principales (maestros)</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>termino_pago.nombre</td><td>Nombre visible del término de pago (p.ej. Contado, 30 días)</td><td>Texto corto</td></tr>
+            <tr><td>termino_pago.tipo</td><td>Clasificación del término (contado, 30 días, 60 días, personalizado, etc.)</td><td>Enumerado</td></tr>
+            <tr><td>termino_pago.definicion</td><td>Regla de vencimiento (días desde factura, fechas fijas, % a 30/60 días…)</td><td>Texto estructurado / JSON</td></tr>
+            <tr><td>impuesto.nombre</td><td>Nombre del impuesto (p.ej. IVA 21%)</td><td>Texto corto</td></tr>
+            <tr><td>impuesto.porcentaje</td><td>Porcentaje aplicable</td><td>Numérico (decimal)</td></tr>
+            <tr><td>impuesto.tipo_calculo</td><td>Indicador de si el impuesto va incluido o no en el precio</td><td>Enumerado</td></tr>
+            <tr><td>impuesto.activo</td><td>Marca para usar / no usar en nuevas facturas</td><td>Booleano</td></tr>
+            <tr><td>cliente_facturacion.nombre</td><td>Razón social / nombre del cliente de facturación</td><td>Texto corto</td></tr>
+            <tr><td>cliente_facturacion.nif</td><td>NIF/CIF u otro identificador fiscal</td><td>Texto corto</td></tr>
+            <tr><td>cliente_facturacion.direccion</td><td>Dirección fiscal</td><td>Texto largo</td></tr>
+            <tr><td>cliente_facturacion.email</td><td>Email de contacto para facturas</td><td>Texto (email)</td></tr>
+            <tr><td>cliente_facturacion.termino_pago_id</td><td>Término de pago por defecto para este cliente</td><td>Relación (FK a termino_pago)</td></tr>
+            <tr><td>empresa.nombre_legal</td><td>Nombre legal que se mostrará en el PDF</td><td>Texto corto</td></tr>
+            <tr><td>empresa.nif</td><td>NIF/CIF de la empresa emisora</td><td>Texto corto</td></tr>
+            <tr><td>empresa.direccion</td><td>Dirección fiscal de la empresa</td><td>Texto largo</td></tr>
+            <tr><td>empresa.logo_url</td><td>Ruta o URL del logo a usar en PDFs</td><td>Texto (URL / ruta)</td></tr>
+            <tr><td>producto.nombre</td><td>Nombre del producto/servicio</td><td>Texto corto</td></tr>
+            <tr><td>producto.unidad_medida</td><td>Unidad de medida (hora, unidad, servicio, etc.)</td><td>Texto corto / Enumerado</td></tr>
+            <tr><td>producto.precio_unitario</td><td>Precio unitario por defecto</td><td>Numérico (decimal)</td></tr>
+            <tr><td>producto.impuesto_id</td><td>Impuesto por defecto del producto</td><td>Relación (FK a impuesto)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li><strong>Configuración básica de maestros (términos, impuestos, empresa)</strong>: ~ <strong>2–3 días</strong> de desarrollo efectivo usando IA (modelado, API, pantallas CRUD, validaciones).</li>
+          <li><strong>Extensión cliente/contacto de facturación + vínculo con proyectos</strong>: ~ <strong>1–1,5 días</strong>.</li>
+          <li><strong>Productos/tarifas y precios por cliente (opcional)</strong>: ~ <strong>1,5–2 días</strong>.</li>
+          <li>Total estimado para MF-011 (end-to-end, sin contar QA/manual ni despliegue): alrededor de <strong>4,5–6,5 días</strong> de trabajo apoyado en IA.</li>
+        </ul>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>No eliminar término de pago ni impuesto si están en uso en facturas existentes; solo desactivar o marcar "no usar en nuevas".</li>
+          <li>Cliente con NIF único si la normativa lo exige.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>CRUD de términos e impuestos; cliente facturación disponible en facturas; datos empresa en PDF; opcional productos/tarifas.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-011-US-001</td><td>Maestro Términos de pago (nombre, tipo, días, vencimientos)</td></tr>
+            <tr><td class="epic-id">MF-011-US-002</td><td>Maestro Impuestos (nombre, %, incluido/no incluido; exenciones)</td></tr>
+            <tr><td class="epic-id">MF-011-US-003</td><td>Cliente/contacto de facturación (extender o vincular cliente/área Kameleon)</td></tr>
+            <tr><td class="epic-id">MF-011-US-004</td><td>Configuración empresa: nombre, NIF, logo para PDF</td></tr>
+            <tr><td class="epic-id">MF-011-US-005</td><td>Maestro Productos/tarifas y unidades de medida (opcional)</td></tr>
+            <tr><td class="epic-id">MF-011-US-006</td><td>Precios por cliente o tarifa (opcional para líneas)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-012">
+        <h2>MF-012 — Moneda y tipo de cambio</h2>
+        <h3>Objetivo</h3>
+        <p>Soportar facturas en moneda distinta de la moneda base de la empresa; fijar el tipo de cambio al emitir la factura para mantener coherencia en cobros y reportes.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Configuración</strong>: Moneda base de la empresa (ej. EUR). Opcional: monedas permitidas y origen del tipo de cambio (manual o proveedor).</li>
+          <li><strong>Al crear/editar factura</strong>: Selector de moneda (por defecto moneda base). Si se elige otra moneda, campo "Tipo de cambio" (ej. 1 EUR = 1,08 USD). El tipo de cambio se congela al guardar/publicar (no se recalcula después).</li>
+          <li><strong>Totales</strong>: En factura en otra moneda: total en moneda factura y opcionalmente total en moneda base (total_factura * tipo_cambio). En listados y reportes: indicar moneda y opcional columna en moneda base.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Una vez publicada la factura, el tipo de cambio no debe modificarse (bloqueo como el resto de campos fiscales).</li>
+          <li>Cobros en otra moneda: definir si el pago se registra en moneda factura o en moneda base y si se generan diferencias de cambio (habitualmente fase posterior).</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>empresa.moneda_base</td><td>Moneda base configurada para la empresa</td><td>Enumerado / código ISO</td></tr>
+            <tr><td>moneda.codigo</td><td>Código de moneda permitido (EUR, USD, etc.)</td><td>Enumerado / texto corto</td></tr>
+            <tr><td>moneda.nombre</td><td>Nombre descriptivo de la moneda</td><td>Texto corto</td></tr>
+            <tr><td>tipo_cambio.fecha</td><td>Fecha en la que se fija el tipo de cambio</td><td>Fecha</td></tr>
+            <tr><td>tipo_cambio.moneda</td><td>Moneda a la que se aplica la tasa</td><td>Enumerado / código ISO</td></tr>
+            <tr><td>tipo_cambio.valor</td><td>Valor de la tasa (p.ej. 1 EUR = 1,08 USD)</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.moneda</td><td>Moneda de la factura</td><td>Enumerado / código ISO</td></tr>
+            <tr><td>factura.tipo_cambio</td><td>Tipo de cambio aplicado a la factura</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.total_moneda</td><td>Total en moneda de la factura</td><td>Numérico (decimal)</td></tr>
+            <tr><td>factura.total_base</td><td>Total equivalente en moneda base</td><td>Numérico (decimal)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Configuración de monedas y tipos de cambio (modelo y mantenimiento): <strong>0,75–1 día</strong>.</li>
+          <li>Adaptación de facturación para manejar moneda y tipo de cambio congelado en factura: <strong>1–1,25 días</strong>.</li>
+          <li>Ajustes de listados/reportes para mostrar importes en moneda factura y moneda base: <strong>0,75–1 día</strong>.</li>
+          <li>Estimación total para MF-012: <strong>~2,5–3,25 días</strong> con apoyo de IA.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Factura en moneda base u otra; tipo de cambio fijado al publicar; totales en ambas monedas si aplica.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-012-US-001</td><td>Seleccionar moneda de la factura; moneda base de la empresa</td></tr>
+            <tr><td class="epic-id">MF-012-US-002</td><td>Tipo de cambio fijado al crear/publicar factura (tasa congelada)</td></tr>
+            <tr><td class="epic-id">MF-012-US-003</td><td>Mostrar importes en moneda factura y en moneda base en listados/detalle</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-013">
+        <h2>MF-013 — Roles y permisos de facturación</h2>
+        <h3>Objetivo</h3>
+        <p>Definir quién puede ver, crear, editar, publicar, anular facturas y registrar cobros, y si la visibilidad es "solo mis clientes" o "todos los clientes", alineado con los roles de Kameleon.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Permisos por rol</strong>: Asociar a cada rol (o crear roles de facturación) permisos como: "Ver facturación" (acceso al menú y listados), "Crear/editar facturas en borrador", "Publicar facturas", "Anular/rectificar facturas", "Registrar cobros", "Ver todos los clientes" vs "Ver solo clientes asignados".</li>
+          <li><strong>Menú Facturación</strong>: Solo visible si el usuario tiene "Ver facturación". Ítems (Facturas, Cobros, Maestros, etc.) según permisos.</li>
+          <li><strong>Listado de facturas</strong>: Si "Ver solo clientes asignados", filtrar facturas por cliente_id donde el usuario tenga asignación (o por equipo/área). Si "Ver todos", sin ese filtro.</li>
+          <li><strong>Acciones en ficha</strong>: Mostrar/ocultar botones Publicar, Anular, Registrar cobro, Crear NC según permisos.</li>
+          <li><strong>Módulo activable</strong>: En Configuración → Módulos, el módulo "Facturación" se puede activar/desactivar para la instancia (o por empresa).</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Sin permiso "Publicar" no se puede confirmar/publicar una factura.</li>
+          <li>Sin permiso "Registrar cobros" no se puede aplicar un pago a facturas.</li>
+          <li>Anulación suele requerir permiso específico por riesgo fiscal.</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>rol.id</td><td>Identificador del rol</td><td>Entero / UUID</td></tr>
+            <tr><td>rol.nombre</td><td>Nombre del rol (Admin facturación, Operador, etc.)</td><td>Texto corto</td></tr>
+            <tr><td>permiso.id</td><td>Identificador del permiso (accion_ver, accion_publicar, etc.)</td><td>Entero / UUID</td></tr>
+            <tr><td>permiso.codigo</td><td>Código de permiso (ver_facturacion, publicar_facturas, etc.)</td><td>Texto corto</td></tr>
+            <tr><td>rol_permiso.rol_id</td><td>Rol al que se asigna el permiso</td><td>Relación (FK rol)</td></tr>
+            <tr><td>rol_permiso.permiso_id</td><td>Permiso asignado</td><td>Relación (FK permiso)</td></tr>
+            <tr><td>usuario.id</td><td>Identificador de usuario</td><td>Entero / UUID</td></tr>
+            <tr><td>usuario.rol_id</td><td>Rol o roles asociados al usuario</td><td>Relación / colección</td></tr>
+            <tr><td>visibilidad.tipo</td><td>Tipo de visibilidad (todos_los_clientes, solo_mis_clientes)</td><td>Enumerado</td></tr>
+            <tr><td>modulo_facturacion.activo</td><td>Indica si el módulo de facturación está activo</td><td>Booleano</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Diseño de modelo de roles/permisos y asignación a usuarios: <strong>0,75–1 día</strong>.</li>
+          <li>Aplicación de permisos en menú, listados y acciones clave de facturación: <strong>1–1,5 días</strong>.</li>
+          <li>UI de administración de roles/permisos (lista, alta/edición rápida) con IA: <strong>0,75–1 día</strong>.</li>
+          <li>Estimación total para MF-013: <strong>~2,5–3,5 días</strong> de desarrollo efectivo.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Permisos aplicados en menú, listados y acciones; visibilidad por cliente según rol.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-013-US-001</td><td>Permisos: ver listado y detalle de facturas (por rol)</td></tr>
+            <tr><td class="epic-id">MF-013-US-002</td><td>Permisos: crear y editar facturas en borrador; publicar factura</td></tr>
+            <tr><td class="epic-id">MF-013-US-003</td><td>Permisos: anular/rectificar factura; registrar cobros</td></tr>
+            <tr><td class="epic-id">MF-013-US-004</td><td>Visibilidad: ver solo facturas de mis clientes vs ver todas</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr>
+
+      <section id="mf-014">
+        <h2>MF-014 — Auditoría y trazabilidad</h2>
+        <h3>Objetivo</h3>
+        <p>Registrar cambios en facturas y cobros, envíos de email y opcionalmente snapshot del PDF emitido, para auditoría y cumplimiento.</p>
+        <h3>Proceso detallado</h3>
+        <ol>
+          <li><strong>Log de cambios en factura</strong>: En cada actualización de una factura, registrar: usuario_id, timestamp, entidad, tipo de cambio, detalle (campo modificado, valor anterior, valor nuevo). Almacenar en tabla "audit_log" o "historial_cambios". Consultable desde la ficha de la factura (pestaña "Historial" o "Auditoría").</li>
+          <li><strong>Trazabilidad de envíos por email</strong>: Al enviar una factura por email (MF-006), registrar: factura_id, destinatario, fecha_envio, asunto, indicador de adjunto (PDF).</li>
+          <li><strong>Trazabilidad de cobros aplicados</strong>: Cada aplicación de pago (MF-004) ya es un registro. Incluir usuario que aplicó. Para reversos, registrar también "reverso de aplicación X por usuario Y en fecha Z".</li>
+          <li><strong>Snapshot PDF (opcional)</strong>: Al publicar una factura o al enviar por primera vez, generar el PDF y guardarlo asociado a la factura y versión.</li>
+        </ol>
+        <h3>Reglas de negocio</h3>
+        <ul>
+          <li>Los logs no deben ser editables ni eliminables por usuarios normales (solo lectura para admins).</li>
+          <li>Retención de logs según política de cumplimiento (ej. 5 años).</li>
+        </ul>
+        <h3>Campos principales</h3>
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>audit_log.id</td><td>Identificador del registro de auditoría</td><td>Entero / UUID</td></tr>
+            <tr><td>audit_log.entidad</td><td>Tipo de entidad (factura, cobro, nota_credito, etc.)</td><td>Texto corto / Enumerado</td></tr>
+            <tr><td>audit_log.entidad_id</td><td>Identificador de la entidad afectada</td><td>Entero / UUID</td></tr>
+            <tr><td>audit_log.usuario_id</td><td>Usuario que realizó la acción</td><td>Relación (FK usuario)</td></tr>
+            <tr><td>audit_log.fecha</td><td>Fecha/hora del cambio</td><td>Fecha/hora</td></tr>
+            <tr><td>audit_log.tipo_cambio</td><td>Tipo de cambio (creacion, modificacion, cambio_estado, reverso_pago, etc.)</td><td>Enumerado</td></tr>
+            <tr><td>audit_log.detalle</td><td>Detalle del cambio (campo anterior/nuevo, diff JSON, etc.)</td><td>Texto / JSON</td></tr>
+            <tr><td>envio_log.id</td><td>Identificador de registro de envío de email</td><td>Entero / UUID</td></tr>
+            <tr><td>envio_log.factura_id</td><td>Factura asociada al envío</td><td>Relación (FK factura)</td></tr>
+            <tr><td>envio_log.destinatario</td><td>Dirección de email a la que se envió</td><td>Texto (email)</td></tr>
+            <tr><td>envio_log.fecha_envio</td><td>Fecha/hora de envío</td><td>Fecha/hora</td></tr>
+            <tr><td>envio_log.adjunto_pdf</td><td>Indicador de que se adjuntó el PDF</td><td>Booleano</td></tr>
+            <tr><td>cobro_log.id</td><td>Identificador de registro de aplicación/reverso de cobro</td><td>Entero / UUID</td></tr>
+            <tr><td>cobro_log.pago_id</td><td>Pago asociado</td><td>Relación (FK pago)</td></tr>
+            <tr><td>cobro_log.factura_id</td><td>Factura asociada</td><td>Relación (FK factura)</td></tr>
+            <tr><td>cobro_log.importe</td><td>Importe aplicado o revertido</td><td>Numérico (decimal)</td></tr>
+          </tbody>
+        </table>
+        <h3>Estimación de esfuerzo (con soporte de IA)</h3>
+        <ul>
+          <li>Implementación de tabla de auditoría genérica y hooks en operaciones clave (facturas, cobros, envíos): <strong>1–1,5 días</strong>.</li>
+          <li>UI de consulta de historial (pestaña Historial en factura, listados de logs básicos): <strong>1–1,25 días</strong>.</li>
+          <li>Gestión de snapshots PDF (opcional) y políticas de retención: <strong>0,75–1 día</strong>.</li>
+          <li>Estimación total para MF-014: <strong>~3–3,75 días</strong> de desarrollo efectivo.</li>
+        </ul>
+        <h3>Criterios de aceptación (resumen)</h3>
+        <p>Historial de cambios en factura visible; registro de envíos de email y de aplicaciones de pago; opcional snapshot PDF.</p>
+        <h3>Historias de usuario</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Título</th></tr></thead>
+          <tbody>
+            <tr><td class="epic-id">MF-014-US-001</td><td>Log de cambios en factura (quién, cuándo, campo modificado)</td></tr>
+            <tr><td class="epic-id">MF-014-US-002</td><td>Trazabilidad de envíos por email (destinatario, fecha, adjunto)</td></tr>
+            <tr><td class="epic-id">MF-014-US-003</td><td>Trazabilidad de cobros aplicados (pago, factura, importe, fecha)</td></tr>
+            <tr><td class="epic-id">MF-014-US-004</td><td>Snapshot del PDF emitido al publicar o al enviar (opcional)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer class="doc-footer">
+        Documento de requisitos funcionales detallados · Módulo de facturación Kameleon App · Para uso del equipo de desarrollo.
+      </footer>
+    </main>
+    </div>
+  </div>
+</body>
+</html>
