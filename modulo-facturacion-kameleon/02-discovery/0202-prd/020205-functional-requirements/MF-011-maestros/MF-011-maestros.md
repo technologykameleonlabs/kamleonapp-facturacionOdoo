@@ -21,4 +21,13 @@
 | MF-011-US-005 | Maestro Productos/tarifas y unidades de medida (opcional) | Media |
 | MF-011-US-006 | Precios por cliente o tarifa (opcional para líneas) | Baja |
 
-> Detalle en carpeta `/stories`
+**Fichas detalladas** (carpeta `stories/`):
+
+| ID | Archivo |
+|----|---------|
+| US-001 | `MF-011-US-001-maestro-terminos-pago.md` |
+| US-002 | `MF-011-US-002-maestro-impuestos.md` |
+| US-003 | `MF-011-US-003-cliente-facturacion.md` |
+| US-004 | `MF-011-US-004-configuracion-empresa.md` |
+| US-005 | `MF-011-US-005-maestro-productos-tarifas.md` |
+| US-006 | `MF-011-US-006-precios-por-cliente-tarifa.md` |

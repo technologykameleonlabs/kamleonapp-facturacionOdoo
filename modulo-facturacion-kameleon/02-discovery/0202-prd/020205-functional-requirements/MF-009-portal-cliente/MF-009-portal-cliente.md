@@ -12,11 +12,14 @@
 
 ## Historias de usuario (índice)
 
-| ID | Título | Prioridad |
-|----|--------|-----------|
-| MF-009-US-001 | Acceso al portal de facturación con token mágico o login cliente | Alta |
-| MF-009-US-002 | Historial de facturas del cliente (listado con estado de pago) | Alta |
-| MF-009-US-003 | Descargar PDF de factura y nota de crédito desde el portal | Alta |
-| MF-009-US-004 | Registro de evidencia de visualización/descarga (auditoría) | Media |
+
+| ID            | Título                                                           | Prioridad |
+| ------------- | ---------------------------------------------------------------- | --------- |
+| MF-009-US-001 | Acceso al portal de facturación con token mágico o login cliente | Alta      |
+| MF-009-US-002 | Historial de facturas del cliente (listado con estado de pago)   | Alta      |
+| MF-009-US-003 | Descargar PDF de factura y nota de crédito desde el portal       | Alta      |
+| MF-009-US-004 | Registro de evidencia de visualización/descarga (auditoría)      | Media     |
+
 
 > Detalle en carpeta `/stories`
+

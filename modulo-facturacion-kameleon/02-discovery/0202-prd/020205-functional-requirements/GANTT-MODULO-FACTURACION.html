@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama de Gantt — Módulo de facturación Kameleon App</title>
+  <style>
+    :root {
+      --color-primary: #1a365d;
+      --color-bg: #f7fafc;
+      --color-border: #e2e8f0;
+      --font-sans: 'Segoe UI', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      background: var(--color-bg);
+      padding: 1.5rem;
+      color: #2d3748;
+    }
+    h1 {
+      font-size: 1.5rem;
+      color: var(--color-primary);
+      margin: 0 0 0.5rem 0;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: #4a5568;
+      margin: 0 0 1.5rem 0;
+    }
+    .gantt-wrap {
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      padding: 1rem;
+    }
+    .gantt {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      min-width: 800px;
+      gap: 0;
+    }
+    .gantt-header {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      border-bottom: 2px solid var(--color-primary);
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+    .gantt-header .timeline {
+      display: flex;
+      align-items: center;
+    }
+    .gantt-row {
+      display: contents;
+    }
+    .gantt-row .label {
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
+    .gantt-row .label .id { font-weight: 600; color: #2b6cb0; margin-right: 0.35rem; }
+    .gantt-row .bars {
+      position: relative;
+      height: 28px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .gantt-row .bar {
+      position: absolute;
+      top: 4px;
+      height: 20px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
+      color: #fff;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    }
+    .gantt-row .bar.alt { background: linear-gradient(135deg, #276749 0%, #38a169 100%); }
+    .gantt-row .bar.alt2 { background: linear-gradient(135deg, #744210 0%, #b7791f 100%); }
+    .gantt-row .bar.alt3 { background: linear-gradient(135deg, #553c9a 0%, #805ad5 100%); }
+    .timeline-axis {
+      display: grid;
+      grid-column: 2;
+      padding-left: 0;
+      height: 24px;
+    }
+    .timeline-axis span {
+      font-size: 0.7rem;
+      color: #718096;
+      text-align: center;
+    }
+    .day-marks {
+      display: flex;
+      grid-column: 2;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 2px;
+      margin-bottom: 2px;
+    }
+    .day-marks span {
+      flex: 1;
+      min-width: 20px;
+      font-size: 0.65rem;
+      color: #a0aec0;
+      text-align: center;
+    }
+    .day-marks span:nth-child(5n+1) { color: #718096; font-weight: 600; }
+    .bars { min-width: 500px; }
+    .legend {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #edf2f7;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .legend h3 { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--color-primary); }
+    .legend ul { margin: 0; padding-left: 1.2rem; }
+    .legend li { margin: 0.2rem 0; }
+    .total-bar {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #1a365d;
+      color: #fff;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>Diagrama de Gantt — Módulo de facturación</h1>
+  <p class="subtitle">Kameleon App · Estimaciones con apoyo de IA · Dependencias lógicas entre épicas</p>
+
+  <div class="gantt-wrap">
+    <div class="gantt">
+      <div class="gantt-header">
+        <span>Épica</span>
+        <div class="timeline day-marks" id="dayMarks"></div>
+      </div>
+      <!-- Escala: 25 días laborables totales (cada día = 4% del ancho) -->
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-011</span> Maestros</div>
+        <div class="bars"><div class="bar" data-start="0" data-days="5.5" style="left: 0%; width: 22%;">5,5 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-012</span> Moneda y tipo de cambio</div>
+        <div class="bars"><div class="bar alt" data-start="0" data-days="2.9" style="left: 0%; width: 11.6%;">2,9 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-013</span> Roles y permisos</div>
+        <div class="bars"><div class="bar alt2" data-start="0" data-days="3" style="left: 0%; width: 12%;">3 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-001</span> Activación de proyecto</div>
+        <div class="bars"><div class="bar alt3" data-start="0" data-days="3" style="left: 0%; width: 12%;">3 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-014</span> Auditoría y trazabilidad</div>
+        <div class="bars"><div class="bar alt" data-start="0" data-days="3.4" style="left: 0%; width: 13.6%;">3,4 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-003</span> Facturación núcleo</div>
+        <div class="bars"><div class="bar" data-start="5.5" data-days="6" style="left: 22%; width: 24%;">6 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-006</span> PDF y envío por email</div>
+        <div class="bars"><div class="bar alt" data-start="11.5" data-days="3" style="left: 46%; width: 12%;">3 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-004</span> Cobros y estado de pago</div>
+        <div class="bars"><div class="bar alt2" data-start="11.5" data-days="3.5" style="left: 46%; width: 14%;">3,5 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-005</span> Notas de crédito</div>
+        <div class="bars"><div class="bar alt3" data-start="11.5" data-days="2.6" style="left: 46%; width: 10.4%;">2,6 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-007</span> Facturación desde proyecto</div>
+        <div class="bars"><div class="bar" data-start="11.5" data-days="5.5" style="left: 46%; width: 22%;">5,5 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-009</span> Portal del cliente</div>
+        <div class="bars"><div class="bar alt" data-start="14.5" data-days="3" style="left: 58%; width: 12%;">3 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-010</span> Dashboard y reportes</div>
+        <div class="bars"><div class="bar alt2" data-start="15" data-days="3.25" style="left: 60%; width: 13%;">3,25 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-008</span> Anticipos y facturación parcial</div>
+        <div class="bars"><div class="bar alt3" data-start="17" data-days="3.5" style="left: 68%; width: 14%;">3,5 d</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="label"><span class="id">MF-002</span> Factura de cierre / liquidación</div>
+        <div class="bars"><div class="bar" data-start="17" data-days="3" style="left: 68%; width: 12%;">3 d</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="total-bar">
+    Duración total del proyecto (con trabajo en paralelo): ~20–22 días laborables · Suma de esfuerzo: ~48–52 días si fuera secuencial.
+  </div>
+
+  <div class="legend">
+    <h3>Dependencias</h3>
+    <ul>
+      <li><strong>Fase 1 (día 0):</strong> MF-011 Maestros, MF-012 Moneda, MF-013 Roles, MF-001 Activación, MF-014 Auditoría (en paralelo).</li>
+      <li><strong>Fase 2 (tras Maestros):</strong> MF-003 Facturación núcleo (requiere datos de MF-011).</li>
+      <li><strong>Fase 3 (tras Facturación núcleo):</strong> MF-006 PDF, MF-004 Cobros, MF-005 Notas de crédito, MF-007 Facturación desde proyecto.</li>
+      <li><strong>Fase 4:</strong> MF-009 Portal (tras MF-006), MF-010 Dashboard (tras MF-004), MF-008 Anticipos y MF-002 Factura cierre (tras MF-007).</li>
+    </ul>
+    <p style="margin: 0.5rem 0 0 0;"><em>Duraciones usan el punto medio del rango estimado en cada épica. MF-009 y MF-010: estimación orientativa (~3 d) por no tener rango en documento.</em></p>
+  </div>
+
+  <script>
+    (function() {
+      var totalDays = 25;
+      var container = document.getElementById('dayMarks');
+      if (!container) return;
+      for (var d = 0; d <= totalDays; d++) {
+        var s = document.createElement('span');
+        s.textContent = d;
+        container.appendChild(s);
+      }
+    })();
+  </script>
+</body>
+</html>

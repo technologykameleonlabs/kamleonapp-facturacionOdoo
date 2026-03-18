@@ -1,7 +1,9 @@
 # Backlog — Módulo de facturación Kameleon App
 
 **Origen**: EPICS-INDEX.md (análisis Módulo Finanzas HTML + Propuesta de desarrollo).  
-**Épicas**: 14 (MF-001 a MF-014). **Historias de usuario**: ~67 (estimación en índice de épicas).
+**Épicas**: 14 (MF-001 a MF-014). **Historias de usuario**: 71 (véase EPICAS-Y-HISTORIAS-USUARIO.md).
+
+**Orden de desarrollo (prioridad Maestros → Núcleo → Facturación proyecto)**: ver **[ORDEN-DESARROLLO.md](ORDEN-DESARROLLO.md)**.
 
 ---
 
