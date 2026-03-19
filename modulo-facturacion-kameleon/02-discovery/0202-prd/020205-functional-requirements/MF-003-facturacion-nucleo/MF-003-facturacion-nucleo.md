@@ -12,17 +12,20 @@
 
 ## Historias de usuario (índice)
 
-| ID | Título | Prioridad |
-|----|--------|-----------|
-| MF-003-US-001 | Listado de facturas con filtros por cliente y estado | Alta |
-| MF-003-US-002 | Creación manual de factura en borrador (cliente, líneas, impuestos, términos) | Alta |
-| MF-003-US-003 | Edición de factura en borrador (líneas, descuentos por línea o global) | Alta |
-| MF-003-US-004 | Publicar factura: asignar número definitivo (serie), pasar a Publicada, bloquear edición | Alta |
-| MF-003-US-005 | Ciclo de vida: estados Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada | Alta |
-| MF-003-US-006 | Numeración fiscal: series por país/empresa, prefijos, control de huecos | Alta |
-| MF-003-US-007 | Reglas de bloqueo: campos inamovibles tras publicar; cierre de periodo (opcional) | Media |
-| MF-003-US-008 | Descuentos por línea y descuento global; recargos (pronto pago, mora) | Media |
-| MF-003-US-009 | Detalle de factura (cabecera y líneas) con totales e impuestos desglosados | Alta |
-| MF-003-US-010 | Vencimientos múltiples según término de pago (fechas de vencimiento) | Media |
+
+| ID            | Título                                                                                       | Prioridad |
+| ------------- | -------------------------------------------------------------------------------------------- | --------- |
+| MF-003-US-001 | Listado de facturas con filtros por cliente y estado                                         | Alta      |
+| MF-003-US-002 | Creación manual de factura en borrador (cliente, líneas, impuestos, términos)                | Alta      |
+| MF-003-US-003 | Edición de factura en borrador (líneas, descuentos por línea o global)                       | Alta      |
+| MF-003-US-004 | Publicar factura: asignar número definitivo (serie), pasar a Publicada, bloquear edición     | Alta      |
+| MF-003-US-005 | Ciclo de vida: estados Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada | Alta      |
+| MF-003-US-006 | Numeración fiscal: series por país/empresa, prefijos, control de huecos                      | Alta      |
+| MF-003-US-007 | Reglas de bloqueo: campos inamovibles tras publicar; cierre de periodo (opcional)            | Media     |
+| MF-003-US-008 | Descuentos por línea y descuento global; recargos (pronto pago, mora)                        | Media     |
+| MF-003-US-009 | Detalle de factura (cabecera y líneas) con totales e impuestos desglosados                   | Alta      |
+| MF-003-US-010 | Vencimientos múltiples según término de pago (fechas de vencimiento)                         | Media     |
+
 
 > Detalle en carpeta `/stories`
+
