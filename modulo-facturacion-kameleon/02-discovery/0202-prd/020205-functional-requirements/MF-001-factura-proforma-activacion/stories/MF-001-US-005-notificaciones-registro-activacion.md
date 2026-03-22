@@ -1,14 +1,37 @@
-# MF-001-US-005 — Registro de activación (timestamp, referencia factura si hay anticipo) para trazabilidad
+# MF-001-US-005 — Registro de activación (timestamp y trazabilidad)
 
-**Epic**: MF-001 — Activación de proyecto (sin pago inicial obligatorio)  
-**Referencia guía**: EP-010-US-005
+**Epic**: MF-001 — Activación de proyecto y prefactura por importe total
 
-**Como** sistema, **quiero** guardar un registro de activación con proyecto_id, timestamp, usuario o evento que disparó la activación, referencia de factura de anticipo (si existe) y fecha reservada (si aplica), **para** auditoría y para no repetir el flujo de activación.
+**Como** sistema, **quiero** guardar un registro de activación con `proyecto_id`, timestamp, disparador (usuario/evento), referencia al documento/registro de **prefactura** (US-002) si existe y referencia de fecha reservada si aplica, **para** auditoría, trazabilidad y para evitar ejecuciones duplicadas del flujo de activación.
 
-**Incluye**: Registro de "Activación": proyecto_id, timestamp, disparador (usuario/evento), referencia factura de anticipo (si MF-001-US-002), fecha reservada (si MF-001-US-004).  
-**Excluye**: Contenido de las notificaciones (MF-001-US-003).
+**Criterios de aceptación**:
+- Se crea/actualiza un registro de activación persistente por proyecto y evento de activación.
+- El registro incluye:
+  - `proyecto_id`
+  - `timestamp`
+  - `disparador_activacion` (acción manual / contrato_firmado / regla)
+  - referencia a **prefactura/cupo** si se generó (US-002)
+  - referencia/fecha reservada si se reservó (US-004)
+- Idempotencia: ante reintentos, el sistema no debe generar registros duplicados equivalentes.
 
-**Precondiciones**: Proyecto activado (MF-001-US-001).  
-**Postcondiciones**: Registro de activación guardado; trazabilidad disponible.
+### Campos de datos
 
-**Criterios BDD**: *Dado* que la activación se ha completado, *cuando* el sistema guarda el registro, *entonces* el registro de activación queda persistido con todos los datos de trazabilidad.
+| Campo                             | Descripción                               | Tipo |
+|-----------------------------------|-------------------------------------------|------|
+| activacion.registro_id           | Identificador del registro               | Entero/UUID |
+| activacion.proyecto_id           | Proyecto asociado                         | Relación (FK) |
+| activacion.timestamp             | Fecha/hora del momento de activación     | Fecha/hora |
+| activacion.disparador_activacion | Origen de la activación                   | Enumerado |
+| activacion.activated_by         | Usuario/sistema que disparó               | Relación / Texto corto |
+| activacion.prefactura_id / documento_id | Referencia a prefactura o cupo (si existe) | Relación (FK) |
+| activacion.calendario_evento_id | Evento calendario asociado (si aplica)    | Texto / Relación |
+
+### Estimación de esfuerzo (con IA)
+
+- Modelo/migración del registro de activación: **0,15 días**.
+- Persistencia, idempotencia y API/servicio: **0,1 días**.
+- Integración con el flujo de activación (pasar IDs/timestamps): **0,05 días**.
+- Total estimado para esta US: **~0,3 días** de desarrollo efectivo.
+
+**Prioridad**: Alta
+

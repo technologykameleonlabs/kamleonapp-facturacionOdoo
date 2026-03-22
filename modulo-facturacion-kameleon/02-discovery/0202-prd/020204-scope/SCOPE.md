@@ -6,7 +6,7 @@
 
 ## Resumen
 
-Alcance del **módulo de facturación** para Kameleon App: facturación nativa en Kameleon (sin Odoo), por **fases**. Los **proyectos se facturan mensualmente** en función de las tareas realizadas, horas registradas, hitos completados o fee mensual; con **prevención de doble facturación** y **trazabilidad factura → proyecto**. Incluye activación de proyecto (sin pago inicial obligatorio) y factura de cierre por saldo pendiente (MF-001, MF-002), **núcleo** (facturas, líneas, cobros, NC, PDF, email) y **ampliación** (facturación mensual desde proyecto MF-007, anticipos MF-008, portal, dashboard).
+Alcance del **módulo de facturación** para Kameleon App: facturación nativa en Kameleon (sin Odoo), por **fases**. Los **proyectos se facturan mensualmente** en función de las tareas realizadas, horas registradas, hitos completados o fee mensual; con **prevención de doble facturación** y **trazabilidad factura → proyecto**. Incluye activación de proyecto con **prefactura por importe total** (MF-001) y factura de cierre por saldo pendiente (MF-002), **núcleo** (facturas, líneas, cobros, NC, PDF, email) y **ampliación** (facturación mensual desde proyecto MF-007, consumo de cupo/anticipos MF-008, portal, dashboard).
 
 ## Fases
 

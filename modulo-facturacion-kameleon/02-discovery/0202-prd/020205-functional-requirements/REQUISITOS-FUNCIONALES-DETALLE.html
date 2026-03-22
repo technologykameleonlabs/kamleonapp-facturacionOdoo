@@ -238,9 +238,10 @@
       <hr>
 
       <section id="mf-001">
-        <h2>MF-001 — Activación de proyecto (sin pago inicial obligatorio)</h2>
+        <p><strong>Actualización</strong>: El contenido canónico de MF-001 está en <code>REQUISITOS-FUNCIONALES-DETALLE.md</code> (activación + <strong>prefactura por importe total</strong> y consumo del saldo vía MF-007/MF-008). El HTML siguiente puede no reflejar todos los matices del Markdown.</p>
+        <h2>MF-001 — Activación de proyecto y prefactura por importe total</h2>
         <h3>Objetivo</h3>
-        <p>El proyecto se <strong>activa</strong> (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. Opcionalmente se puede registrar un anticipo o pago inicial acordado (cualquier importe) y generar una factura por ese monto; en ese caso se notifica al cliente y se deja trazabilidad. La facturación principal del proyecto será <strong>mensual</strong> (MF-007).</p>
+        <p>El proyecto se <strong>activa</strong> (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. En la versión actual se registra una <strong>prefactura (cupo)</strong> por el <strong>importe total acordado</strong>; las facturas mensuales consumen ese saldo hasta cero (MF-007 + MF-008). Sin pasarela de pago obligatoria en la activación.</p>
         <h3>Alcance</h3>
         <ul>
           <li><strong>Incluye</strong>: Activación del proyecto (estado "Activo", fecha de activación); disparador por evento (ej. contrato firmado) o por acción manual; opcional: registro de anticipo/pago inicial (importe acordado) y generación de factura por ese importe; reserva de fecha en calendario; notificaciones a equipo y cliente; registro de activación para trazabilidad.</li>
@@ -317,10 +318,10 @@
           <thead><tr><th>ID</th><th>Título</th></tr></thead>
           <tbody>
             <tr><td class="epic-id">MF-001-US-001</td><td>Activación del proyecto (manual o por evento: contrato firmado)</td></tr>
-            <tr><td class="epic-id">MF-001-US-002</td><td>Opcional: registro de anticipo/pago inicial y generación de factura por monto acordado</td></tr>
+            <tr><td class="epic-id">MF-001-US-002</td><td>Prefactura por importe total al activar (cupo consumible en facturas mensuales)</td></tr>
             <tr><td class="epic-id">MF-001-US-003</td><td>Registro de fecha de activación y notificaciones a equipo y cliente</td></tr>
             <tr><td class="epic-id">MF-001-US-004</td><td>Reserva automática de fecha en calendario (si aplica)</td></tr>
-            <tr><td class="epic-id">MF-001-US-005</td><td>Registro de activación (timestamp, referencia factura si hay anticipo) para trazabilidad</td></tr>
+            <tr><td class="epic-id">MF-001-US-005</td><td>Registro de activación (timestamp, referencia prefactura) para trazabilidad</td></tr>
           </tbody>
         </table>
       </section>

@@ -4,13 +4,13 @@ Cada épica se describe con su **objetivo**, **alcance** (cuando aplica) y la li
 
 ---
 
-## MF-001 — Activación de proyecto (sin pago inicial obligatorio)
+## MF-001 — Activación de proyecto y prefactura por importe total
 
 **Objetivo**  
-El proyecto se activa (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. Opcionalmente se puede registrar un anticipo o pago inicial acordado (cualquier importe) y generar una factura por ese monto; en ese caso se notifica al cliente y se deja trazabilidad. La facturación principal del proyecto será mensual (MF-007).
+El proyecto se activa (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. **En la versión actual** se registra una **prefactura (cupo)** por el **importe total acordado** del proyecto; las facturas mensuales consumen ese saldo hasta cero (MF-007 + MF-008). No se exige pasarela de pago en la activación.
 
 **Alcance**  
-- **Incluye**: Activación del proyecto (estado "Activo", fecha de activación); disparador por evento (ej. contrato firmado) o por acción manual; opcional: registro de anticipo/pago inicial (importe acordado) y generación de factura por ese importe; reserva de fecha en calendario; notificaciones a equipo y cliente; registro de activación para trazabilidad.  
+- **Incluye**: Activación del proyecto (estado "Activo", fecha de activación); disparador por evento (ej. contrato firmado) o por acción manual; **prefactura por importe total** vinculada a la activación (una por proyecto en v1); reserva de fecha en calendario; notificaciones a equipo y cliente; registro de activación para trazabilidad; decisión fiscal documentada (proforma vs factura — MF-003-US-011).  
 - **Excluye**: Pasarela de pago integrada.
 
 **Historias de usuario**
@@ -18,10 +18,10 @@ El proyecto se activa (cambio de estado a "Activo") por contrato firmado, por ac
 | ID | Título |
 |----|--------|
 | MF-001-US-001 | Activación del proyecto (manual o por evento: contrato firmado) |
-| MF-001-US-002 | Opcional: registro de anticipo/pago inicial y generación de factura por monto acordado |
+| MF-001-US-002 | Prefactura por importe total al activar (cupo consumible en facturas mensuales) |
 | MF-001-US-003 | Registro de fecha de activación y notificaciones a equipo y cliente |
 | MF-001-US-004 | Reserva automática de fecha en calendario (si aplica) |
-| MF-001-US-005 | Registro de activación (timestamp, referencia factura si hay anticipo) para trazabilidad |
+| MF-001-US-005 | Registro de activación (timestamp, referencia prefactura) para trazabilidad |
 
 ---
 
@@ -51,7 +51,7 @@ Cuando el proyecto se cierra o se acepta la última entrega (según flujo de pro
 Permitir crear, editar en borrador y publicar facturas de cliente con líneas, impuestos y términos de pago, con numeración fiscal por serie, ciclo de vida definido (Borrador → Publicada → Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada) y bloqueo de campos tras publicar, para cumplir reglas fiscales y de negocio.
 
 **Alcance**  
-- **Incluye**: Listado de facturas con filtros (cliente, estado documento, estado pago); creación manual en borrador (cliente, líneas con descripción/cantidad/precio/impuesto, término de pago); edición en borrador (líneas, descuentos por línea o global, recargos si aplica); acción Publicar (asignar número por serie, pasar a Publicada, bloquear edición de campos fiscales); gestión de estados del ciclo de vida; numeración fiscal; reglas de bloqueo; detalle de factura con totales e impuestos; vencimientos múltiples según término de pago.  
+- **Incluye**: Listado de facturas con filtros (cliente, estado documento, estado pago); creación manual en borrador (cliente, líneas con descripción/cantidad/precio/impuesto, término de pago); edición en borrador (líneas, descuentos por línea o global, recargos si aplica); acción Publicar (asignar número por serie, pasar a Publicada, bloquear edición de campos fiscales); gestión de estados del ciclo de vida; numeración fiscal; **tipos documentales prefactura/proforma vs fiscal (MF-003-US-011, MF-001)**; reglas de bloqueo; detalle de factura con totales e impuestos; vencimientos múltiples según término de pago.  
 - **Excluye**: Registro de cobros (MF-004), notas de crédito (MF-005), generación/envió de PDF (MF-006).
 
 **Historias de usuario**
@@ -68,6 +68,7 @@ Permitir crear, editar en borrador y publicar facturas de cliente con líneas, i
 | MF-003-US-008 | Descuentos por línea y descuento global; recargos (pronto pago, mora) |
 | MF-003-US-009 | Detalle de factura (cabecera y líneas) con totales e impuestos desglosados |
 | MF-003-US-010 | Vencimientos múltiples según término de pago (fechas de vencimiento) |
+| MF-003-US-011 | Tipos documentales: prefactura/proforma vs factura fiscal; series y numeración condicionada |
 
 ---
 
@@ -156,21 +157,21 @@ Los proyectos se facturan mensualmente en función de lo realizado en cada perio
 ## MF-008 — Anticipos y facturación parcial (en contexto de facturación mensual)
 
 **Objetivo**  
-Soportar anticipos (importe o % sobre proyecto) facturados al inicio y su descuento en las facturas mensuales (o en factura de cierre) del mismo proyecto. Facturación parcial en este modelo son las múltiples facturas mensuales por proyecto (MF-007); aquí se añade el control de total facturado vs presupuesto y la gestión de anticipos pendientes de descontar.
+Soportar anticipos (importe o % sobre proyecto) o el **cupo de prefactura total (MF-001)** y su **aplicación** en las facturas mensuales (o en factura de cierre) del mismo proyecto. Facturación parcial en este modelo son las múltiples facturas mensuales por proyecto (MF-007); aquí se añade el control de total facturado vs presupuesto y la gestión del **saldo pendiente** del cupo.
 
 **Alcance**  
-- Anticipos asociados a proyecto; descuento del anticipo repartido en facturas mensuales posteriores (o en una sola factura de cierre).  
-- Vista de anticipos pendientes de descontar por proyecto/cliente.  
-- Total facturado por proyecto (suma de facturas mensuales + anticipos) vs presupuesto; alertas si se supera.
+- Anticipos / cupos asociados a proyecto; aplicación o descuento repartido en facturas mensuales posteriores (o en una sola factura de cierre).
+- Vista de **saldo prefactura** / anticipos pendientes por proyecto/cliente.
+- Total facturado por proyecto (definición coherente con tipo documental de MF-001) vs presupuesto; alertas si se supera.
 
 **Historias de usuario**
 
 | ID | Título |
 |----|--------|
-| MF-008-US-001 | Crear factura de anticipo (importe o %) asociada a proyecto/cliente |
-| MF-008-US-002 | Descontar anticipo en facturas mensuales (reparto por factura o en cierre) |
-| MF-008-US-003 | Facturación parcial: total facturado por proyecto (mensual + anticipos) vs presupuesto |
-| MF-008-US-004 | Vista de anticipos pendientes de descontar por proyecto/cliente |
+| MF-008-US-001 | Crear factura de anticipo o cupo prefactura (importe, % o total proyecto MF-001) asociada a proyecto/cliente |
+| MF-008-US-002 | Aplicar o descontar cupo/anticipo en facturas mensuales (reparto por factura o en cierre) |
+| MF-008-US-003 | Facturación parcial: total facturado por proyecto (mensual + documentos iniciales) vs presupuesto |
+| MF-008-US-004 | Vista de saldo prefactura / anticipos pendientes por proyecto/cliente |
 
 ---
 
@@ -277,6 +278,6 @@ Registrar cambios en facturas y cobros, envíos de email y opcionalmente snapsho
 | Concepto | Total |
 |----------|-------|
 | Épicas | 14 |
-| Historias de usuario | 71 |
+| Historias de usuario | 72 |
 
 *Fuente: REQUISITOS-FUNCIONALES-DETALLE.md*

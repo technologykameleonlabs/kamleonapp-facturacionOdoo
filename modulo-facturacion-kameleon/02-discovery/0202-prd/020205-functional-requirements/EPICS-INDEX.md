@@ -6,15 +6,15 @@
 
 - **Fuentes**: Propuesta de desarrollo (Enfoque C), Revisión Módulo Finanzas (15 gaps), ver `020201-context/analisis-modulo-finanzas-y-propuesta.md`.
 - **Épicas**: 14 (MF-001 a MF-014).
-- **Historias de usuario**: Ver tabla por épica; estimación inicial ~60–70 US.
+- **Historias de usuario**: Ver tabla por épica; estimación inicial ~60–72 US.
 
 ## Épicas
 
 | ID | Epic | Fase | # US est. | Origen |
 |----|------|------|-----------|--------|
-| MF-001 | Activación de proyecto (sin pago inicial obligatorio) | Flujo Kameleon | 5 | TO-BE-010 |
+| MF-001 | Activación de proyecto y prefactura por importe total | Flujo Kameleon | 5 | TO-BE-010 |
 | MF-002 | Factura de cierre / liquidación y registro de pago | Flujo Kameleon | 4 | TO-BE-022 |
-| MF-003 | Facturación núcleo (facturas, líneas, ciclo de vida, numeración) | Fase 1 | 10 | Propuesta F1 + gaps 1, 2, 8, 12 |
+| MF-003 | Facturación núcleo (facturas, líneas, ciclo de vida, numeración, tipos documentales) | Fase 1 | 11 | Propuesta F1 + gaps 1, 2, 8, 12 |
 | MF-004 | Cobros y estado de pago | Fase 1 | 6 | Propuesta F1 + gap 5 |
 | MF-005 | Notas de crédito | Fase 1 | 4 | Propuesta F1 + gap 1 |
 | MF-006 | PDF y envío por email | Fase 1 | 3 | Propuesta F1 |
@@ -32,7 +32,7 @@
 - **MF-011** (Maestros) y **MF-013** (Roles) son base para MF-003, MF-004, MF-005, MF-006.
 - **MF-003** (Facturación núcleo) es base para MF-004, MF-005, MF-006, MF-007, MF-008.
 - **MF-007** requiere modelo de proyectos Kameleon y MF-003.
-- **MF-001** y **MF-002** se integran con MF-003/MF-004 cuando el núcleo esté disponible.
+- **MF-001** y **MF-002** se integran con MF-003/MF-004 cuando el núcleo esté disponible. **MF-001** (prefactura) requiere **MF-003-US-011** para cerrar decisión fiscal (proforma vs numerada) y **MF-008** para consumo del cupo en facturas de periodo.
 
 ## Orden sugerido de implementación
 

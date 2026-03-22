@@ -1,7 +1,7 @@
 # Backlog — Módulo de facturación Kameleon App
 
 **Origen**: EPICS-INDEX.md (análisis Módulo Finanzas HTML + Propuesta de desarrollo).  
-**Épicas**: 14 (MF-001 a MF-014). **Historias de usuario**: 71 (véase EPICAS-Y-HISTORIAS-USUARIO.md).
+**Épicas**: 14 (MF-001 a MF-014). **Historias de usuario**: 72 (véase EPICAS-Y-HISTORIAS-USUARIO.md).
 
 **Orden de desarrollo (prioridad Maestros → Núcleo → Facturación proyecto)**: ver **[ORDEN-DESARROLLO.md](ORDEN-DESARROLLO.md)**.
 
@@ -13,8 +13,8 @@
 |------|--------|----------|
 | **Fase 0** | MF-011, MF-013 | Maestros y roles listos para facturación |
 | **Fase 1 — Núcleo** | MF-003, MF-004, MF-005, MF-006, MF-014, (MF-012) | Facturas, cobros, NC, PDF/email, auditoría |
-| **Flujo Kameleon** | MF-001, MF-002 | Activación sin pago obligatorio, factura de cierre por saldo pendiente |
-| **Fase 2 — Ampliación** | MF-007, MF-008, MF-009, MF-010 | Desde proyecto, anticipos, portal, dashboard |
+| **Flujo Kameleon** | MF-001, MF-002 | Activación con prefactura total, factura de cierre por saldo pendiente |
+| **Fase 2 — Ampliación** | MF-007, MF-008, MF-009, MF-010 | Desde proyecto, consumo cupo/anticipos, portal, dashboard |
 
 ---
 
@@ -33,9 +33,9 @@
 
 | Epic | # US | Prioridad épica |
 |------|------|-----------------|
-| MF-001 Activación de proyecto (sin pago inicial obligatorio) | 5 | Alta |
+| MF-001 Activación de proyecto y prefactura por importe total | 5 | Alta |
 | MF-002 Factura de cierre / liquidación y registro de pago | 4 | Alta |
-| MF-003 Facturación núcleo | 10 | Alta |
+| MF-003 Facturación núcleo | 11 | Alta |
 | MF-004 Cobros y estado de pago | 6 | Alta |
 | MF-005 Notas de crédito | 4 | Alta |
 | MF-006 PDF y envío por email | 3 | Alta |

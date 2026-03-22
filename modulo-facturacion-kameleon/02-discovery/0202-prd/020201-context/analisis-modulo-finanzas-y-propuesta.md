@@ -80,7 +80,7 @@ A partir de la propuesta (Fases 1 y 2) y de los 15 gaps se definen las siguiente
 
 | ID | Épica | Origen | Fase propuesta |
 |----|-------|--------|-----------------|
-| MF-001 | Activación de proyecto (sin pago inicial obligatorio) | Flujo Kameleon existente | — |
+| MF-001 | Activación de proyecto y prefactura por importe total | Flujo Kameleon existente | — |
 | MF-002 | Factura de cierre / liquidación y registro de pago | Flujo Kameleon existente | — |
 | MF-003 | Facturación núcleo (facturas, líneas, impuestos, términos, ciclo de vida, numeración) | Propuesta Fase 1 + gaps 1, 2, 8, 12 | Fase 1 |
 | MF-004 | Cobros y estado de pago | Propuesta Fase 1 + gap 5 | Fase 1 |

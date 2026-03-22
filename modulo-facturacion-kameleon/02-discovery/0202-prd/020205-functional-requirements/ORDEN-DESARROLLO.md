@@ -24,7 +24,7 @@ Permite crear, editar en borrador y publicar facturas con líneas, impuestos y t
 
 | Orden | Épica | Descripción | Dependencias |
 |-------|--------|-------------|--------------|
-| 2.1 | **MF-003** | Facturación núcleo (listado, borrador, publicar, ciclo de vida, numeración, bloqueos, vencimientos) | MF-011, MF-013 |
+| 2.1 | **MF-003** | Facturación núcleo (listado, borrador, publicar, ciclo de vida, numeración, tipos documentales US-011, bloqueos, vencimientos) | MF-011, MF-013 |
 
 **Entregable**: Facturas de cliente completas (sin cobros ni PDF en esta prioridad si se desea iterar).
 
@@ -32,14 +32,15 @@ Permite crear, editar en borrador y publicar facturas con líneas, impuestos y t
 
 ## Prioridad 3 — Facturación desde proyecto
 
-Facturación mensual por tareas/horas/hitos/fee, con trazabilidad a proyecto y prevención de doble facturación.
+Activación con **prefactura por importe total** (MF-001), facturación por periodo (MF-007) y **consumo del cupo** en cada factura (MF-008). La generación automática de líneas desde tareas/horas/hitos puede ir por fases dentro de MF-007.
 
 | Orden | Épica | Descripción | Dependencias |
 |-------|--------|-------------|--------------|
-| 3.1 | **MF-001** | Activación de proyecto (sin pago obligatorio; opcional anticipo) | Ninguna (integración con proyectos) |
-| 3.2 | **MF-007** | Facturación desde proyecto (periodo mensual, líneas desde tareas/horas/hitos/fee, trazabilidad) | MF-003, MF-011, MF-001 (recomendado) |
+| 3.1 | **MF-001** | Activación y prefactura por importe total (cupo consumible) | Integración proyectos; **MF-003** + **MF-003-US-011** para tipo documental/numeración |
+| 3.2 | **MF-007** | Facturación desde proyecto (periodo mensual, líneas desde tareas/horas/hitos/fee o manual, trazabilidad, **saldo prefactura**) | MF-003, MF-011, MF-001 (recomendado) |
+| 3.3 | **MF-008** | Aplicación del cupo/anticipo en facturas de periodo (saldo hasta 0) | MF-007, MF-003 |
 
-**Entregable**: Proyectos que se activan y se facturan por periodo con líneas generadas desde trabajo realizado.
+**Entregable**: Proyectos activados con cupo total; facturas mensuales que rebajan el saldo; vista de saldo en proyecto; sin superar el cupo al publicar (salvo política de solo advertencia).
 
 ---
 
@@ -59,16 +60,15 @@ Cobros, notas de crédito, PDF/email y factura de cierre.
 
 ---
 
-## Prioridad 5 — Anticipos y reportes
+## Prioridad 5 — Reportes
 
-Anticipos descontables en facturas mensuales, dashboard y exportaciones.
+Dashboard y exportaciones (el consumo de cupo / anticipos en facturas mensuales está en **Prioridad 3** con MF-008).
 
 | Orden | Épica | Descripción | Dependencias |
 |-------|--------|-------------|--------------|
-| 5.1 | **MF-008** | Anticipos y facturación parcial (descuento en facturas mensuales; total vs presupuesto) | MF-007, MF-003 |
-| 5.2 | **MF-010** | Dashboard y reportes operativos (pendiente de cobro, cobrado, aging, exportar) | MF-003, MF-004 |
+| 5.1 | **MF-010** | Dashboard y reportes operativos (pendiente de cobro, cobrado, aging, exportar) | MF-003, MF-004 |
 
-**Entregable**: Anticipos gestionados y vista de negocio (KPIs y exportaciones).
+**Entregable**: Vista de negocio (KPIs y exportaciones).
 
 ---
 
@@ -88,9 +88,9 @@ Anticipos descontables en facturas mensuales, dashboard y exportaciones.
 |-----------|--------|------|
 | **1** | MF-011, MF-013, (MF-012) | Maestros y roles |
 | **2** | MF-003 | Facturación núcleo |
-| **3** | MF-001, MF-007 | Activación y facturación desde proyecto |
+| **3** | MF-001, MF-007, MF-008 | Activación, prefactura total, facturación periodo y consumo de cupo |
 | **4** | MF-004, MF-005, MF-006, MF-002, MF-014 | Cobros, NC, PDF, factura cierre, auditoría |
-| **5** | MF-008, MF-010 | Anticipos y dashboard |
+| **5** | MF-010 | Dashboard y reportes |
 | **6** | MF-009 | Portal del cliente |
 
 ---
@@ -105,10 +105,9 @@ MF-012 Moneda (opt) ───┘                                                
                                                                                            ├──► MF-005 NC
                                                                                            ├──► MF-006 PDF
                                                                                            ├──► MF-014 Auditoría
-MF-001 Activación ──────────────────────────────────────────────────────────────► MF-007 Fact. proyecto
+MF-001 Activación ──────────────────────────────────────────────────────────────► MF-007 Fact. proyecto ──► MF-008 Consumo cupo
                                                                                            │
                                                                                            ├──► MF-002 Factura cierre
-                                                                                           ├──► MF-008 Anticipos
                                                                                            │
 MF-003, MF-004 ─────────────────────────────────────────────────────────────────────────► MF-010 Dashboard
 MF-003, MF-006 ─────────────────────────────────────────────────────────────────────────► MF-009 Portal

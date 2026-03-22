@@ -3,7 +3,7 @@
 Tareas separadas por **Backend** y **Frontend**. Cada bloque incluye descripción detallada y criterios de aceptación explícitos, mapeados a las historias `MF-003-US-00X`.
 
 ## **Épica**: MF-003 — Facturación núcleo
-## **Historias de usuario**: US-001..US-010
+## **Historias de usuario**: US-001..US-011
 ---
 
 # BACKEND
@@ -291,6 +291,42 @@ Implementar cálculo y persistencia de vencimientos múltiples por factura segú
 
 ---
 
+## [BACK] MF-003 — Tipos documentales: prefactura/proforma vs factura fiscal; numeración condicionada
+
+**Historia de usuario**: `MF-003-US-011`
+
+**Descripción**
+Extender el modelo de factura/documento con **`tipo_documental`** y reglas de numeración distintas según tipo, para soportar la **prefactura de MF-001** (proforma sin correlativo fiscal vs documento fiscal) sin romper el flujo de **publicación (US-004)** ni **series (US-006)**.
+
+**Detalle técnico**
+- Modelo/migración en cabecera de factura (o documento equivalente Odoo):
+  - `tipo_documental` (enumerado sugerido): `factura_ordinaria`, `anticipo`, `prefactura_proforma`, `prefactura_fiscal` (ajustar nombres al estándar del proyecto).
+  - `proyecto_id` (opcional, FK) cuando el documento nace desde **MF-001** o facturación desde proyecto (**MF-007**).
+- Configuración:
+  - parámetro por empresa/módulo: **modo prefactura** = `proforma` | `fiscal` (hasta decisión negocio/legal definitiva).
+  - opcional: serie específica para `prefactura_fiscal` distinta de factura ordinaria (**US-006**).
+- **Publicar (`US-004`) — ramas**:
+  - **`prefactura_proforma`**: no reservar número de **serie fiscal obligatoria**; permitir `numero` interno/prefijo no fiscal (ej. `PRE-YYYY-NNNN`) o null según política; no generar asiento fiscal definitivo si aplica integración contable.
+  - **`prefactura_fiscal`** y **`factura_ordinaria`**: reservar correlativo de la serie fiscal configurada para ese tipo (misma atomicidad que US-006).
+  - **`anticipo`**: alinear con **MF-008** (puede compartir serie con factura o serie dedicada según configuración).
+- Validaciones:
+  - transiciones de tipo: restricciones si el documento ya está publicado (solo corrección vía flujos permitidos, ej. NC **MF-005**).
+  - coherencia: si `tipo_documental` implica prefactura, validar `proyecto_id` cuando el origen es MF-001.
+- Listado (**US-001**):
+  - extender `GET /api/facturas` con query param opcional `tipo_documental` (filtro).
+  - incluir `tipo_documental` en DTO de listado y detalle (**US-009**).
+- Integración **MF-001**:
+  - endpoint interno o servicio compartido que cree documento en borrador (o estado inicial) con `tipo_documental` según configuración `proforma`/`fiscal`.
+
+**Criterios de aceptación**
+- [ ] Existe `tipo_documental` persistido y expuesto en creación, detalle y listado.
+- [ ] Publicar **no** consume correlativo de serie fiscal cuando `tipo_documental = prefactura_proforma` (según reglas acordadas).
+- [ ] Publicar **sí** asigna número fiscal desde serie cuando `tipo_documental` es `prefactura_fiscal` o `factura_ordinaria`.
+- [ ] Filtro por `tipo_documental` en listado funciona y es compatible con paginación.
+- [ ] Documentación/contrato API actualizado para front y para **MF-001**/**MF-008**.
+
+---
+
 # FRONTEND
 
 ---
@@ -518,6 +554,36 @@ Mostrar en la UI la(s) fecha(s) de vencimiento calculadas según término de pag
 - [ ] Si el término define múltiples vencimientos, la UI los muestra.
 - [ ] En borrador, cambios recalculan vencimientos.
 - [ ] En publicada, la información permanece coherente.
+
+---
+
+## [FRONT] MF-003 — Tipos documentales y filtros (prefactura vs factura)
+
+**Historia de usuario**: `MF-003-US-011`
+
+**Descripción**
+Mostrar el **tipo documental** en listado y detalle, permitir **filtrar** por tipo en el listado de facturas, y reflejar en UI si el documento tendrá **numeración fiscal** al publicar o comportamiento proforma (según configuración y tipo).
+
+**Detalle técnico**
+- **Listado (US-001)**:
+  - columna o badge: tipo documental (etiquetas legibles: Factura, Anticipo, Prefactura proforma, Prefactura fiscal).
+  - filtro select/multi-select `tipo_documental` enlazado al query param del backend.
+- **Detalle / editor**:
+  - mostrar `tipo_documental` en cabecera (solo lectura si viene de **MF-001** o flujo automático; editable solo si negocio lo permite en creación manual).
+  - si el usuario puede crear borradores manuales con tipo: selector restringido por rol (**MF-013**).
+- **Publicar**:
+  - mensaje de confirmación distinto si el documento es `prefactura_proforma` (“Se confirmará sin número fiscal” / texto legal acordado).
+  - si es fiscal, mantener flujo actual de US-004 (número definitivo).
+- **Configuración (admin)**:
+  - pantalla o sección en ajustes de facturación: “Modo prefactura MF-001: Proforma / Fiscal” (solo si el producto expone la decisión pendiente en UI).
+- **Series (US-006)**:
+  - si aplica serie distinta para prefactura fiscal, mostrar en maestro de series el tipo asociado.
+
+**Criterios de aceptación**
+- [ ] El listado permite filtrar por tipo documental y los resultados coinciden con el backend.
+- [ ] Detalle muestra claramente el tipo y, si aplica, enlace a proyecto.
+- [ ] El flujo de publicar comunica al usuario si habrá o no numeración fiscal según tipo/configuración.
+- [ ] Estilos/accesibilidad: badges distinguibles sin depender solo del color.
 
 ---
 

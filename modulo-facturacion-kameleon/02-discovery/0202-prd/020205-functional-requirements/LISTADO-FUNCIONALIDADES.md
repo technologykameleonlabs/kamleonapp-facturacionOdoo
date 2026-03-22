@@ -4,9 +4,9 @@
 
 | # | Código | Funcionalidad | Historias de usuario |
 |---|--------|----------------|----------------------|
-| 1 | MF-001 | Activación de proyecto (sin pago inicial obligatorio) | 5 |
+| 1 | MF-001 | Activación de proyecto y prefactura por importe total | 5 |
 | 2 | MF-002 | Factura de cierre / liquidación y registro de pago | 4 |
-| 3 | MF-003 | Facturación núcleo | 10 |
+| 3 | MF-003 | Facturación núcleo | 11 |
 | 4 | MF-004 | Cobros y estado de pago | 6 |
 | 5 | MF-005 | Notas de crédito | 4 |
 | 6 | MF-006 | PDF y envío por email | 3 |
@@ -23,12 +23,12 @@
 
 ## Detalle por épica (historias de usuario)
 
-### MF-001 — Activación de proyecto (5)
+### MF-001 — Activación de proyecto y prefactura (5)
 - MF-001-US-001 — Activación del proyecto (manual o por evento: contrato firmado)
-- MF-001-US-002 — Opcional: registro de anticipo/pago inicial y generación de factura por monto acordado
+- MF-001-US-002 — Prefactura por importe total al activar (cupo consumible en facturas mensuales)
 - MF-001-US-003 — Registro de fecha de activación y notificaciones a equipo y cliente
 - MF-001-US-004 — Reserva automática de fecha en calendario (si aplica)
-- MF-001-US-005 — Registro de activación (timestamp, referencia factura si hay anticipo) para trazabilidad
+- MF-001-US-005 — Registro de activación (timestamp, referencia prefactura) para trazabilidad
 
 ### MF-002 — Factura de cierre / liquidación (4)
 - MF-002-US-001 — Detección de cierre de proyecto / última entrega y cálculo de saldo pendiente de facturar
@@ -36,7 +36,7 @@
 - MF-002-US-003 — Notificación al cliente y registro de factura y estado de pago
 - MF-002-US-004 — Administración confirma recepción de pago (habilita cierre formal del proyecto)
 
-### MF-003 — Facturación núcleo (10)
+### MF-003 — Facturación núcleo (11)
 - MF-003-US-001 — Listado de facturas con filtros por cliente y estado
 - MF-003-US-002 — Creación manual de factura en borrador (cliente, líneas, impuestos, términos)
 - MF-003-US-003 — Edición de factura en borrador (líneas, descuentos por línea o global)
@@ -47,6 +47,7 @@
 - MF-003-US-008 — Descuentos por línea y descuento global; recargos (pronto pago, mora)
 - MF-003-US-009 — Detalle de factura (cabecera y líneas) con totales e impuestos desglosados
 - MF-003-US-010 — Vencimientos múltiples según término de pago (fechas de vencimiento)
+- MF-003-US-011 — Tipos documentales: prefactura/proforma vs factura fiscal; series y numeración condicionada
 
 ### MF-004 — Cobros y estado de pago (6)
 - MF-004-US-001 — Asistente Registrar pago: fecha, importe, método de pago, referencia
@@ -79,10 +80,10 @@
 - MF-007-US-009 — Vista en proyecto: total facturado, pendiente por periodo, facturas del proyecto
 
 ### MF-008 — Anticipos y facturación parcial (4)
-- MF-008-US-001 — Crear factura de anticipo (importe o %) asociada a proyecto/cliente
-- MF-008-US-002 — Descontar anticipo en facturas mensuales (reparto por factura o en cierre)
-- MF-008-US-003 — Facturación parcial: total facturado por proyecto (mensual + anticipos) vs presupuesto
-- MF-008-US-004 — Vista de anticipos pendientes de descontar por proyecto/cliente
+- MF-008-US-001 — Crear factura de anticipo o cupo prefactura (importe, % o total proyecto MF-001) asociada a proyecto/cliente
+- MF-008-US-002 — Aplicar o descontar cupo/anticipo en facturas mensuales (reparto por factura o en cierre)
+- MF-008-US-003 — Facturación parcial: total facturado por proyecto (mensual + documentos iniciales) vs presupuesto
+- MF-008-US-004 — Vista de saldo prefactura / anticipos pendientes por proyecto/cliente
 
 ### MF-009 — Portal del cliente (4)
 - MF-009-US-001 — Acceso al portal de facturación con token mágico o login cliente

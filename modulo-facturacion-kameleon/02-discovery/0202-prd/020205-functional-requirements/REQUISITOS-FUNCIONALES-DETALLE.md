@@ -2,7 +2,7 @@
 
 **Documento para desarrolladores**: especificación en profundidad de cada funcionalidad del módulo de facturación, con procesos, reglas de negocio, validaciones y criterios de aceptación.
 
-**Índice rápido**: [MF-001](#mf-001--activación-de-proyecto-sin-pago-inicial-obligatorio) | [MF-002](#mf-002--factura-de-cierre--liquidación-y-registro-de-pago) | [MF-003](#mf-003--facturación-núcleo) | [MF-004](#mf-004--cobros-y-estado-de-pago) | [MF-005](#mf-005--notas-de-crédito) | [MF-006](#mf-006--pdf-y-envío-por-email) | [MF-007](#mf-007--facturación-desde-proyecto) | [MF-008](#mf-008--anticipos-y-facturación-parcial) | [MF-009](#mf-009--portal-del-cliente) | [MF-010](#mf-010--dashboard-y-reportes) | [MF-011](#mf-011--maestros) | [MF-012](#mf-012--moneda-y-tipo-de-cambio) | [MF-013](#mf-013--roles-y-permisos) | [MF-014](#mf-014--auditoría-y-trazabilidad)
+**Índice rápido**: [MF-001](#mf-001--activación-de-proyecto-y-prefactura-por-importe-total) | [MF-002](#mf-002--factura-de-cierre--liquidación-y-registro-de-pago) | [MF-003](#mf-003--facturación-núcleo) | [MF-004](#mf-004--cobros-y-estado-de-pago) | [MF-005](#mf-005--notas-de-crédito) | [MF-006](#mf-006--pdf-y-envío-por-email) | [MF-007](#mf-007--facturación-desde-proyecto) | [MF-008](#mf-008--anticipos-y-facturación-parcial) | [MF-009](#mf-009--portal-del-cliente) | [MF-010](#mf-010--dashboard-y-reportes) | [MF-011](#mf-011--maestros) | [MF-012](#mf-012--moneda-y-tipo-de-cambio) | [MF-013](#mf-013--roles-y-permisos) | [MF-014](#mf-014--auditoría-y-trazabilidad)
 
 ---
 
@@ -16,18 +16,21 @@
 
 ---
 
-## MF-001 — Activación de proyecto (sin pago inicial obligatorio)
+## MF-001 — Activación de proyecto y prefactura por importe total
 
 ### Objetivo
-El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. Opcionalmente se puede registrar un anticipo o pago inicial acordado (cualquier importe) y generar una factura por ese monto; en ese caso se notifica al cliente y se deja trazabilidad. La facturación principal del proyecto será **mensual** (MF-007).
+El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. **En el alcance de la versión actual**, junto con la activación se registra una **prefactura** (cupo) por el **importe total acordado** del proyecto; ese importe es el **techo** que las **facturas mensuales** van **consumiendo** hasta **saldo 0** (aplicación vía MF-008). La activación **no exige pasarela de pago** integrada. La facturación por periodos se describe en MF-007.
 
 ### Alcance
-- **Incluye**: Activación del proyecto (estado "Activo", fecha de activación); disparador por evento (ej. contrato firmado) o por acción manual; opcional: registro de anticipo/pago inicial (importe acordado) y generación de factura por ese importe; reserva de fecha en calendario; notificaciones a equipo y cliente; registro de activación para trazabilidad.
-- **Excluye**: Pasarela de pago integrada.
+- **Incluye**: Activación del proyecto (estado "Activo", fecha de activación); disparador por evento (ej. contrato firmado) o por acción manual; **prefactura/cupo por importe total** del proyecto (una por proyecto en esta versión), vinculada a la activación; reserva de fecha en calendario; notificaciones a equipo y cliente; registro de activación para trazabilidad.
+- **Excluye**: Pasarela de pago integrada. Detalle completo de generación de líneas mensuales desde tareas/horas/hitos (MF-007); la **lógica de aplicación del saldo** en cada factura de periodo está en MF-008.
+
+### Decisión fiscal (pendiente)
+La prefactura puede implementarse como **(A) proforma / documento sin numeración fiscal** o **(B) factura fiscal** con serie propia. Hasta cerrar A o B con negocio/legal, la especificación técnica debe soportar ambas ramas (véase MF-003-US-011): numeración e impuestos solo si el documento es fiscal; evitar **doble conteo** en totales mostrados al cliente según la opción elegida.
 
 ### Actores
-- **Usuario/Administración**: activa el proyecto manualmente o el sistema lo hace al detectar contrato firmado; opcionalmente registra anticipo.
-- **Sistema**: activa proyecto, opcionalmente genera factura de anticipo, reserva fecha, notifica, registra activación.
+- **Usuario/Administración**: activa el proyecto manualmente o el sistema lo hace al detectar contrato firmado; completa o confirma el total acordado para la prefactura.
+- **Sistema**: activa proyecto, genera cupo/prefactura, reserva fecha, notifica, registra activación.
 - **Equipo y Cliente**: receptores de notificaciones.
 
 ### Proceso detallado (qué debe hacer el sistema)
@@ -37,30 +40,32 @@ El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, po
    - El proyecto pasa a estado "Activo" y se registra la fecha (y hora) de activación.
    - Comprobar que el proyecto no esté ya activo (idempotencia). Si ya está activo, no duplicar activación.
 
-2. **Opcional: registro de anticipo y factura**
-   - Si el negocio acuerda un anticipo con el cliente, el usuario puede **opcionalmente** registrar que se ha recibido ese anticipo (importe acordado) y solicitar la generación de una factura por ese importe.
-   - Flujo: desde el proyecto recién activado (o en cualquier momento), acción "Registrar anticipo" o "Generar factura de anticipo". Usuario indica el monto recibido/acordado. El sistema genera una factura (tipo "Anticipo" o "Factura inicial") con número, fecha, cliente del proyecto, concepto (ej. "Proyecto [nombre] – Anticipo"), importe = el indicado. Se asocia al proyecto y queda disponible para descontar en facturas mensuales (MF-008).
-   - Si no hay anticipo, se omite este paso; el proyecto sigue activo y se facturará mensualmente (MF-007).
+2. **Prefactura por importe total (cupo)**
+   - Tras la activación válida (mismo flujo, paso siguiente o transacción ligada), el sistema crea el **cupo de prefactura**: `importe_total` = **total acordado** del proyecto (`presupuesto_total` / `total_acordado` u origen equivalente). Si el total no está definido, solicitarlo o bloquear según política.
+   - **Una sola** prefactura/cupo por proyecto en esta versión.
+   - El documento o registro queda asociado al proyecto y cliente de facturación; tipo documental según decisión fiscal (MF-003-US-011).
+   - **Saldo pendiente** inicial = `importe_total`; al **publicar** facturas de periodo con aplicación contra el cupo (MF-008), el saldo disminuye hasta **0**.
 
 3. **Reserva de fecha (opcional)**
    - Si aplica integración con calendario: obtener la fecha del proyecto/evento y reservar/bloquear en el calendario. Invocar la lógica existente de reserva si la hay.
 
 4. **Notificaciones**
-   - **A equipo**: "Proyecto [nombre] activado." (+ fecha reservada si aplica; + "Factura de anticipo [número] generada" si hubo anticipo).
-   - **A cliente**: "Proyecto activado." Si hubo factura de anticipo: "Factura [número] generada" con enlace o adjunto según configuración.
+   - **A equipo**: "Proyecto [nombre] activado." (+ fecha reservada si aplica; + referencia a prefactura/cupo generado).
+   - **A cliente**: "Proyecto activado." + referencia o adjunto de la prefactura según tipo documental y configuración.
    - Enviar por canal configurado (email, notificación in-app).
 
 5. **Registro de activación**
-   - Guardar registro de "Activación": proyecto_id, timestamp, usuario o evento que disparó, referencia de factura de anticipo (si existe), fecha reservada (si aplica). Para auditoría y para no repetir activación.
+   - Guardar registro de "Activación": proyecto_id, timestamp, usuario o evento que disparó, referencia a prefactura/cupo (si existe), fecha reservada (si aplica). Para auditoría y para no repetir activación.
 
 ### Reglas de negocio
-- La activación **no depende** de ningún pago. El proyecto puede activarse sin factura de anticipo.
-- Si se genera factura de anticipo, debe usar la misma moneda que el proyecto; número por serie configurada; una factura de anticipo por proyecto (o política clara si se permiten varias).
+- La activación **no depende de cobro online** (pasarela).
+- En la versión actual, el flujo de puesta en marcha **incluye** la prefactura por **importe total**; no es un anticipo opcional de importe libre.
+- La prefactura usa la misma **moneda** que el proyecto; si el documento es fiscal, numeración por serie configurada (MF-003).
 - Un proyecto solo se activa una vez (estado "Activo" es persistente hasta cierre).
 
 ### Validaciones
 - Proyecto en estado que permita activación (ej. contrato firmado, o pendiente de activación). No activar si ya está activo.
-- Si se registra anticipo: monto > 0; cliente de facturación con datos mínimos; serie de facturas disponible.
+- Total acordado > 0 antes de cerrar el cupo; cliente de facturación con datos mínimos; si documento fiscal, serie disponible; no duplicar cupo existente para el mismo proyecto.
 
 ### Estados implicados
 - **Proyecto**: de "Pendiente de activación" (o similar) a "Activo".
@@ -72,11 +77,12 @@ El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, po
 | proyecto.id                    | Identificador único del proyecto                                                              | Entero / UUID                 |
 | proyecto.estado                | Estado del proyecto (pendiente_activacion, activo, cerrado, etc.)                            | Enumerado                     |
 | proyecto.fecha_activacion      | Fecha y hora en la que el proyecto pasa a estado Activo                                       | Fecha/hora                    |
+| proyecto.total_acordado        | Importe total del contrato (fuente del cupo prefactura)                                       | Numérico (decimal)            |
 | proyecto.activado_por          | Usuario o proceso que disparó la activación (usuario_id o código de sistema)                 | Relación / Texto corto        |
 | proyecto.disparador_activacion | Tipo de disparador (acción_manual, contrato_firmado, regla_configurada)                      | Enumerado                     |
-| anticipo.importe               | Importe del anticipo/pago inicial registrado (si aplica)                                     | Numérico (decimal)            |
-| anticipo.moneda                | Moneda del anticipo (si MF-012 está activo)                                                  | Enumerado / Código moneda     |
-| anticipo.factura_id            | Referencia a la factura de anticipo generada                                                 | Relación (FK a factura)       |
+| prefactura.importe_total       | Importe total del cupo (= total acordado al crear)                                            | Numérico (decimal)            |
+| prefactura.importe_aplicado    | Importe ya aplicado en facturas de periodo (MF-008)                                           | Numérico (decimal)            |
+| prefactura.documento_id        | Referencia al documento contable/PDF si aplica                                                | Relación (FK)                 |
 | calendario.evento_id           | Identificador del evento en calendario asociado a la reserva de fecha (si aplica)           | Texto / Relación externa      |
 | notificacion.equipo_enviada    | Indicador de que se envió notificación al equipo                                             | Booleano                      |
 | notificacion.cliente_enviada   | Indicador de que se envió notificación al cliente                                            | Booleano                      |
@@ -84,22 +90,22 @@ El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, po
 
 ### Estimación de esfuerzo (con soporte de IA)
 
-- Diseño de modelo de activación, anticipo y registro de activación: **0,5–0,75 días**.
-- Lógica de activación (disparadores, validaciones, registro) + API/servicio: **1–1,5 días**.
-- Ajustes de UI en ficha de proyecto (botón Activar, registrar anticipo, indicadores de estado) y notificaciones: **1–1,5 días**.
-- Estimación total para MF-001 con apoyo de IA (sin contar QA manual ni despliegue): **~2,5–3,5 días**.
+- Diseño de modelo de activación, prefactura/cupo y registro de activación: **0,6–0,9 días**.
+- Lógica de activación + prefactura total + API/servicio: **1,25–1,75 días**.
+- Ajustes de UI (Activar, paso prefactura, indicadores) y notificaciones: **1–1,5 días**.
+- Estimación total para MF-001 con apoyo de IA (sin contar QA manual ni despliegue): **~3–4 días**.
 
 ### Criterios de aceptación (resumen)
-- Activar proyecto sin pago previo (manual o por evento). Opcional: registrar anticipo y generar factura por monto acordado; notificaciones y registro de activación guardados. Trazabilidad: desde proyecto, fecha de activación y factura de anticipo si existe.
+- Activar proyecto (manual o por evento) **sin pasarela de pago**; generar **prefactura/cupo por importe total** acordado; notificaciones y registro de activación; trazabilidad a documento/cupo; saldo inicial = total, consumible en facturas mensuales (MF-007 + MF-008).
 
 ### Historias de usuario
 | ID | Título |
 |----|--------|
 | MF-001-US-001 | Activación del proyecto (manual o por evento: contrato firmado) |
-| MF-001-US-002 | Opcional: registro de anticipo/pago inicial y generación de factura por monto acordado |
+| MF-001-US-002 | Prefactura por importe total al activar (cupo consumible en facturas mensuales) |
 | MF-001-US-003 | Registro de fecha de activación y notificaciones a equipo y cliente |
 | MF-001-US-004 | Reserva automática de fecha en calendario (si aplica) |
-| MF-001-US-005 | Registro de activación (timestamp, referencia factura si hay anticipo) para trazabilidad |
+| MF-001-US-005 | Registro de activación (timestamp, referencia prefactura) para trazabilidad |
 
 ---
 
@@ -107,6 +113,8 @@ El proyecto se **activa** (cambio de estado a "Activo") por contrato firmado, po
 
 ### Objetivo
 Cuando el proyecto se cierra o se acepta la última entrega (según flujo de proyectos), el sistema genera una **factura de cierre** (o de liquidación) por el **saldo pendiente de facturar**: lo que falte por facturar respecto al total acordado/presupuesto, después de descontar lo ya facturado mensualmente (MF-007) y los anticipos ya descontados (MF-008). Si el saldo pendiente es 0 (todo ya facturado), no se genera factura. Notificación al cliente, registro de pago y confirmación por administración para habilitar el cierre formal del proyecto.
+
+**Alineación con MF-001**: Si el proyecto tiene **prefactura por importe total** (cupo), el **cierre lógico de facturación** del contrato incluye **saldo de prefactura = 0** (todo el cupo aplicado en facturas de periodo publicadas). El cálculo de “total ya facturado” y el de saldo de cierre deben ser **coherentes** con la decisión fiscal (proforma vs factura fiscal) para no duplicar ni omitir importes en el cierre.
 
 ### Alcance
 - **Incluye**: Detección de evento de cierre (proyecto listo para cerrar, última entrega aceptada o "cerrar facturación"); cálculo del saldo pendiente (total acordado − facturas ya emitidas para el proyecto − anticipos ya descontados); generación de factura de cierre por ese saldo (solo si saldo > 0); notificación al cliente; registro de factura y estado de pago; confirmación por administración de la recepción del pago.
@@ -198,7 +206,7 @@ Cuando el proyecto se cierra o se acepta la última entrega (según flujo de pro
 Permitir crear, editar en borrador y publicar facturas de cliente con líneas, impuestos y términos de pago, con numeración fiscal por serie, ciclo de vida definido (Borrador → Publicada → Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada) y bloqueo de campos tras publicar, para cumplir reglas fiscales y de negocio.
 
 ### Alcance
-- **Incluye**: Listado de facturas con filtros (cliente, estado documento, estado pago); creación manual en borrador (cliente, líneas con descripción/cantidad/precio/impuesto, término de pago); edición en borrador (líneas, descuentos por línea o global, recargos si aplica); acción Publicar (asignar número por serie, pasar a Publicada, bloquear edición de campos fiscales); gestión de estados del ciclo de vida; numeración fiscal (series por país/empresa, prefijos, control de huecos); reglas de bloqueo (campos inamovibles tras publicar; cierre de periodo opcional); detalle de factura con totales e impuestos; vencimientos múltiples según término de pago.
+- **Incluye**: Listado de facturas con filtros (cliente, estado documento, estado pago); creación manual en borrador (cliente, líneas con descripción/cantidad/precio/impuesto, término de pago); edición en borrador (líneas, descuentos por línea o global, recargos si aplica); acción Publicar (asignar número por serie, pasar a Publicada, bloquear edición de campos fiscales); gestión de estados del ciclo de vida; numeración fiscal (series por país/empresa, prefijos, control de huecos); **tipos documentales** para distinguir factura ordinaria, anticipo y **prefactura/proforma** según MF-003-US-011 y decisión fiscal de MF-001; reglas de bloqueo (campos inamovibles tras publicar; cierre de periodo opcional); detalle de factura con totales e impuestos; vencimientos múltiples según término de pago.
 - **Excluye**: Registro de cobros (MF-004), notas de crédito (MF-005), generación/envió de PDF (MF-006).
 
 ### Actores
@@ -320,6 +328,7 @@ Permitir crear, editar en borrador y publicar facturas de cliente con líneas, i
 | MF-003-US-008 | Descuentos por línea y descuento global; recargos (pronto pago, mora) |
 | MF-003-US-009 | Detalle de factura (cabecera y líneas) con totales e impuestos desglosados |
 | MF-003-US-010 | Vencimientos múltiples según término de pago (fechas de vencimiento) |
+| MF-003-US-011 | Tipos documentales: prefactura/proforma vs factura fiscal; series y numeración condicionada (MF-001) |
 
 ---
 
@@ -571,22 +580,29 @@ Los proyectos se facturan **mensualmente** en función de lo realizado en cada p
 5. **Trazabilidad factura → proyecto**
    - Toda factura generada desde proyecto tiene **proyecto_id** no nulo y opcionalmente **periodo_facturado** (mes/año o rango).
    - En la ficha del **proyecto**: sección "Facturación" con listado de facturas del proyecto (número, fecha, periodo, total, estado de pago). Resumen: "Total facturado: X" (suma de facturas del proyecto), "Pendiente de cobro: Y", y si hay presupuesto "Presupuesto: Z" (para comparar).
+   - **Saldo prefactura / cupo (MF-001 + MF-008)**: mostrar **importe total del cupo**, **importe ya aplicado** en facturas de periodo y **saldo pendiente** (`importe_total − importe_aplicado`). El usuario debe ver en todo momento cuánto queda por “consumir” del total acordado en activación.
    - En la ficha de la **factura**: campo/etiqueta "Proyecto: [nombre]" con enlace al proyecto; "Periodo facturado: [mes/año]". Opcional: desglose "Líneas generadas desde: tareas X, Y; horas Z; hito W; fee mes M".
 
 6. **Vista en proyecto: total facturado y pendiente por periodo**
    - Mostrar por proyecto: facturas emitidas (lista), total facturado, total pendiente de cobro, y por cada mes (o periodo) si hay factura o no ("Enero 2026: Factura FAC-001" o "Enero 2026: Pendiente de facturar"). Facilita saber qué periodos faltan por facturar y evita olvidos.
 
+7. **Validación contra saldo de prefactura al publicar**
+   - Al **publicar** una factura de periodo vinculada al proyecto, la **suma del importe aplicado contra el cupo** de prefactura (MF-008) en esa factura **no puede superar** el **saldo pendiente** del cupo en ese momento. **Política por defecto en especificación**: **bloquear** publicación si se excede; opcionalmente configurable a **solo advertencia** si negocio lo define en implementación.
+   - En esta versión, la facturación mensual puede limitarse a **creación manual de factura de periodo** o **fee**; la regla de saldo aplica **igual** aunque MF-007 aún no implemente todas las fuentes de líneas (tareas/horas/hitos).
+
 ### Reglas de negocio
 - Una factura de periodo está asociada a **un solo proyecto** y a **un solo periodo** (mes o rango). No se puede reasignar a otro proyecto.
 - Ninguna tarea, registro de horas ni hito puede estar en más de una factura (campo factura_id o tabla de asignación factura–concepto).
 - El periodo a facturar debe ser coherente con las fechas de las tareas/horas/hitos (ej. solo incluir tareas cerradas en ese mes).
-- Si el proyecto tiene presupuesto total, el sistema puede alertar (no bloquear necesariamente) si el total facturado supera el presupuesto (MF-008).
+- Si el proyecto tiene **cupo de prefactura** (MF-001), las facturas de periodo **consumen** ese saldo mediante aplicación explícita en MF-008; el saldo no puede quedar negativo salvo política explícita de advertencia sin bloqueo.
+- Si el proyecto tiene presupuesto total, el sistema puede alertar (no bloquear necesariamente) si el total facturado supera el presupuesto (MF-008), coherente con la definición de “total facturado” cuando existe prefactura proforma vs fiscal.
 
 ### Validaciones
 - Proyecto existe y usuario tiene permiso. Periodo no futuro (o según política).
 - Al menos una línea con importe > 0 para poder publicar.
 - No existir ya factura publicada para el mismo proyecto + mismo periodo (salvo flujo de rectificación).
 - Cliente de facturación del proyecto con datos mínimos.
+- **Saldo prefactura**: antes de publicar, comprobar que la aplicación al cupo en la factura ≤ saldo pendiente (MF-008).
 
 ### Entidades implicadas
 - **Factura**: proyecto_id, periodo_facturado (mes/año o fecha_desde/fecha_hasta), cliente_id (desde proyecto).
@@ -602,6 +618,7 @@ Los proyectos se facturan **mensualmente** en función de lo realizado en cada p
 | proyecto.cliente_id           | Cliente asociado al proyecto                                                      | Relación (FK cliente)        |
 | proyecto.fee_mensual          | Importe fijo mensual configurado (si aplica)                                      | Numérico (decimal)           |
 | proyecto.presupuesto_total    | Presupuesto total del proyecto                                                    | Numérico (decimal)           |
+| proyecto.saldo_prefactura     | Saldo pendiente del cupo MF-001 (si aplica); vista o campo derivado               | Numérico (decimal)           |
 | proyecto.periodo_facturado[]  | Lista de periodos ya facturados para prevención de doble facturación             | Colección / estructura       |
 | factura.id                    | Identificador de la factura de periodo                                            | Entero / UUID                 |
 | factura.periodo_facturado     | Periodo (mes/año o rango) que cubre la factura                                    | Texto estructurado / fecha   |
@@ -621,7 +638,7 @@ Los proyectos se facturan **mensualmente** en función de lo realizado en cada p
 - Estimación total para MF-007: **~4,5–6,5 días** de desarrollo efectivo.
 
 ### Criterios de aceptación (resumen)
-- Crear factura de periodo (mes) desde proyecto; líneas generadas desde tareas realizadas, horas facturables, hitos o fee mensual; solo conceptos no facturados previamente; al publicar, conceptos quedan marcados como facturados; no se puede crear segunda factura para el mismo proyecto+periodo; trazabilidad visible en proyecto (listado facturas, total facturado) y en factura (proyecto, periodo).
+- Crear factura de periodo (mes) desde proyecto; líneas generadas desde tareas realizadas, horas facturables, hitos o fee mensual; solo conceptos no facturados previamente; al publicar, conceptos quedan marcados como facturados; no se puede crear segunda factura para el mismo proyecto+periodo; trazabilidad visible en proyecto (listado facturas, total facturado, **saldo prefactura**) y en factura (proyecto, periodo); publicación respetando **saldo de cupo** (MF-008).
 
 ### Historias de usuario
 | ID | Título |
@@ -643,20 +660,23 @@ Los proyectos se facturan **mensualmente** en función de lo realizado en cada p
 ### Objetivo
 Soportar **anticipos** (importe o % sobre proyecto) facturados al inicio y su **descuento en las facturas mensuales** (o en factura de cierre) del mismo proyecto. **Facturación parcial** en este modelo son las **múltiples facturas mensuales** por proyecto (MF-007); aquí se añade el control de **total facturado vs presupuesto** y la gestión de anticipos pendientes de descontar.
 
+**Alineación con MF-001 (prefactura total)**: La **prefactura por importe total** creada en la activación es el caso donde `importe_total` del cupo = **total acordado del proyecto** y se crea **un único registro** por proyecto (v1). La **mecánica** es la misma que un anticipo: `importe_total`, `importe_descontado` (o `importe_aplicado`), saldo pendiente, y **líneas de aplicación** en facturas de periodo. En UI se puede hablar de **“prefactura / saldo”** manteniendo el modelo de datos de anticipo/cupo. Las facturas mensuales **rebajan** ese saldo hasta **0**.
+
 ### Alcance
-- Anticipos asociados a proyecto; descuento del anticipo repartido en facturas mensuales posteriores (o en una sola factura de cierre).
-- Vista de anticipos pendientes de descontar por proyecto/cliente.
-- Total facturado por proyecto (suma de facturas mensuales + anticipos) vs presupuesto; alertas si se supera.
+- Anticipos / **cupos de prefactura** asociados a proyecto; descuento o aplicación repartida en facturas mensuales posteriores (o en una sola factura de cierre).
+- Vista de anticipos / **saldo prefactura** pendiente de aplicar por proyecto/cliente.
+- Total facturado por proyecto (suma de facturas mensuales + documentos iniciales según decisión fiscal) vs presupuesto; alertas si se supera.
 
 ### Proceso detallado
-1. **Factura de anticipo**: Crear factura con tipo "Anticipo", asociada a proyecto/cliente; importe = anticipo (fijo o % del presupuesto). Al publicar, se registra como anticipo pendiente de descontar (importe restante a descontar = importe del anticipo). Tabla o campo: anticipo_id, proyecto_id, importe_total, importe_descontado.
-2. **Descontar en facturas mensuales**: Al crear una factura de periodo (MF-007) para el mismo proyecto, el sistema muestra "Anticipos pendientes de descontar: X". El usuario puede añadir una línea negativa (descuento) por todo o parte del anticipo pendiente. Al publicar la factura, se actualiza importe_descontado del anticipo; no se puede descontar más del pendiente. Opción: reparto automático (ej. descontar X% del anticipo en cada factura mensual hasta agotar).
+1. **Factura de anticipo o registro de cupo (prefactura MF-001)**: Crear factura o registro con tipo "Anticipo" / **"Prefactura-cupo"**, asociada a proyecto/cliente; importe = anticipo (fijo o % del presupuesto) **o, en el flujo MF-001, importe = total acordado del proyecto**. Al publicar (si es documento fiscal) o al confirmar el cupo (si es proforma), se registra como pendiente de aplicar (`importe_restante` = `importe_total`). Tabla o campo: anticipo_id / prefactura_id, proyecto_id, importe_total, importe_descontado.
+2. **Descontar / aplicar en facturas mensuales**: Al crear una factura de periodo (MF-007) para el mismo proyecto, el sistema muestra "**Saldo prefactura / anticipos pendientes de aplicar: X**". El usuario puede añadir una línea negativa (descuento) o el mecanismo de aplicación definido por todo o parte del pendiente. Al publicar la factura, se actualiza `importe_descontado` del cupo; **no se puede aplicar más del saldo pendiente** (validación obligatoria en especificación; coherente con MF-007). Opción: reparto automático (ej. aplicar X% del cupo en cada factura mensual hasta agotar).
 3. **Total facturado vs presupuesto**: En la vista de facturación del proyecto (MF-007), mostrar "Total facturado: X" (suma de todas las facturas del proyecto, incluidas de anticipo y mensuales) y "Presupuesto: Y". Alerta (warning) si X > Y. No bloquear por defecto la emisión si se supera (decisión de negocio).
 4. **Vista anticipos pendientes**: Listado por proyecto o por cliente: anticipos con importe_descontado < importe_total; indicar "Pendiente de descontar: Z".
 
 ### Reglas de negocio
-- Un anticipo solo puede descontarse hasta su importe total (suma de descuentos aplicados en facturas ≤ importe anticipo).
-- Total descontado en una factura ≤ anticipo pendiente de ese proyecto en el momento de publicar.
+- Un anticipo / cupo de prefactura solo puede aplicarse hasta su **importe total** (suma de importes aplicados en facturas ≤ `importe_total` del cupo).
+- Total aplicado en una factura ≤ **saldo pendiente** de ese proyecto en el momento de publicar.
+- Con **prefactura MF-001**, el objetivo de negocio es llevar el saldo a **0** mediante las facturas de periodo; cuando el saldo es 0, no queda cupo por aplicar salvo nueva política (fuera de v1).
 
 ### Campos principales
 
@@ -682,15 +702,15 @@ Soportar **anticipos** (importe o % sobre proyecto) facturados al inicio y su **
 - Estimación total para MF-008: **~3–4 días** con apoyo de IA.
 
 ### Criterios de aceptación (resumen)
-- Crear factura anticipo; descontar anticipo en facturas mensuales (o cierre); ver total facturado por proyecto y anticipos pendientes; alerta si total facturado > presupuesto.
+- Crear factura o cupo de anticipo / prefactura (MF-001); aplicar o descontar en facturas mensuales (o cierre) sin superar saldo; ver total facturado por proyecto y saldo pendiente; alerta si total facturado > presupuesto (definiendo qué documentos entran en la suma según tipo fiscal).
 
 ### Historias de usuario
 | ID | Título |
 |----|--------|
-| MF-008-US-001 | Crear factura de anticipo (importe o %) asociada a proyecto/cliente |
-| MF-008-US-002 | Descontar anticipo en facturas mensuales (reparto por factura o en cierre) |
-| MF-008-US-003 | Facturación parcial: total facturado por proyecto (mensual + anticipos) vs presupuesto |
-| MF-008-US-004 | Vista de anticipos pendientes de descontar por proyecto/cliente |
+| MF-008-US-001 | Crear factura de anticipo o cupo prefactura (importe, % o total proyecto MF-001) asociada a proyecto/cliente |
+| MF-008-US-002 | Aplicar o descontar cupo/anticipo en facturas mensuales (reparto por factura o en cierre) |
+| MF-008-US-003 | Facturación parcial: total facturado por proyecto (mensual + documentos iniciales) vs presupuesto |
+| MF-008-US-004 | Vista de saldo prefactura / anticipos pendientes por proyecto/cliente |
 
 ---
 
