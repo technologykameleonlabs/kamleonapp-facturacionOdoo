@@ -152,6 +152,8 @@ Los proyectos se facturan mensualmente en función de lo realizado en cada perio
 | MF-007-US-008 | Prerellenar cliente/contacto de facturación desde proyecto |
 | MF-007-US-009 | Vista en proyecto: total facturado, pendiente por periodo, facturas del proyecto |
 
+**Documentación detallada**: [Épica MF-007](./MF-007-facturacion-desde-proyecto/MF-007-facturacion-desde-proyecto.md) · [Tareas BACK/FRONT](./MF-007-facturacion-desde-proyecto/TAREAS-MF-007-FACTURACION-DESDE-PROYECTO.md) · historias en `./MF-007-facturacion-desde-proyecto/stories/`.
+
 ---
 
 ## MF-008 — Anticipos y facturación parcial (en contexto de facturación mensual)

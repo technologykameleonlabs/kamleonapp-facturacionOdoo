@@ -1,225 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Requisitos funcionales detallados — Módulo de facturación Kameleon App</title>
-  <style>
-    :root {
-      --color-primary: #1a365d;
-      --color-primary-light: #2c5282;
-      --color-accent: #2b6cb0;
-      --color-text: #2d3748;
-      --color-text-muted: #4a5568;
-      --color-border: #e2e8f0;
-      --color-bg: #f7fafc;
-      --color-bg-card: #fff;
-      --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      --font-mono: 'Consolas', 'Monaco', monospace;
-      --shadow: 0 1px 3px rgba(0,0,0,.08);
-      --radius: 6px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font-sans);
-      font-size: 15px;
-      line-height: 1.6;
-      color: var(--color-text);
-      background: var(--color-bg);
-    }
-    .page-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: #1a365d;
-      color: #fff;
-      padding: 1rem 2rem;
-      min-height: 72px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.15);
-    }
-    .page-header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fff;
-      margin: 0 0 .35rem 0;
-    }
-    .page-header .subtitle {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,.85);
-      margin: 0;
-    }
-    .sidebar {
-      position: fixed;
-      top: 72px;
-      left: 0;
-      width: 220px;
-      bottom: 0;
-      z-index: 50;
-      background: var(--color-bg-card);
-      border-right: 1px solid var(--color-border);
-      overflow-y: auto;
-      padding: 1rem 0;
-    }
-    .sidebar nav { padding: 0 .75rem; }
-    .sidebar .nav-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--color-text-muted);
-      margin: 0 0 .5rem 0;
-      padding: 0 .5rem;
-    }
-    .sidebar ul { list-style: none; padding: 0; margin: 0; }
-    .sidebar li { margin: 0; }
-    .sidebar a {
-      display: block;
-      padding: .4rem .5rem;
-      font-size: 0.875rem;
-      color: var(--color-accent);
-      text-decoration: none;
-      border-radius: 4px;
-    }
-    .sidebar a:hover {
-      background: var(--color-bg);
-      color: var(--color-primary);
-    }
-    .main-with-sidebar {
-      margin-left: 220px;
-      margin-top: 72px;
-      min-height: calc(100vh - 72px);
-    }
-    .doc {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: var(--color-bg-card);
-      box-shadow: var(--shadow);
-    }
-    header.doc-header {
-      border-bottom: 3px solid var(--color-primary);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    header.doc-header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin: 0 0 .5rem 0;
-    }
-    .doc .subtitle {
-      font-size: 0.95rem;
-      color: var(--color-text-muted);
-      margin: 0;
-    }
-    h2 {
-      font-size: 1.35rem;
-      color: var(--color-primary);
-      margin: 2.5rem 0 1rem 0;
-      padding-bottom: .35rem;
-      border-bottom: 1px solid var(--color-border);
-    }
-    h2:first-of-type { margin-top: 0; }
-    h2[id] { scroll-margin-top: 130px; }
-    h3 {
-      font-size: 1.1rem;
-      color: var(--color-primary-light);
-      margin: 1.25rem 0 .5rem 0;
-    }
-    p { margin: .5rem 0 1rem 0; }
-    ul, ol { margin: .5rem 0 1rem 0; padding-left: 1.5rem; }
-    li { margin: .25rem 0; }
-    li ul, li ol { margin: .25rem 0; }
-    strong { color: var(--color-primary); font-weight: 600; }
-    hr {
-      border: none;
-      border-top: 1px solid var(--color-border);
-      margin: 2rem 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      margin: 1rem 0;
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    th, td {
-      padding: .6rem .85rem;
-      text-align: left;
-      border-bottom: 1px solid var(--color-border);
-    }
-    th {
-      background: var(--color-primary);
-      color: #fff;
-      font-weight: 600;
-    }
-    tr:nth-child(even) { background: var(--color-bg); }
-    tr:hover { background: #edf2f7; }
-    .epic-id { font-weight: 600; color: var(--color-accent); }
-    footer.doc-footer {
-      margin-top: 3rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--color-border);
-      font-size: 0.85rem;
-      color: var(--color-text-muted);
-      font-style: italic;
-    }
-    code { font-family: var(--font-mono); font-size: 0.88em; background: var(--color-bg); padding: .1rem .35rem; border-radius: 4px; }
-    @media print {
-      body { background: #fff; }
-      .page-header { position: static; background: #1a365d; color: #fff; }
-      .sidebar { display: none; }
-      .main-with-sidebar { margin-left: 0; margin-top: 0; }
-      .doc { box-shadow: none; max-width: none; }
-      h2 { break-after: avoid; }
-    }
-  </style>
-</head>
-<body>
-  <header class="page-header">
-    <h1>Definición de Requisitos: Módulo de Finanzas</h1>
-    <p class="subtitle">Sistema: Kameleon App</p>
-  </header>
-
-  <aside class="sidebar" aria-label="Índice del documento">
-    <nav>
-      <p class="nav-title">Navegación</p>
-      <ul>
-        <li><a href="#como-usar">Cómo usar</a></li>
-        <li><a href="#mf-001">MF-001 Activación</a></li>
-        <li><a href="#mf-002">MF-002 Factura cierre</a></li>
-        <li><a href="#mf-003">MF-003 Facturación núcleo</a></li>
-        <li><a href="#mf-004">MF-004 Cobros</a></li>
-        <li><a href="#mf-005">MF-005 Notas de crédito</a></li>
-        <li><a href="#mf-006">MF-006 PDF y email</a></li>
-        <li><a href="#mf-007">MF-007 Facturación proyecto</a></li>
-        <li><a href="#mf-008">MF-008 Anticipos</a></li>
-        <li><a href="#mf-009">MF-009 Portal cliente</a></li>
-        <li><a href="#mf-010">MF-010 Dashboard</a></li>
-        <li><a href="#mf-011">MF-011 Maestros</a></li>
-        <li><a href="#mf-012">MF-012 Moneda</a></li>
-        <li><a href="#mf-013">MF-013 Roles</a></li>
-        <li><a href="#mf-014">MF-014 Auditoría</a></li>
-      </ul>
-    </nav>
-  </aside>
-
-  <div class="main-with-sidebar">
-    <div class="doc">
-      <header class="doc-header">
-        <h1>Requisitos funcionales detallados — Módulo de facturación Kameleon App</h1>
-        <p class="subtitle">Documento para desarrolladores: especificación en profundidad de cada funcionalidad del módulo de facturación, con procesos, reglas de negocio, validaciones y criterios de aceptación.</p>
-      </header>
-
-    <main>
-<p><strong>Índice rápido</strong>: <a href="#mf-001">MF-001</a> | <a href="#mf-002">MF-002</a> | <a href="#mf-003">MF-003</a> | <a href="#mf-004">MF-004</a> | <a href="#mf-005">MF-005</a> | <a href="#mf-006">MF-006</a> | <a href="#mf-007">MF-007</a> | <a href="#mf-008">MF-008</a> | <a href="#mf-009">MF-009</a> | <a href="#mf-010">MF-010</a> | <a href="#mf-011">MF-011</a> | <a href="#mf-012">MF-012</a> | <a href="#mf-013">MF-013</a> | <a href="#mf-014">MF-014</a></p>
+<h1>Requisitos funcionales detallados — Módulo de facturación Kameleon App</h1>
+<p><strong>Documento para desarrolladores</strong>: especificación en profundidad de cada funcionalidad del módulo de facturación, con procesos, reglas de negocio, validaciones y criterios de aceptación.</p>
+<p><strong>Índice rápido</strong>: <a href="#mf-001--activaci%C3%B3n-de-proyecto-y-prefactura-por-importe-total">MF-001</a> | <a href="#mf-002--factura-de-cierre--liquidaci%C3%B3n-y-registro-de-pago">MF-002</a> | <a href="#mf-003--facturaci%C3%B3n-n%C3%BAcleo">MF-003</a> | <a href="#mf-004--cobros-y-estado-de-pago">MF-004</a> | <a href="#mf-005--notas-de-cr%C3%A9dito">MF-005</a> | <a href="#mf-006--pdf-y-env%C3%ADo-por-email">MF-006</a> | <a href="#mf-007--facturaci%C3%B3n-desde-proyecto">MF-007</a> | <a href="#mf-008--anticipos-y-facturaci%C3%B3n-parcial">MF-008</a> | <a href="#mf-009--portal-del-cliente">MF-009</a> | <a href="#mf-010--dashboard-y-reportes">MF-010</a> | <a href="#mf-011--maestros">MF-011</a> | <a href="#mf-012--moneda-y-tipo-de-cambio">MF-012</a> | <a href="#mf-013--roles-y-permisos">MF-013</a> | <a href="#mf-014--auditor%C3%ADa-y-trazabilidad">MF-014</a></p>
 <hr>
-<h2 id="como-usar">Cómo usar este documento</h2>
+<h2>Cómo usar este documento</h2>
 <ul>
 <li>Cada sección corresponde a una <strong>épica</strong> (bloque funcional). Dentro se describe <strong>qué debe hacer el sistema y el usuario</strong>, <strong>en qué orden</strong> y <strong>con qué reglas</strong>.</li>
 <li><strong>Proceso detallado</strong>: pasos que debe implementar el flujo (backend + frontend).</li>
@@ -228,7 +11,7 @@
 <li><strong>Historias de usuario</strong>: se referencian al final de cada épica; el detalle por US está en las carpetas <code>MF-0XX-*/stories/</code>.</li>
 </ul>
 <hr>
-<h2 id="mf-001">MF-001 — Activación de proyecto y prefactura por importe total</h2>
+<h2>MF-001 — Activación de proyecto y prefactura por importe total</h2>
 <h3>Objetivo</h3>
 <p>El proyecto se <strong>activa</strong> (cambio de estado a &quot;Activo&quot;) por contrato firmado, por acción manual del usuario o por otra regla de negocio configurable. <strong>En el alcance de la versión actual</strong>, junto con la activación se registra una <strong>prefactura</strong> (cupo) por el <strong>importe total acordado</strong> del proyecto; ese importe es el <strong>techo</strong> que las <strong>facturas mensuales</strong> van <strong>consumiendo</strong> hasta <strong>saldo 0</strong> (aplicación vía MF-008). La activación <strong>no exige pasarela de pago</strong> integrada. La facturación por periodos se describe en MF-007.</p>
 <h3>Alcance</h3>
@@ -398,29 +181,29 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-001-US-001</td>
+<td>MF-001-US-001</td>
 <td>Activación del proyecto (manual o por evento: contrato firmado)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-001-US-002</td>
+<td>MF-001-US-002</td>
 <td>Prefactura por importe total al activar (cupo consumible en facturas mensuales)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-001-US-003</td>
+<td>MF-001-US-003</td>
 <td>Registro de fecha de activación y notificaciones a equipo y cliente</td>
 </tr>
 <tr>
-<td class="epic-id">MF-001-US-004</td>
+<td>MF-001-US-004</td>
 <td>Reserva automática de fecha en calendario (si aplica)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-001-US-005</td>
+<td>MF-001-US-005</td>
 <td>Registro de activación (timestamp, referencia prefactura) para trazabilidad</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-002">MF-002 — Factura de cierre / liquidación y registro de pago</h2>
+<h2>MF-002 — Factura de cierre / liquidación y registro de pago</h2>
 <h3>Objetivo</h3>
 <p>Cuando el proyecto se cierra o se acepta la última entrega (según flujo de proyectos), el sistema genera una <strong>factura de cierre</strong> (o de liquidación) por el <strong>saldo pendiente de facturar</strong>: lo que falte por facturar respecto al total acordado/presupuesto, después de descontar lo ya facturado mensualmente (MF-007) y los anticipos ya descontados (MF-008). Si el saldo pendiente es 0 (todo ya facturado), no se genera factura. Notificación al cliente, registro de pago y confirmación por administración para habilitar el cierre formal del proyecto.</p>
 <p><strong>Alineación con MF-001</strong>: Si el proyecto tiene <strong>prefactura por importe total</strong> (cupo), el <strong>cierre lógico de facturación</strong> del contrato incluye <strong>saldo de prefactura = 0</strong> (todo el cupo aplicado en facturas de periodo publicadas). El cálculo de “total ya facturado” y el de saldo de cierre deben ser <strong>coherentes</strong> con la decisión fiscal (proforma vs factura fiscal) para no duplicar ni omitir importes en el cierre.</p>
@@ -584,25 +367,25 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-002-US-001</td>
+<td>MF-002-US-001</td>
 <td>Detección de cierre de proyecto / última entrega y cálculo de saldo pendiente de facturar</td>
 </tr>
 <tr>
-<td class="epic-id">MF-002-US-002</td>
+<td>MF-002-US-002</td>
 <td>Generación de factura de cierre por saldo pendiente (si &gt; 0)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-002-US-003</td>
+<td>MF-002-US-003</td>
 <td>Notificación al cliente y registro de factura y estado de pago</td>
 </tr>
 <tr>
-<td class="epic-id">MF-002-US-004</td>
+<td>MF-002-US-004</td>
 <td>Administración confirma recepción de pago (habilita cierre formal del proyecto)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-003">MF-003 — Facturación núcleo</h2>
+<h2>MF-003 — Facturación núcleo</h2>
 <h3>Objetivo</h3>
 <p>Permitir crear, editar en borrador y publicar facturas de cliente con líneas, impuestos y términos de pago, con numeración fiscal por serie, ciclo de vida definido (Borrador → Publicada → Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada) y bloqueo de campos tras publicar, para cumplir reglas fiscales y de negocio.</p>
 <h3>Alcance</h3>
@@ -847,53 +630,53 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-003-US-001</td>
+<td>MF-003-US-001</td>
 <td>Listado de facturas con filtros por cliente y estado</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-002</td>
+<td>MF-003-US-002</td>
 <td>Creación manual de factura en borrador (cliente, líneas, impuestos, términos)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-003</td>
+<td>MF-003-US-003</td>
 <td>Edición de factura en borrador (líneas, descuentos por línea o global)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-004</td>
+<td>MF-003-US-004</td>
 <td>Publicar factura: asignar número definitivo (serie), pasar a Publicada, bloquear edición</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-005</td>
+<td>MF-003-US-005</td>
 <td>Ciclo de vida: estados Enviada, Vencida, Parcialmente Pagada, Pagada, Cancelada, Rectificada</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-006</td>
+<td>MF-003-US-006</td>
 <td>Numeración fiscal: series por país/empresa, prefijos, control de huecos</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-007</td>
+<td>MF-003-US-007</td>
 <td>Reglas de bloqueo: campos inamovibles tras publicar; cierre de periodo (opcional)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-008</td>
+<td>MF-003-US-008</td>
 <td>Descuentos por línea y descuento global; recargos (pronto pago, mora)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-009</td>
+<td>MF-003-US-009</td>
 <td>Detalle de factura (cabecera y líneas) con totales e impuestos desglosados</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-010</td>
+<td>MF-003-US-010</td>
 <td>Vencimientos múltiples según término de pago (fechas de vencimiento)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-003-US-011</td>
+<td>MF-003-US-011</td>
 <td>Tipos documentales: prefactura/proforma vs factura fiscal; series y numeración condicionada (MF-001)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-004">MF-004 — Cobros y estado de pago</h2>
+<h2>MF-004 — Cobros y estado de pago</h2>
 <h3>Objetivo</h3>
 <p>Registrar los cobros recibidos (entidad Pago/Cobro), aplicarlos a una o varias facturas (total o parcial), y mantener actualizado el estado de pago de cada factura (No pagada, Parcialmente pagada, Pagada) con trazabilidad.</p>
 <h3>Alcance</h3>
@@ -1068,33 +851,33 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-004-US-001</td>
+<td>MF-004-US-001</td>
 <td>Asistente Registrar pago: fecha, importe, método de pago, referencia</td>
 </tr>
 <tr>
-<td class="epic-id">MF-004-US-002</td>
+<td>MF-004-US-002</td>
 <td>Aplicar pago a una factura (total o parcial); actualizar saldo pendiente</td>
 </tr>
 <tr>
-<td class="epic-id">MF-004-US-003</td>
+<td>MF-004-US-003</td>
 <td>Aplicar un pago a varias facturas (reparto manual o por orden)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-004-US-004</td>
+<td>MF-004-US-004</td>
 <td>Estado de pago en factura: No pagada, Parcialmente pagada, Pagada</td>
 </tr>
 <tr>
-<td class="epic-id">MF-004-US-005</td>
+<td>MF-004-US-005</td>
 <td>Listado de cobros y relación cobro ↔ factura(s) aplicadas</td>
 </tr>
 <tr>
-<td class="epic-id">MF-004-US-006</td>
+<td>MF-004-US-006</td>
 <td>Reverso de aplicación de pago (anular aplicación, devolver estado)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-005">MF-005 — Notas de crédito</h2>
+<h2>MF-005 — Notas de crédito</h2>
 <h3>Objetivo</h3>
 <p>Emitir notas de crédito (abonos) vinculadas a una factura ya publicada, con importes o líneas a revertir, numeración propia y trazabilidad con la factura original.</p>
 <h3>Alcance</h3>
@@ -1208,25 +991,25 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-005-US-001</td>
+<td>MF-005-US-001</td>
 <td>Crear nota de crédito desde factura publicada (acción en factura)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-005-US-002</td>
+<td>MF-005-US-002</td>
 <td>Definir importes o líneas a revertir en la NC</td>
 </tr>
 <tr>
-<td class="epic-id">MF-005-US-003</td>
+<td>MF-005-US-003</td>
 <td>Vincular NC a factura original; numeración con serie/prefijo para NC</td>
 </tr>
 <tr>
-<td class="epic-id">MF-005-US-004</td>
+<td>MF-005-US-004</td>
 <td>Publicar NC y actualizar trazabilidad (factura rectificada / estado)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-006">MF-006 — PDF y envío por email</h2>
+<h2>MF-006 — PDF y envío por email</h2>
 <h3>Objetivo</h3>
 <p>Generar el documento oficial de la factura (o nota de crédito) en PDF con diseño estándar y datos de empresa y cliente; permitir descargar el PDF desde la ficha y enviar la factura por email al cliente con el PDF adjunto.</p>
 <h3>Proceso detallado</h3>
@@ -1343,21 +1126,21 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-006-US-001</td>
+<td>MF-006-US-001</td>
 <td>Generar PDF oficial de factura (diseño estándar, datos empresa y cliente)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-006-US-002</td>
+<td>MF-006-US-002</td>
 <td>Descargar PDF desde la ficha de factura o nota de crédito</td>
 </tr>
 <tr>
-<td class="epic-id">MF-006-US-003</td>
+<td>MF-006-US-003</td>
 <td>Enviar factura por email al cliente con PDF adjunto (desde ficha)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-007">MF-007 — Facturación desde proyecto (mensual por tareas/horas/hitos/fee)</h2>
+<h2>MF-007 — Facturación desde proyecto (mensual por tareas/horas/hitos/fee)</h2>
 <h3>Objetivo</h3>
 <p>Los proyectos se facturan <strong>mensualmente</strong> en función de lo realizado en cada periodo: <strong>tareas realizadas</strong>, <strong>horas registradas</strong> (facturables), <strong>hitos completados</strong> o <strong>fee mensual</strong> acordado. El sistema debe permitir generar la factura del periodo con líneas derivadas de esos conceptos, <strong>evitando doble facturación</strong> (no facturar dos veces la misma tarea, las mismas horas ni el mismo hito/periodo) y manteniendo <strong>trazabilidad factura → proyecto</strong> (y, a nivel de línea, factura → tarea/hito/periodo cuando aplique).</p>
 <h3>Alcance</h3>
@@ -1558,45 +1341,45 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-007-US-001</td>
+<td>MF-007-US-001</td>
 <td>Facturación mensual: seleccionar proyecto y periodo (mes) a facturar</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-002</td>
+<td>MF-007-US-002</td>
 <td>Generar líneas desde tareas realizadas en el periodo (no facturadas previamente)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-003</td>
+<td>MF-007-US-003</td>
 <td>Generar líneas desde horas registradas facturables en el periodo (no facturadas)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-004</td>
+<td>MF-007-US-004</td>
 <td>Generar líneas desde hitos completados en el periodo (no facturados previamente)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-005</td>
+<td>MF-007-US-005</td>
 <td>Facturación por fee mensual: importe fijo por mes asociado al proyecto</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-006</td>
+<td>MF-007-US-006</td>
 <td>Prevención doble facturación: marcar tareas/horas/hitos/periodos como facturados; alertas</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-007</td>
+<td>MF-007-US-007</td>
 <td>Trazabilidad factura → proyecto; listado de facturas por proyecto y por periodo</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-008</td>
+<td>MF-007-US-008</td>
 <td>Prerellenar cliente/contacto de facturación desde proyecto</td>
 </tr>
 <tr>
-<td class="epic-id">MF-007-US-009</td>
+<td>MF-007-US-009</td>
 <td>Vista en proyecto: total facturado, pendiente por periodo, facturas del proyecto</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-008">MF-008 — Anticipos y facturación parcial (en contexto de facturación mensual)</h2>
+<h2>MF-008 — Anticipos y facturación parcial (en contexto de facturación mensual)</h2>
 <h3>Objetivo</h3>
 <p>Soportar <strong>anticipos</strong> (importe o % sobre proyecto) facturados al inicio y su <strong>descuento en las facturas mensuales</strong> (o en factura de cierre) del mismo proyecto. <strong>Facturación parcial</strong> en este modelo son las <strong>múltiples facturas mensuales</strong> por proyecto (MF-007); aquí se añade el control de <strong>total facturado vs presupuesto</strong> y la gestión de anticipos pendientes de descontar.</p>
 <p><strong>Alineación con MF-001 (prefactura total)</strong>: La <strong>prefactura por importe total</strong> creada en la activación es el caso donde <code>importe_total</code> del cupo = <strong>total acordado del proyecto</strong> y se crea <strong>un único registro</strong> por proyecto (v1). La <strong>mecánica</strong> es la misma que un anticipo: <code>importe_total</code>, <code>importe_descontado</code> (o <code>importe_aplicado</code>), saldo pendiente, y <strong>líneas de aplicación</strong> en facturas de periodo. En UI se puede hablar de <strong>“prefactura / saldo”</strong> manteniendo el modelo de datos de anticipo/cupo. Las facturas mensuales <strong>rebajan</strong> ese saldo hasta <strong>0</strong>.</p>
@@ -1707,25 +1490,25 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-008-US-001</td>
+<td>MF-008-US-001</td>
 <td>Crear factura de anticipo o cupo prefactura (importe, % o total proyecto MF-001) asociada a proyecto/cliente</td>
 </tr>
 <tr>
-<td class="epic-id">MF-008-US-002</td>
+<td>MF-008-US-002</td>
 <td>Aplicar o descontar cupo/anticipo en facturas mensuales (reparto por factura o en cierre)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-008-US-003</td>
+<td>MF-008-US-003</td>
 <td>Facturación parcial: total facturado por proyecto (mensual + documentos iniciales) vs presupuesto</td>
 </tr>
 <tr>
-<td class="epic-id">MF-008-US-004</td>
+<td>MF-008-US-004</td>
 <td>Vista de saldo prefactura / anticipos pendientes por proyecto/cliente</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-009">MF-009 — Portal del cliente</h2>
+<h2>MF-009 — Portal del cliente</h2>
 <h3>Objetivo</h3>
 <p>Dar al cliente un área (portal) donde ver y descargar sus facturas sin acceder al back-office, mediante token mágico o autenticación por cliente, con evidencia de visualización/descarga si se requiere.</p>
 <h3>Proceso detallado</h3>
@@ -1754,25 +1537,25 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-009-US-001</td>
+<td>MF-009-US-001</td>
 <td>Acceso al portal de facturación con token mágico o login cliente</td>
 </tr>
 <tr>
-<td class="epic-id">MF-009-US-002</td>
+<td>MF-009-US-002</td>
 <td>Historial de facturas del cliente (listado con estado de pago)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-009-US-003</td>
+<td>MF-009-US-003</td>
 <td>Descargar PDF de factura y nota de crédito desde el portal</td>
 </tr>
 <tr>
-<td class="epic-id">MF-009-US-004</td>
+<td>MF-009-US-004</td>
 <td>Registro de evidencia de visualización/descarga (auditoría)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-010">MF-010 — Dashboard y reportes operativos</h2>
+<h2>MF-010 — Dashboard y reportes operativos</h2>
 <h3>Objetivo</h3>
 <p>Ofrecer una vista resumen (dashboard) y reportes de facturación y cobro: pendiente de cobro, cobrado por período, por cliente/proyecto, aging de saldos y exportaciones.</p>
 <h3>Proceso detallado</h3>
@@ -1802,29 +1585,29 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-010-US-001</td>
+<td>MF-010-US-001</td>
 <td>Dashboard: facturas pendientes de cobro y total cobrado por período</td>
 </tr>
 <tr>
-<td class="epic-id">MF-010-US-002</td>
+<td>MF-010-US-002</td>
 <td>Resumen por cliente y por proyecto (facturado, cobrado, pendiente)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-010-US-003</td>
+<td>MF-010-US-003</td>
 <td>Reporte aging (antigüedad de saldos por factura/cliente)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-010-US-004</td>
+<td>MF-010-US-004</td>
 <td>Exportar listados a Excel/CSV (facturas, cobros)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-010-US-005</td>
+<td>MF-010-US-005</td>
 <td>Filtros por fecha, estado de pago, cliente, proyecto</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-011">MF-011 — Maestros</h2>
+<h2>MF-011 — Maestros</h2>
 <h3>Objetivo</h3>
 <p>Mantener los datos base necesarios para facturación: términos de pago, impuestos, cliente/contacto de facturación (o extensión del cliente/área de Kameleon), configuración de empresa para documentos, y opcionalmente productos/tarifas y precios por cliente.</p>
 <h3>Proceso detallado</h3>
@@ -1973,33 +1756,33 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-011-US-001</td>
+<td>MF-011-US-001</td>
 <td>Maestro Términos de pago (nombre, tipo, días, vencimientos)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-011-US-002</td>
+<td>MF-011-US-002</td>
 <td>Maestro Impuestos (nombre, %, incluido/no incluido; exenciones)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-011-US-003</td>
+<td>MF-011-US-003</td>
 <td>Cliente/contacto de facturación (extender o vincular cliente/área Kameleon)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-011-US-004</td>
+<td>MF-011-US-004</td>
 <td>Configuración empresa: nombre, NIF, logo para PDF</td>
 </tr>
 <tr>
-<td class="epic-id">MF-011-US-005</td>
+<td>MF-011-US-005</td>
 <td>Maestro Productos/tarifas y unidades de medida (opcional)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-011-US-006</td>
+<td>MF-011-US-006</td>
 <td>Precios por cliente o tarifa (opcional para líneas)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-012">MF-012 — Moneda y tipo de cambio</h2>
+<h2>MF-012 — Moneda y tipo de cambio</h2>
 <h3>Objetivo</h3>
 <p>Soportar facturas en moneda distinta de la moneda base de la empresa; fijar el tipo de cambio al emitir la factura para mantener coherencia en cobros y reportes.</p>
 <h3>Proceso detallado</h3>
@@ -2096,21 +1879,21 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-012-US-001</td>
+<td>MF-012-US-001</td>
 <td>Seleccionar moneda de la factura; moneda base de la empresa</td>
 </tr>
 <tr>
-<td class="epic-id">MF-012-US-002</td>
+<td>MF-012-US-002</td>
 <td>Tipo de cambio fijado al crear/publicar factura (tasa congelada)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-012-US-003</td>
+<td>MF-012-US-003</td>
 <td>Mostrar importes en moneda factura y en moneda base en listados/detalle</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-013">MF-013 — Roles y permisos de facturación</h2>
+<h2>MF-013 — Roles y permisos de facturación</h2>
 <h3>Objetivo</h3>
 <p>Definir quién puede ver, crear, editar, publicar, anular facturas y registrar cobros, y si la visibilidad es &quot;solo mis clientes&quot; o &quot;todos los clientes&quot;, alineado con los roles de Kameleon.</p>
 <h3>Proceso detallado</h3>
@@ -2210,25 +1993,25 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-013-US-001</td>
+<td>MF-013-US-001</td>
 <td>Permisos: ver listado y detalle de facturas (por rol)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-013-US-002</td>
+<td>MF-013-US-002</td>
 <td>Permisos: crear y editar facturas en borrador; publicar factura</td>
 </tr>
 <tr>
-<td class="epic-id">MF-013-US-003</td>
+<td>MF-013-US-003</td>
 <td>Permisos: anular/rectificar factura; registrar cobros</td>
 </tr>
 <tr>
-<td class="epic-id">MF-013-US-004</td>
+<td>MF-013-US-004</td>
 <td>Visibilidad: ver solo facturas de mis clientes vs ver todas</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="mf-014">MF-014 — Auditoría y trazabilidad</h2>
+<h2>MF-014 — Auditoría y trazabilidad</h2>
 <h3>Objetivo</h3>
 <p>Registrar cambios en facturas y cobros, envíos de email y opcionalmente snapshot del PDF emitido, para auditoría y cumplimiento.</p>
 <h3>Proceso detallado</h3>
@@ -2356,29 +2139,22 @@
 </thead>
 <tbody>
 <tr>
-<td class="epic-id">MF-014-US-001</td>
+<td>MF-014-US-001</td>
 <td>Log de cambios en factura (quién, cuándo, campo modificado)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-014-US-002</td>
+<td>MF-014-US-002</td>
 <td>Trazabilidad de envíos por email (destinatario, fecha, adjunto)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-014-US-003</td>
+<td>MF-014-US-003</td>
 <td>Trazabilidad de cobros aplicados (pago, factura, importe, fecha)</td>
 </tr>
 <tr>
-<td class="epic-id">MF-014-US-004</td>
+<td>MF-014-US-004</td>
 <td>Snapshot del PDF emitido al publicar o al enviar (opcional)</td>
 </tr>
 </tbody>
 </table>
-
-      <footer class="doc-footer">
-        Generado desde <code>REQUISITOS-FUNCIONALES-DETALLE.md</code> · Módulo de facturación Kameleon App · Equipo de desarrollo.
-      </footer>
-    </main>
-    </div>
-  </div>
-</body>
-</html>
+<hr>
+<p><em>Documento de requisitos funcionales detallados · Módulo de facturación Kameleon App · Para uso del equipo de desarrollo.</em></p>

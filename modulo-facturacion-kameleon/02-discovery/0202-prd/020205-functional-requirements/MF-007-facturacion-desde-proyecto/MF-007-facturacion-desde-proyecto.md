@@ -1,29 +1,59 @@
 # MF-007 — Facturación desde proyecto (mensual por tareas/horas/hitos/fee)
 
-**Fuente**: Propuesta Fase 2 + gap 6 (Relación proyectos). Modelo: **facturación mensual** en función de lo realizado.
+**Fuente**: Propuesta Fase 2 + gap 6 (Relación proyectos); alineación con **MF-001** (cupo prefactura), **MF-008** (consumo de saldo) y **MF-003** (borrador/publicación).
 
-**Descripción**: Los proyectos se facturan **mensualmente** en función de las tareas realizadas, horas registradas, hitos completados o fee mensual acordado. Desde la ficha del proyecto (o panel Facturación) se genera la factura del periodo (mes) con líneas derivadas de: tareas realizadas en el periodo, horas facturables registradas, hitos cerrados o importe de fee mensual. **Prevención de doble facturación**: no se puede facturar dos veces las mismas tareas, las mismas horas ni el mismo periodo/hito. **Trazabilidad**: toda factura vinculada a proyecto (proyecto_id) y, a nivel de línea, opcionalmente a tarea/hito/periodo para auditoría.
+**Especificación detallada**: [REQUISITOS-FUNCIONALES-DETALLE.md](../REQUISITOS-FUNCIONALES-DETALLE.md) — sección **MF-007**.
 
-**Objetivo**: Facturar cada proyecto de forma mensual (o por periodo cerrado) según lo realmente ejecutado (tareas/horas/hitos/fee), con trazabilidad factura → proyecto y sin duplicar conceptos ya facturados.
+---
 
-**Alcance**:
-- **Incluye**: Facturación por **periodo mensual** (o periodo configurable); líneas de factura generadas desde **tareas realizadas** en el periodo, **horas** registradas (facturables), **hitos** completados o **fee mensual** fijo; **prevención de doble facturación** (marcar tareas/horas/hitos/periodos ya facturados; bloquear o alertar si se intenta facturar de nuevo); **trazabilidad factura → proyecto** (listado de facturas por proyecto; en cada factura, proyecto y periodo facturado); prerellenar cliente desde el proyecto.
-- **Excluye**: Facturación automática sin intervención (el usuario confirma periodo y líneas antes de publicar); pasarela de pago (MF-004/MF-009).
+**Contexto**: Tras **activar el proyecto** y registrar la **prefactura por importe total** (MF-001), las **facturas de periodo** generadas desde el proyecto **consumen** el saldo del cupo vía **MF-008**. MF-007 define **cómo** se construye cada factura mensual (periodo, líneas desde tareas/horas/hitos/fee o manual en MVP), la **prevención de doble facturación** y la **trazabilidad** proyecto ↔ factura.
+
+**Descripción**: Los proyectos se facturan **por periodo** (típicamente mensual) según tareas completadas, horas facturables, hitos cerrados o **fee mensual**. El usuario elige periodo y revisa líneas en **borrador** (MF-003) antes de publicar. Se evita facturar dos veces el mismo concepto o el mismo proyecto+periodo.
+
+**Objetivo de negocio**: Emitir facturas de periodo alineadas al trabajo realizado, con visibilidad de **saldo prefactura**, totales por proyecto y cumplimiento del tope de cupo al publicar.
+
+**Integración con otras épicas**
+
+
+| Épica      | Relación con MF-007                                                                                                          |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **MF-001** | El proyecto activo tiene cupo/prefactura; MF-007 muestra **saldo** y crea facturas que luego aplican cupo (MF-008).          |
+| **MF-003** | Factura de periodo = mismo ciclo **Borrador → Publicada**; líneas editables en borrador; `proyecto_id`, `periodo_facturado`. |
+| **MF-008** | Al publicar, validar **aplicación al cupo** ≤ saldo pendiente; líneas de aplicación o descuento según diseño.                |
+| **MF-002** | Cierre de proyecto: coherencia de totales y saldo (véase detalle MF-002 en requisitos).                                      |
+| **MF-011** | Cliente, impuestos, términos desde maestros.                                                                                 |
+
+
+**Nota (MVP)**: Puede implementarse primero **factura de periodo manual** (líneas añadidas a mano + fee) con **saldo prefactura** visible y reglas MF-008; ampliar después US-002–US-005 (auto desde tareas/horas/hitos).
+
+---
+
+### Alcance
+
+- **Incluye**: Selección de proyecto y periodo; generación de líneas desde **tareas**, **horas**, **hitos** y/o **fee mensual**; combinación de tipos en una misma factura de periodo; **prevención de doble facturación**; **trazabilidad** y listados por proyecto/periodo; prerrelleno de cliente; **vista de facturación en proyecto** (totales, periodos, **saldo prefactura**); validación de publicación contra **saldo de cupo** (con MF-008).
+- **Excluye**: Facturación 100 % automática sin revisión del usuario; pasarela de pago (**MF-004**/**MF-009**); lógica interna del motor de cupo (**MF-008**, salvo contratos/API compartidos).
 
 ---
 
 ## Historias de usuario (índice)
 
-| ID | Título | Prioridad |
-|----|--------|-----------|
-| MF-007-US-001 | Facturación mensual: seleccionar proyecto y periodo (mes) a facturar | Alta |
-| MF-007-US-002 | Generar líneas desde tareas realizadas en el periodo (no facturadas previamente) | Alta |
-| MF-007-US-003 | Generar líneas desde horas registradas facturables en el periodo (no facturadas) | Alta |
-| MF-007-US-004 | Generar líneas desde hitos completados en el periodo (no facturados previamente) | Alta |
-| MF-007-US-005 | Facturación por fee mensual: importe fijo por mes asociado al proyecto | Alta |
-| MF-007-US-006 | Prevención doble facturación: marcar tareas/horas/hitos/periodos como facturados; alertas | Alta |
-| MF-007-US-007 | Trazabilidad factura → proyecto; listado de facturas por proyecto y por periodo | Alta |
-| MF-007-US-008 | Prerellenar cliente/contacto de facturación desde proyecto | Alta |
-| MF-007-US-009 | Vista en proyecto: total facturado, pendiente por periodo, facturas del proyecto | Alta |
 
-> Detalle en carpeta `/stories`
+| ID            | Título                                                                                    | Estado   | Prioridad |
+| ------------- | ----------------------------------------------------------------------------------------- | -------- | --------- |
+| MF-007-US-001 | Facturación mensual: seleccionar proyecto y periodo (mes) a facturar                      | Definida | Alta      |
+| MF-007-US-002 | Generar líneas desde tareas realizadas en el periodo (no facturadas previamente)          | Definida | Alta      |
+| MF-007-US-003 | Generar líneas desde horas registradas facturables en el periodo (no facturadas)          | Definida | Alta      |
+| MF-007-US-004 | Generar líneas desde hitos completados en el periodo (no facturados previamente)          | Definida | Alta      |
+| MF-007-US-005 | Facturación por fee mensual: importe fijo por mes asociado al proyecto                    | Definida | Alta      |
+| MF-007-US-006 | Prevención doble facturación: marcar tareas/horas/hitos/periodos como facturados; alertas | Definida | Alta      |
+| MF-007-US-007 | Trazabilidad factura → proyecto; listado de facturas por proyecto y por periodo           | Definida | Alta      |
+| MF-007-US-008 | Prerellenar cliente/contacto de facturación desde proyecto                                | Definida | Alta      |
+| MF-007-US-009 | Vista en proyecto: total facturado, pendiente por periodo, facturas, saldo prefactura     | Definida | Alta      |
+
+
+**Orden sugerido de implementación (referencia)**: US-008 (cliente) y US-001 (selector periodo) + cabecera `proyecto_id`/`periodo_facturado`; US-006 (reglas anti-duplicado) en paralelo al núcleo; US-002–US-005 según prioridad de negocio (MVP: US-005 + manual); US-007 y US-009 para vistas y listados; publicación siempre coordinada con **MF-008**.
+
+**Tareas de desarrollo**: [TAREAS-MF-007-FACTURACION-DESDE-PROYECTO.md](./TAREAS-MF-007-FACTURACION-DESDE-PROYECTO.md).
+
+> Detalle de cada US en carpeta `/stories`
+
